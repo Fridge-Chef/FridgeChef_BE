@@ -8,7 +8,8 @@ import java.util.Arrays;
  */
 public enum ErrorCode {
     //Server
-    INTERNAL_SERVER_ERROR(500, "서버 오류");
+    INTERNAL_SERVER_ERROR(500, "서버 오류"),
+    INVALID_VALUE(400, "유효하지 않은 값 입니다.");
 
     private final int status;
     private final String message;
