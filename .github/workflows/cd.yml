@@ -55,5 +55,5 @@ jobs:
           ssh -i ssh_key ${{ secrets.SERVER_NAME }}@${{ secrets.APP_SERVER_IP }} "
           mv /home/ubuntu/dev/server.jar /home/ubuntu/dev/backup/server_$(date +%Y%m%d%H%M%S).jar &&
           mv /home/ubuntu/dev/server_new.jar /home/ubuntu/dev/server.jar &&
-          sudo systemctl restart server.service
+          sudo systemctl restart fridge_service.service
           "
