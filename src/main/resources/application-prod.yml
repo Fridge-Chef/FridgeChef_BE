@@ -1,7 +1,3 @@
-jasypt:
-  encryptor:
-    password: ${JASYPT_PASSWORD}
-    bean: jasyptStringEncryptor
 
 server:
   port: 443
