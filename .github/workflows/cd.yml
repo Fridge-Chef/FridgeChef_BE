@@ -1,9 +1,9 @@
-name: [CI/CD] server boot
+name: "[CI/CD] server boot"
 
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   deploy:
