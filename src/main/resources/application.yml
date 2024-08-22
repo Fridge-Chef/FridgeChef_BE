@@ -3,9 +3,9 @@ server:
   ssl:
     enabled: true
     key-store: src/main/resources/fridge_chef_https.p12
-    key-store-password: ENC(MW/JS02Y3+9MuHRNnKtQp04NXyI2d3YF)
+    key-store-password: qwer1234
     key-store-type: PKCS12
-    key-alias: ENC(1ofwboJz1L6kOPr9fz4lt678j/82nz4e)
+    key-alias: fridge_https
 
 jasypt:
   encryptor:
