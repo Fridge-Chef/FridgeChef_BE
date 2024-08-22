@@ -11,3 +11,23 @@ server:
 ssl:
   domain: "https://sample.com"
   ip: ENC(dLkoQhPZlBC6Oa7GtUqdN2SRGsWob/8YtZ3LgZw2woJvY4pWsmVPIw==)
+  spring:
+    datasource:
+      url: ENC(OL2WxDSLNuQ4ZlA+6RNSsH3PoK2WkFztlCe0pg0fxub2HZrBkwKlEaTX1zRO2vrenn+PmakPT9vlA9n2YChEUyOvUZatXuS7j5o8NoVpatDiMf3TcFNlMw==)
+      username: ENC(AgToh0j1VGc0RFkbGMs2sg==)
+      password: ENC(0F1qoLbmir0rBLRCs9N1aEsNya3v7rDq)
+      driver-class-name: oracle.jdbc.OracleDriver
+    jpa:
+      open-in-view: false
+      hibernate:
+        ddl-auto: update
+      properties:
+        hibernate:
+          order_inserts: true
+          order_updates: true
+          connection:
+            pool_size: 70
+          jdbc:
+            batch_size: 1000
+          show_sql:
+          format_sql:

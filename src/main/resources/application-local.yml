@@ -6,6 +6,25 @@ server:
     key-store-password: qwer1234
     key-store-type: PKCS12
     key-alias: fridge_https
-
 ssl:
   ip: ENC(dLkoQhPZlBC6Oa7GtUqdN2SRGsWob/8YtZ3LgZw2woJvY4pWsmVPIw==)
+spring:
+  datasource:
+    url: ENC(MavihwQ+HNBlXyTUzDeMaeEfQK5/jJP9sdd5/KmKjP4+X7rVf8rb/4bqR86rGXAaABH47hgNgV7oeKt7sV63fbnthuTWmMPxtZlzJA2clkheZbARnPWnuQ==)
+    username: ENC(AgToh0j1VGc0RFkbGMs2sg==)
+    password: ENC(0F1qoLbmir0rBLRCs9N1aEsNya3v7rDq)
+    driver-class-name: oracle.jdbc.OracleDriver
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        order_inserts: true
+        order_updates: true
+        connection:
+          pool_size: 70
+        jdbc:
+          batch_size: 1000
+        show_sql:
+        format_sql:
