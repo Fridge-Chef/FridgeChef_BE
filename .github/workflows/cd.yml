@@ -1,4 +1,4 @@
-name: Continuous Deployment
+name: [CI/CD] server boot
 
 on:
   push:
@@ -52,7 +52,7 @@ jobs:
 
       - name: Rename and Restart Server
         run: |
-          ssh -i ssh_key ${{ secrets.ORACLE_INSTANCE_DISCORD_BOT_NAME }}@${{ secrets.ORACLE_INSTANCE_HOST }} "
+          ssh -i ssh_key ${{ secrets.SERVER_NAME }}@${{ secrets.APP_SERVER_IP }} "
           mv /home/ubuntu/dev/server.jar /home/ubuntu/dev/backup/server_$(date +%Y%m%d%H%M%S).jar &&
           mv /home/ubuntu/dev/server_new.jar /home/ubuntu/dev/server.jar &&
           sudo systemctl restart server.service
