@@ -50,10 +50,12 @@ jobs:
         run: |
           scp -i ssh_key build/libs/*.jar ${{ secrets.SERVER_NAME }}@${{ secrets.APP_SERVER_IP }}:/home/ubuntu/dev/server_new.jar
 
-      - name: Rename and Restart Server
+      - name: Restart Server
         run: |
           ssh -i ssh_key ${{ secrets.SERVER_NAME }}@${{ secrets.APP_SERVER_IP }} "
-          mv /home/ubuntu/dev/server.jar /home/ubuntu/dev/backup/server_$(date +%Y%m%d%H%M%S).jar &&
+          if [ -f /home/ubuntu/dev/server.jar ]; then
+            mv /home/ubuntu/dev/server.jar /home/ubuntu/dev/backup/server_$(date +%Y%m%d%H%M%S).jar
+          fi &&
           mv /home/ubuntu/dev/server_new.jar /home/ubuntu/dev/server.jar &&
           sudo systemctl restart server.service
           "
