@@ -14,7 +14,7 @@ ssl:
 
 spring:
   datasource:
-    url: ENC(OL2WxDSLNuQ4ZlA+6RNSsH3PoK2WkFztlCe0pg0fxub2HZrBkwKlEaTX1zRO2vrenn+PmakPT9vlA9n2YChEUyOvUZatXuS7j5o8NoVpatDiMf3TcFNlMw==)
+    url: ENC(YquHSXla5kwf16xrcZPd4UXFL2rJPy4g68fQF9T3mEIDhUSfOAoEp6apBrWxpzPD/wPsVUYqvzwvhr6CY37JMzkedh7ArM05/O98UFrwdCqvS7r/2fK6xQ==)
     username: ENC(AgToh0j1VGc0RFkbGMs2sg==)
     password: ENC(0F1qoLbmir0rBLRCs9N1aEsNya3v7rDq)
     driver-class-name: oracle.jdbc.OracleDriver
