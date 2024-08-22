@@ -1,4 +1,4 @@
-package Fridge_Chef.team.recipe.controller;
+package Fridge_Chef.team.recipe.rest;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
