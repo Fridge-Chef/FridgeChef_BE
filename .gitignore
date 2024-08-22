@@ -9,6 +9,7 @@ src/main/resources/static/docs/**
 /.idea
 
 ### docs ###
+/logs
 
 !src/docs/asciidoc/index.adoc
 src/docs/asciidoc/*/*[^index]*.adoc
