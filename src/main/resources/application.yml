@@ -52,7 +52,7 @@ spring:
     activate:
       on-profile: prod
   datasource:
-    url: ENC(20J8WKZISmX62TYXsrmfTdVlYkssW1Pk2bzUjLm06XM=)
+    url: ENC(bBnw9l5NliNRCOz3LHbX29hBWNamOHACJyOgsZ/rHUREpr/cRd6DlbuNOUFPFW1Umx5oYHppnUjwVApLYqjSEb9dtWTTp7e0)
     username: ENC(AgToh0j1VGc0RFkbGMs2sg==)
     password: ENC(0F1qoLbmir0rBLRCs9N1aEsNya3v7rDq)
     driver-class-name: oracle.jdbc.OracleDriver
