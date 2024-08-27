@@ -18,16 +18,6 @@ jasypt:
 spring:
   profiles:
     default: local
----
-spring:
-  config:
-    activate:
-      on-profile: local
-  datasource:
-    url: ENC(MavihwQ+HNBlXyTUzDeMaeEfQK5/jJP9sdd5/KmKjP4+X7rVf8rb/4bqR86rGXAaABH47hgNgV7oeKt7sV63fbnthuTWmMPxtZlzJA2clkheZbARnPWnuQ==)
-    username: ENC(AgToh0j1VGc0RFkbGMs2sg==)
-    password: ENC(0F1qoLbmir0rBLRCs9N1aEsNya3v7rDq)
-    driver-class-name: oracle.jdbc.OracleDriver
   jpa:
     open-in-view: false
     hibernate:
@@ -50,29 +40,32 @@ spring:
 spring:
   config:
     activate:
-      on-profile: prod
+      on-profile: local
   datasource:
-    url: ENC(YquHSXla5kwf16xrcZPd4UXFL2rJPy4g68fQF9T3mEIDhUSfOAoEp6apBrWxpzPD/wPsVUYqvzwvhr6CY37JMzkedh7ArM05/O98UFrwdCqvS7r/2fK6xQ==))
+    url: ENC(MavihwQ+HNBlXyTUzDeMaeEfQK5/jJP9sdd5/KmKjP4+X7rVf8rb/4bqR86rGXAaABH47hgNgV7oeKt7sV63fbnthuTWmMPxtZlzJA2clkheZbARnPWnuQ==)
     username: ENC(AgToh0j1VGc0RFkbGMs2sg==)
     password: ENC(0F1qoLbmir0rBLRCs9N1aEsNya3v7rDq)
     driver-class-name: oracle.jdbc.OracleDriver
-  jpa:
-    open-in-view: false
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        order_inserts: true
-        order_updates: true
-        connection:
-          pool_size: 70
-        jdbc:
-          batch_size: 1000
-        show_sql:
-        format_sql:
-  output:
-    ansi:
-      enabled: always
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: ENC(YquHSXla5kwf16xrcZPd4UXFL2rJPy4g68fQF9T3mEIDhUSfOAoEp6apBrWxpzPD/wPsVUYqvzwvhr6CY37JMzkedh7ArM05/O98UFrwdCqvS7r/2fK6xQ==)
+    username: ENC(AgToh0j1VGc0RFkbGMs2sg==)
+    password: ENC(0F1qoLbmir0rBLRCs9N1aEsNya3v7rDq)
+    driver-class-name: oracle.jdbc.OracleDriver
+---
+spring:
+  config:
+    activate:
+      on-profile: cicd
+  datasource:
+    url: ENC(FajFobnzmARgRwcG2LetT2mc9pLqP7iFzqJUyQ3toRqN2nwbDWP8SiG8a5X7nkdXI80xyph3yI6X/ZXKz2ssEcp0RXVPTgHIgNZlW5aBws1Egs0kAkfEOkmyAWrtMSECMeSYqgxMgK/jB8pRfGceEHXPSE8nduKo)
+    username: ENC(AgToh0j1VGc0RFkbGMs2sg==)
+    password: ENC(0F1qoLbmir0rBLRCs9N1aEsNya3v7rDq)
+    driver-class-name: oracle.jdbc.OracleDriver
 ---
 spring:
   config:
