@@ -1,6 +1,70 @@
+server:
+  port: 443
+  ssl:
+    enabled: true
+    key-store: classpath:fridge_chef_https.p12
+    key-store-password: ENC(Y1ue+5WaK7KgkCEKAqBAHM61xkcZeEHX)
+    key-store-type: PKCS12
+    key-alias: localhost
+
+ssl:
+  ip: ENC(00Nqx0PQj8MjOpoJ4m27bVNtyRwlTJFWLT8QRfCZORQg/hoDboeJzjyk3M0wsxem)
+
+jasypt:
+  encryptor:
+    password: ${JASYPT_PASSWORD}
+    bean: jasyptStringEncryptor
+logging:
+  level:
+    org.springframework.core.env.PropertySourcesPropertyResolver: DEBUG
+
 spring:
   profiles:
-    active: cicd
+    default: local
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        order_inserts: true
+        order_updates: true
+        connection:
+          pool_size: 70
+        jdbc:
+          batch_size: 1000
+        show_sql:
+        format_sql:
   output:
     ansi:
       enabled: always
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+  datasource:
+    url: ENC(nLUowu+l48yswIqo2djyCUfrvsAud+pXPbxR29GQYNhyFeW2uUbm1stmZviGjuRMme/bEiHIKSIDPSSpqa3UsqJyXCL90VeNvlp58NPp7v+UzZjBl2xJHg==)
+    username: ENC(VhOrGvMaPi2etM/K8z6Kbw==)
+    password: ENC(mE7S46BWUTZS1ES17svBz72u6sA6c0No)
+    driver-class-name: oracle.jdbc.OracleDriver
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: ENC(hc7lJcR6SjGGfihVl9itWifm9vA5CVy+JW/at3yYnJee1XDzu+pQYuKg3z3XqNQe9YbusoS9kIdmPIdi1djj7jQMQ6h7pPPBdy4SfHOdgtaz6ceEQFpiwg==)
+    username: ENC(VhOrGvMaPi2etM/K8z6Kbw==)
+    password: ENC(mE7S46BWUTZS1ES17svBz72u6sA6c0No)
+    driver-class-name: oracle.jdbc.OracleDriver
+---
+spring:
+  config:
+    activate:
+      on-profile: cicd
+  datasource:
+    url: ENC(jcEW/bO6sIZF+NGGBcDCJxXKDm4LnjdN8pgLDHn4sS9ON+JBSbRyssbkjKk4I1qoqjc5EsdifWUatla4Kr71nBR+Fde9nEhmV6FsDs5BqaCsYpixYyNLZqMzmYz1EQSB1Jpw9HtlRNnPErxFiuypx33WOlWBa7SAN2waTilyHSAkdhon/7A9jg==)
+    username: ENC(VhOrGvMaPi2etM/K8z6Kbw==)
+    password: ENC(mE7S46BWUTZS1ES17svBz72u6sA6c0No)
+    driver-class-name: oracle.jdbc.OracleDriver
