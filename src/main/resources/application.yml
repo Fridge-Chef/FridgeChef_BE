@@ -14,6 +14,9 @@ jasypt:
   encryptor:
     password: ${JASYPT_PASSWORD}
     bean: jasyptStringEncryptor
+logging:
+  level:
+    org.springframework.core.env.PropertySourcesPropertyResolver: DEBUG
 
 spring:
   profiles:
