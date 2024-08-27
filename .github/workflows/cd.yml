@@ -31,9 +31,9 @@ jobs:
 
       - name: Decode and Unzip OCI Wallet
         run: |
-          pwd
           echo "${{ secrets.OCI_WALLET }}" | base64 --decode > Wallet_fridgeChef.zip
-          unzip Wallet_fridgeChef.zip -d Wallet_fridgeChef
+          mkdir -p /home/runner/work/FridgeChef_BE/FridgeChef_BE/Wallet_fridgeChef
+          unzip Wallet_fridgeChef.zip -d /home/runner/work/FridgeChef_BE/FridgeChef_BE/Wallet_fridgeChef
 
       - name: List files in Wallet_fridgeChef
         run: |
