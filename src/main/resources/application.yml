@@ -62,7 +62,7 @@ spring:
     activate:
       on-profile: cicd
   datasource:
-    url: ENC(/MYCIcNrdOAKRViW8u5j9CQyIZ1QupYlbLt5WHTmWK2PF7Vl/oUOL9UXHaj1SkTn30N1z3ZwjGLbGxl7b9OLkRKaDxmVA2PEdcNkntPsYFcg/5P2aKyDqyIaaiMRHmceFBYcbqNXTcz73NxUVLeir7DIodNdQeyv)
+    url: ENC(jcEW/bO6sIZF+NGGBcDCJxXKDm4LnjdN8pgLDHn4sS9ON+JBSbRyssbkjKk4I1qoqjc5EsdifWUatla4Kr71nBR+Fde9nEhmV6FsDs5BqaCsYpixYyNLZqMzmYz1EQSB1Jpw9HtlRNnPErxFiuypx33WOlWBa7SAN2waTilyHSAkdhon/7A9jg==)
     username: ENC(VhOrGvMaPi2etM/K8z6Kbw==)
     password: ENC(mE7S46BWUTZS1ES17svBz72u6sA6c0No)
     driver-class-name: oracle.jdbc.OracleDriver
