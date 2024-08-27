@@ -27,7 +27,9 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Set Jasypt Password
-        run: echo "JASYPT_PASSWORD='${{ secrets.JASYPT_PASSWORD }}'" >> $GITHUB_ENV
+        run: |
+          echo "JASYPT_PASSWORD='${{ secrets.JASYPT_PASSWORD }}'" >> $GITHUB_ENV
+          echo "${{ secrets.JASYPT_PASSWORD }}" 
 
       - name: Decode and Unzip OCI Wallet
         run: |
