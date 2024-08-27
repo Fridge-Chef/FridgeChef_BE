@@ -27,6 +27,14 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew bootJar -Dspring.profiles.active=prod
 
+      - name: create docs step-1
+        run: ./gradlew openapi3 -Dspring.profiles.active=prod
+
+      - name: Install redoc-cli
+        run: npm install -g @redocly/cli
+
+      - name: create docs step-2
+        run:  redoc-cli bundle build/api-spec/openapi3.yaml --output src/main/resources/static/my-api-docs.html
 
       #------------------ssh 사용 권한 ---------------------------------
       - name: Setup SSH Key
@@ -44,7 +52,6 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -H ${{ secrets.APP_SERVER_IP }} >> ~/.ssh/known_hosts
       #---------------------------------------------------
-
 
       - name: Transfer to Remote Server
         run: |
