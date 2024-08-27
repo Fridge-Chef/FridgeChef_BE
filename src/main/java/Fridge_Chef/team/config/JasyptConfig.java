@@ -20,6 +20,7 @@ public class JasyptConfig {
     }
 
     public static StringEncryptor createStringEncryptor(String password) {
+        System.out.println("-");
         PooledPBEStringEncryptor encryptor = new PooledPBEStringEncryptor();
         SimpleStringPBEConfig config = new SimpleStringPBEConfig();
         config.setPassword(password);
@@ -29,7 +30,6 @@ public class JasyptConfig {
         config.setKeyObtentionIterations("1000");
         config.setSaltGeneratorClassName("org.jasypt.salt.RandomSaltGenerator");
         encryptor.setConfig(config);
-
         return encryptor;
     }
 }
