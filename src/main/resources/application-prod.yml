@@ -1,15 +1,6 @@
-server:
-  port: 443
-  ssl:
-    enabled: true
-    key-store: classpath:fridge_chef_https.p12
-    key-store-password: ENC(Y7cNOQU5kZCwIQt3lqg5Yp5g+nSwC6zP)
-    key-store-type: PKCS12
-    key-alias: fridge_https
-
 ssl:
   domain: "https://sample.com"
-  ip: ENC(dLkoQhPZlBC6Oa7GtUqdN2SRGsWob/8YtZ3LgZw2woJvY4pWsmVPIw==)
+  ip: ENC(mfZJ0cNx9R0o9QEf25zT1QBOy2lz0diEITFAPgJbm3igo0ZUl7UiS5lSxWIM5ZLr)
 
 spring:
   datasource:
