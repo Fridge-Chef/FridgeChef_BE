@@ -73,8 +73,5 @@ openapi3 {
 }
 
 bootJar{
-    doFirst {
-        jvmArgs += '-Dspring.profiles.active=cicd'
-    }
     dependsOn test
 }
