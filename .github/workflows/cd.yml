@@ -38,7 +38,8 @@ jobs:
       - name: List files in Wallet_fridgeChef
         run: |
           echo "Listing files in Wallet_fridgeChef:"
-          ls -l Wallet_fridgeChef
+          ls -l /home/runner/work/FridgeChef_BE/FridgeChef_BE/Wallet_fridgeChef
+
 
       - name: Build with Gradle
         run: ./gradlew bootJar -Dspring.profiles.active=cicd
