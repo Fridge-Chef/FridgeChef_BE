@@ -44,7 +44,7 @@ jobs:
 
 
       - name: Build with Gradle
-        run: ./gradlew bootJar --spring.profiles.active=cicd --info
+        run: ./gradlew bootJar --args='-Dspring.profiles.active=cicd' --info
 
       - name: create docs step-1
         run: ./gradlew openapi3 --spring.profiles.active=cicd
