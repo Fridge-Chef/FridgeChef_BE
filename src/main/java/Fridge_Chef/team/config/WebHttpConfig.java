@@ -1,15 +1,12 @@
-package Fridge_Chef.team.config.webhttps;
-
+package Fridge_Chef.team.config;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Component
-@Profile("local")
-public class LocalConfig implements WebMvcConfigurer {
+public class WebHttpConfig implements WebMvcConfigurer {
 
     @Value("${ssl.ip}")
     private String ip;
@@ -25,5 +22,3 @@ public class LocalConfig implements WebMvcConfigurer {
                 .allowCredentials(true);  // 자격 증명 허용
     }
 }
-
-
