@@ -73,12 +73,10 @@ openapi3 {
 }
 
 bootJar{
-    dependsOn test
-}
-tasks.named('bootJar') {
+
     doFirst {
-        def jvmArgs = project.hasProperty('jvmArgs') ? project.jvmArgs : []
-        jvmArgs += '-Dspring.profiles.active=cicd'
-        project.ext.jvmArgs = jvmArgs
+        systemProperty 'spring.profiles.active', 'cicd'
     }
+    dependsOn test
+
 }
