@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: local
+    active: cicd
   output:
     ansi:
       enabled: always
