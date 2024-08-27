@@ -1,11 +1,3 @@
-server:
-  port: 443
-  ssl:
-    enabled: true
-    key-store: src/main/resources/fridge_chef_https.p12
-    key-store-password: ENC(Y7cNOQU5kZCwIQt3lqg5Yp5g+nSwC6zP)
-    key-store-type: PKCS12
-    key-alias: fridge_https
 ssl:
   ip: ENC(dLkoQhPZlBC6Oa7GtUqdN2SRGsWob/8YtZ3LgZw2woJvY4pWsmVPIw==)
 spring:
