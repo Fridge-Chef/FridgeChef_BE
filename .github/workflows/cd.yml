@@ -31,13 +31,14 @@ jobs:
 
       - name: Decode and Unzip OCI Wallet
         run: |
+          pwd
           echo "${{ secrets.OCI_WALLET }}" | base64 --decode > Wallet_fridgeChef.zip
-          unzip Wallet_fridgeChef.zip -d ./Wallet_fridgeChef
+          unzip Wallet_fridgeChef.zip -d Wallet_fridgeChef
 
       - name: List files in Wallet_fridgeChef
         run: |
-          echo "Listing files in ./Wallet_fridgeChef:"
-          ls -l ./Wallet_fridgeChef
+          echo "Listing files in Wallet_fridgeChef:"
+          ls -l Wallet_fridgeChef
 
       - name: Build with Gradle
         run: ./gradlew bootJar -Dspring.profiles.active=cicd
