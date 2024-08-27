@@ -27,11 +27,11 @@ jobs:
       - name: Set Jasypt Password
         run: echo "JASYPT_PASSWORD=${{ secrets.JASYPT_PASSWORD }}" >> $GITHUB_ENV
 
-
       - name: Decode and Unzip OCI Wallet
         run: |
           echo "${{ secrets.OCI_WALLET }}" | base64 --decode > Wallet_fridgeChef.zip
-          unzip Wallet_fridgeChef.zip -d ./src/main/resources/Wallet_fridgeChef
+          mkdir -p /home/ubuntu/dev/Wallet_fridgeChef
+          unzip Wallet_fridgeChef.zip -d /home/ubuntu/dev/Wallet_fridgeChef
 
       - name: Build with Gradle
         run: ./gradlew bootJar -Dspring.profiles.active=prod
