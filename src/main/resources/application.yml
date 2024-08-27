@@ -1,8 +1,6 @@
 spring:
   profiles:
     default: local
----
-spring:
-  config:
-    activate:
-      on-profile: local, dev, prod
+  output:
+    ansi:
+      enabled: always

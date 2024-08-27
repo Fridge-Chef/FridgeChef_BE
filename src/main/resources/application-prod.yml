@@ -16,6 +16,9 @@ jasypt:
     bean: jasyptStringEncryptor
 
 spring:
+  config:
+    activate:
+      on-profile: prod
   datasource:
     url: ENC(hc7lJcR6SjGGfihVl9itWifm9vA5CVy+JW/at3yYnJee1XDzu+pQYuKg3z3XqNQe9YbusoS9kIdmPIdi1djj7jQMQ6h7pPPBdy4SfHOdgtaz6ceEQFpiwg==)
     username: ENC(VhOrGvMaPi2etM/K8z6Kbw==)

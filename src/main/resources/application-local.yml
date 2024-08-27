@@ -16,6 +16,9 @@ jasypt:
     bean: jasyptStringEncryptor
 
 spring:
+  config:
+    activate:
+      on-profile: local
   datasource:
     url: ENC(nLUowu+l48yswIqo2djyCUfrvsAud+pXPbxR29GQYNhyFeW2uUbm1stmZviGjuRMme/bEiHIKSIDPSSpqa3UsqJyXCL90VeNvlp58NPp7v+UzZjBl2xJHg==)
     username: ENC(VhOrGvMaPi2etM/K8z6Kbw==)
@@ -35,3 +38,7 @@ spring:
           batch_size: 1000
         show_sql:
         format_sql:
+
+  output:
+    ansi:
+      enabled: always

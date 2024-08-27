@@ -15,7 +15,11 @@ jasypt:
     password: ${JASYPT_PASSWORD}
     bean: jasyptStringEncryptor
 
+
 spring:
+  config:
+    activate:
+      on-profile: cicd
   datasource:
     url: ENC(jcEW/bO6sIZF+NGGBcDCJxXKDm4LnjdN8pgLDHn4sS9ON+JBSbRyssbkjKk4I1qoqjc5EsdifWUatla4Kr71nBR+Fde9nEhmV6FsDs5BqaCsYpixYyNLZqMzmYz1EQSB1Jpw9HtlRNnPErxFiuypx33WOlWBa7SAN2waTilyHSAkdhon/7A9jg==)
     username: ENC(VhOrGvMaPi2etM/K8z6Kbw==)
