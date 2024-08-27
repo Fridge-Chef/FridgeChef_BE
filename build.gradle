@@ -2,6 +2,9 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.3.2'
     id 'io.spring.dependency-management' version '1.1.6'
+    id 'org.springdoc.openapi-gradle-plugin' version '1.9.0'
+    id 'com.epages.restdocs-api-spec' version '0.18.2'
+    id 'org.openapi.generator' version '7.0.1'
 }
 
 group = 'Fridge-Chef'
@@ -40,11 +43,35 @@ dependencies {
 
     // test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.junit.jupiter:junit-jupiter-api'
     testImplementation 'org.junit.jupiter:junit-jupiter-params'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine'
+
+    //openapi - docs
+    testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
+    testImplementation 'com.epages:restdocs-api-spec-mockmvc:0.18.2'
+    implementation 'org.springdoc:springdoc-openapi-ui:1.8.0'
+}
+
+ext {
+    snippetsDir = file('build/generated-snippets')
 }
 
 test {
     useJUnitPlatform()
+}
+
+openapi3 {
+    server = 'https://158.179.194.111'
+    title = 'Fridge Chef API Docs'
+    description = 'Fridge Chef API description'
+    tagDescriptionsPropertiesFile = 'src/test/resources/docs/tag.yaml'
+    version = '0.1.0'
+    format = 'yaml'
+}
+
+bootJar{
+    dependsOn test
 }
