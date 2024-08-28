@@ -73,5 +73,9 @@ openapi3 {
 }
 
 bootJar{
+    doFirst {
+        System.setProperty("spring.profiles.active",
+                project.hasProperty("profile") ? project.profile : "default")
+    }
     dependsOn test
 }
