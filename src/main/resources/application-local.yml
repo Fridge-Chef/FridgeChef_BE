@@ -1,9 +1,7 @@
-
 jasypt:
   encryptor:
     password: ${JASYPT_PASSWORD}
     bean: jasyptStringEncryptor
-
 
 spring:
   config:
@@ -32,3 +30,12 @@ spring:
     password: ENC(mE7S46BWUTZS1ES17svBz72u6sA6c0No)
     driver-class-name: oracle.jdbc.OracleDriver
 
+
+logging:
+  level:
+    org.springframework.core.env.PropertySourcesPropertyResolver: DEBUG
+    org:
+      springframework:
+        core:
+          env:
+            PropertySourcesPropertyResolver: DEBUG

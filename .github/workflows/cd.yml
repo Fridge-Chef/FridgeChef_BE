@@ -37,11 +37,11 @@ jobs:
           echo "TNS_ADMIN=/home/runner/work/FridgeChef_BE/FridgeChef_BE/Wallet_fridgeChef" >> $GITHUB_ENV
 
       - name: Build with Gradle
-        run: ./gradlew bootJar -Dspring.profiles.active=dev --info
+        run: ./gradlew bootJar -Dspring.profiles.active=dev
 
       - name: create docs
         run: |
-          ./gradlew openapi3 
+          ./gradlew openapi3 --info
           redoc-cli bundle build/api-spec/openapi3.yaml --output src/main/resources/static/my-api-docs.html
 
       #------------------ssh 사용 권한 ---------------------------------
