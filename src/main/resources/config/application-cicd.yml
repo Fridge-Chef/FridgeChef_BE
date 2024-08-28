@@ -1,5 +1,7 @@
-
 spring:
+  config:
+    activate:
+      on-profile: cicd
   jpa:
     open-in-view: false
     hibernate:
@@ -18,10 +20,11 @@ spring:
     ansi:
       enabled: always
   datasource:
-    url: ENC(nLUowu+l48yswIqo2djyCUfrvsAud+pXPbxR29GQYNhyFeW2uUbm1stmZviGjuRMme/bEiHIKSIDPSSpqa3UsqJyXCL90VeNvlp58NPp7v+UzZjBl2xJHg==)
+    url: ENC(jcEW/bO6sIZF+NGGBcDCJxXKDm4LnjdN8pgLDHn4sS9ON+JBSbRyssbkjKk4I1qoqjc5EsdifWUatla4Kr71nBR+Fde9nEhmV6FsDs5BqaCsYpixYyNLZqMzmYz1EQSB1Jpw9HtlRNnPErxFiuypx33WOlWBa7SAN2waTilyHSAkdhon/7A9jg==)
     username: ENC(VhOrGvMaPi2etM/K8z6Kbw==)
     password: ENC(mE7S46BWUTZS1ES17svBz72u6sA6c0No)
     driver-class-name: oracle.jdbc.OracleDriver
+
 server:
   port: 443
   ssl:
