@@ -17,11 +17,7 @@ jasypt:
 logging:
   level:
     org.springframework.core.env.PropertySourcesPropertyResolver: DEBUG
-    org:
-      springframework:
-        core:
-          env:
-            PropertySourcesPropertyResolver: DEBUG
+
 spring:
   profiles:
     default: cicd
