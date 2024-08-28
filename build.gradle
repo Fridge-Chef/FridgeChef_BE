@@ -73,8 +73,5 @@ openapi3 {
 }
 
 bootJar{
-    doFirst {
-        systemProperty 'spring.profiles.active', project.hasProperty('profile') ? project.profile : 'local'
-    }
     dependsOn test
 }

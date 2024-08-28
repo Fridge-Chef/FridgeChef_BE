@@ -24,21 +24,7 @@ logging:
             PropertySourcesPropertyResolver: DEBUG
 spring:
   profiles:
-    default: local
-  jpa:
-    open-in-view: false
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        order_inserts: true
-        order_updates: true
-        connection:
-          pool_size: 70
-        jdbc:
-          batch_size: 1000
-        show_sql:
-        format_sql:
+    active: default
   output:
     ansi:
       enabled: always
@@ -52,6 +38,10 @@ spring:
     username: ENC(VhOrGvMaPi2etM/K8z6Kbw==)
     password: ENC(mE7S46BWUTZS1ES17svBz72u6sA6c0No)
     driver-class-name: oracle.jdbc.OracleDriver
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
 ---
 spring:
   config:
@@ -62,6 +52,11 @@ spring:
     username: ENC(VhOrGvMaPi2etM/K8z6Kbw==)
     password: ENC(mE7S46BWUTZS1ES17svBz72u6sA6c0No)
     driver-class-name: oracle.jdbc.OracleDriver
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
 ---
 spring:
   config:
@@ -72,3 +67,9 @@ spring:
     username: ENC(VhOrGvMaPi2etM/K8z6Kbw==)
     password: ENC(mE7S46BWUTZS1ES17svBz72u6sA6c0No)
     driver-class-name: oracle.jdbc.OracleDriver
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+
