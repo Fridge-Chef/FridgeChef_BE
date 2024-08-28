@@ -7,6 +7,11 @@ spring:
   config:
     activate:
       on-profile: local
+  datasource:
+    url: jdbc:oracle:thin:@fridgechef_high
+    username: ENC(VhOrGvMaPi2etM/K8z6Kbw==)
+    password: ENC(mE7S46BWUTZS1ES17svBz72u6sA6c0No)
+    driver-class-name: oracle.jdbc.OracleDriver
   jpa:
     open-in-view: false
     hibernate:
@@ -24,11 +29,6 @@ spring:
   output:
     ansi:
       enabled: always
-  datasource:
-    url: jdbc:oracle:thin:@fridgechef_high
-    username: ENC(VhOrGvMaPi2etM/K8z6Kbw==)
-    password: ENC(mE7S46BWUTZS1ES17svBz72u6sA6c0No)
-    driver-class-name: oracle.jdbc.OracleDriver
 
 
 logging:
