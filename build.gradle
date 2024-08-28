@@ -55,10 +55,11 @@ dependencies {
     implementation 'org.springdoc:springdoc-openapi-ui:1.8.0'
 }
 
+ext {
+    snippetsDir = file('build/generated-snippets')
+}
+
 test {
-    if (project.hasProperty('profile')) {
-        systemProperty 'spring.profiles.active', project.property('profile')
-    }
     useJUnitPlatform()
 }
 
