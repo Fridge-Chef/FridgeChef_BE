@@ -27,21 +27,17 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Set Jasypt Password
-        run: |
-          echo "JASYPT_PASSWORD='${{ secrets.JASYPT_PASSWORD }}'" >> $GITHUB_ENV
-          echo "${{ secrets.JASYPT_PASSWORD }}" 
+        run: echo "JASYPT_PASSWORD=${{ secrets.JASYPT_PASSWORD }}" >> $GITHUB_ENV
 
       - name: Decode and Unzip OCI Wallet
         run: |
           echo "${{ secrets.OCI_WALLET }}" | base64 --decode > Wallet_fridgeChef.zip
           mkdir -p /home/runner/work/FridgeChef_BE/FridgeChef_BE/Wallet_fridgeChef
           unzip Wallet_fridgeChef.zip -d /home/runner/work/FridgeChef_BE/FridgeChef_BE/Wallet_fridgeChef
-
-      - name: Set TNS_ADMIN Environment Variable
-        run: echo "TNS_ADMIN=/home/runner/work/FridgeChef_BE/FridgeChef_BE/Wallet_fridgeChef" >> $GITHUB_ENV
+          echo "TNS_ADMIN=/home/runner/work/FridgeChef_BE/FridgeChef_BE/Wallet_fridgeChef" >> $GITHUB_ENV
 
       - name: Build with Gradle
-        run: ./gradlew bootJar -Dspring.profiles.active=dev
+        run: ./gradlew bootJar -Dspring.profiles.active=dev --info
 
       - name: create docs
         run: |
