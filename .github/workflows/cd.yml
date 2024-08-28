@@ -43,7 +43,8 @@ jobs:
           ls -l /home/runner/work/FridgeChef_BE/FridgeChef_BE/Wallet_fridgeChef
       - name: Build and Test with Gradle
         run: |
-          ./gradlew clean test -Pprofile=dev --info
+          ./gradlew clean  package -Pprod 
+          ./gradlew test -Dspring.profiles.active=dev --info
 
       - name: create docs
         run: |
