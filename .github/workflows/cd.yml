@@ -44,7 +44,10 @@ jobs:
 
 
       - name: Build with Gradle
-        run: SPRING_PROFILES_ACTIVE=cicd ./gradlew bootJar -Dspring.profiles.active=cicd --info
+        run: |
+          echo "SPRING_PROFILES_ACTIVE=cicd"  >> $GITHUB_ENV
+          ./gradlew bootJar -Dspring.profiles.active=cicd --info
+          
 
       - name: create docs step-1
         run: ./gradlew openapi3 -Dspring.profiles.active=cicd --info
