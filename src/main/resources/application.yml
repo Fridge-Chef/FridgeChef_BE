@@ -3,78 +3,19 @@ server:
   ssl:
     enabled: true
     key-store: classpath:fridge_chef_https.p12
-    key-store-password: ENC(Y7cNOQU5kZCwIQt3lqg5Yp5g+nSwC6zP)
+    key-store-password: ENC(Y1ue+5WaK7KgkCEKAqBAHM61xkcZeEHX)
     key-store-type: PKCS12
     key-alias: localhost
-
-ssl:
-  ip: ENC(mfZJ0cNx9R0o9QEf25zT1QBOy2lz0diEITFAPgJbm3igo0ZUl7UiS5lSxWIM5ZLr)
 
 jasypt:
   encryptor:
     password: ${JASYPT_PASSWORD}
     bean: jasyptStringEncryptor
 
+ssl:
+  ip: ENC(00Nqx0PQj8MjOpoJ4m27bVNtyRwlTJFWLT8QRfCZORQg/hoDboeJzjyk3M0wsxem)
+
+
 spring:
   profiles:
     default: local
----
-spring:
-  config:
-    activate:
-      on-profile: local
-  datasource:
-    url: ENC(MavihwQ+HNBlXyTUzDeMaeEfQK5/jJP9sdd5/KmKjP4+X7rVf8rb/4bqR86rGXAaABH47hgNgV7oeKt7sV63fbnthuTWmMPxtZlzJA2clkheZbARnPWnuQ==)
-    username: ENC(AgToh0j1VGc0RFkbGMs2sg==)
-    password: ENC(0F1qoLbmir0rBLRCs9N1aEsNya3v7rDq)
-    driver-class-name: oracle.jdbc.OracleDriver
-  jpa:
-    open-in-view: false
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        order_inserts: true
-        order_updates: true
-        connection:
-          pool_size: 70
-        jdbc:
-          batch_size: 1000
-        show_sql:
-        format_sql:
-  output:
-    ansi:
-      enabled: always
-
----
-spring:
-  config:
-    activate:
-      on-profile: prod
-  datasource:
-    url: ENC(YquHSXla5kwf16xrcZPd4UXFL2rJPy4g68fQF9T3mEIDhUSfOAoEp6apBrWxpzPD/wPsVUYqvzwvhr6CY37JMzkedh7ArM05/O98UFrwdCqvS7r/2fK6xQ==))
-    username: ENC(AgToh0j1VGc0RFkbGMs2sg==)
-    password: ENC(0F1qoLbmir0rBLRCs9N1aEsNya3v7rDq)
-    driver-class-name: oracle.jdbc.OracleDriver
-  jpa:
-    open-in-view: false
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        order_inserts: true
-        order_updates: true
-        connection:
-          pool_size: 70
-        jdbc:
-          batch_size: 1000
-        show_sql:
-        format_sql:
-  output:
-    ansi:
-      enabled: always
----
-spring:
-  config:
-    activate:
-      on-profile: dev

@@ -1,0 +1,41 @@
+jasypt:
+  encryptor:
+    password: ${JASYPT_PASSWORD}
+    bean: jasyptStringEncryptor
+
+spring:
+  config:
+    activate:
+      on-profile: local
+  datasource:
+    url: jdbc:oracle:thin:@fridgechef_high
+    username: ENC(VhOrGvMaPi2etM/K8z6Kbw==)
+    password: ENC(mE7S46BWUTZS1ES17svBz72u6sA6c0No)
+    driver-class-name: oracle.jdbc.OracleDriver
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        order_inserts: true
+        order_updates: true
+        connection:
+          pool_size: 70
+        jdbc:
+          batch_size: 1000
+        show_sql:
+        format_sql:
+  output:
+    ansi:
+      enabled: always
+
+
+logging:
+  level:
+    org.springframework.core.env.PropertySourcesPropertyResolver: DEBUG
+    org:
+      springframework:
+        core:
+          env:
+            PropertySourcesPropertyResolver: DEBUG

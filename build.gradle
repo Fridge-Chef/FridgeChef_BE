@@ -58,7 +58,7 @@ dependencies {
 ext {
     snippetsDir = file('build/generated-snippets')
 }
-
+//125.187.185.102,158.179.194.111
 test {
     useJUnitPlatform()
 }
@@ -70,8 +70,4 @@ openapi3 {
     tagDescriptionsPropertiesFile = 'src/test/resources/docs/tag.yaml'
     version = '0.1.0'
     format = 'yaml'
-}
-
-bootJar{
-    dependsOn test
 }

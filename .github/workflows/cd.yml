@@ -2,8 +2,9 @@ name: "[CI/CD] server boot"
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
   deploy:
@@ -12,12 +13,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v2
+      - name: Set up Amazon Corretto JDK 17
+        uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
+          distribution: 'corretto'
           java-version: '17'
 
+     # npm 있나 없나 없으면 설치하고 알지?
       - name: Install redoc-cli
         run: npm install -g @redocly/cli
 
@@ -30,17 +32,18 @@ jobs:
       - name: Decode and Unzip OCI Wallet
         run: |
           echo "${{ secrets.OCI_WALLET }}" | base64 --decode > Wallet_fridgeChef.zip
-          mkdir -p /home/ubuntu/dev/Wallet_fridgeChef
-          unzip Wallet_fridgeChef.zip -d /home/ubuntu/dev/Wallet_fridgeChef
+          mkdir -p /home/runner/work/FridgeChef_BE/FridgeChef_BE/Wallet_fridgeChef
+          unzip Wallet_fridgeChef.zip -d /home/runner/work/FridgeChef_BE/FridgeChef_BE/Wallet_fridgeChef
+          echo "TNS_ADMIN=/home/runner/work/FridgeChef_BE/FridgeChef_BE/Wallet_fridgeChef" >> $GITHUB_ENV
+          chmod -R 755 /home/runner/work/FridgeChef_BE/FridgeChef_BE/Wallet_fridgeChef
 
       - name: Build with Gradle
-        run: ./gradlew bootJar -Dspring.profiles.active=prod
+        run: ./gradlew bootJar -Dspring.profiles.active=dev
 
-      - name: create docs step-1
-        run: ./gradlew openapi3 -Dspring.profiles.active=prod
-
-      - name: create docs step-2
-        run:  redoc-cli bundle build/api-spec/openapi3.yaml --output src/main/resources/static/my-api-docs.html
+      - name: create docs
+        run: |
+          ./gradlew openapi3 --info
+          redoc-cli bundle build/api-spec/openapi3.yaml --output src/main/resources/static/my-api-docs.html
 
       #------------------ssh 사용 권한 ---------------------------------
       - name: Setup SSH Key
