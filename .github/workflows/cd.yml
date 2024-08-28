@@ -19,7 +19,6 @@ jobs:
           distribution: 'corretto'
           java-version: '17'
 
-     # npm 있나 없나 없으면 설치하고 알지?
       - name: Install redoc-cli
         run: npm install -g @redocly/cli
 
