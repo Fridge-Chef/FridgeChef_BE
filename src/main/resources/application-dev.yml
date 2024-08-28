@@ -25,23 +25,6 @@ spring:
     password: ENC(mE7S46BWUTZS1ES17svBz72u6sA6c0No)
     driver-class-name: oracle.jdbc.OracleDriver
 
-server:
-  port: 443
-  ssl:
-    enabled: true
-    key-store: classpath:fridge_chef_https.p12
-    key-store-password: ENC(Y1ue+5WaK7KgkCEKAqBAHM61xkcZeEHX)
-    key-store-type: PKCS12
-    key-alias: localhost
-
-ssl:
-  ip: ENC(00Nqx0PQj8MjOpoJ4m27bVNtyRwlTJFWLT8QRfCZORQg/hoDboeJzjyk3M0wsxem)
-
-jasypt:
-  encryptor:
-    password: ${JASYPT_PASSWORD}
-    bean: jasyptStringEncryptor
-
 logging:
   level:
     org.springframework.core.env.PropertySourcesPropertyResolver: DEBUG
