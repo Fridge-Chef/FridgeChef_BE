@@ -76,6 +76,3 @@ bootJar{
     dependsOn test
 }
 
-tasks.withType(JavaExec) {
-    systemProperty 'spring.profiles.active', project.hasProperty('profile') ? project.profile : 'local'
-}
