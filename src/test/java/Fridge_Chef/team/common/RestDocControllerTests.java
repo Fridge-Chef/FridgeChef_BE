@@ -29,7 +29,6 @@ import static org.springframework.http.HttpHeaders.HOST;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
-@ActiveProfiles("dev")
 @MockBean(JpaMetamodelMappingContext.class)
 @ExtendWith(RestDocumentationExtension.class)
 @AutoConfigureRestDocs(uriScheme = SCHEME, uriHost = HOST)
