@@ -20,7 +20,7 @@ logging:
 
 spring:
   profiles:
-    default: cicd
+    default: local
   jpa:
     open-in-view: false
     hibernate:
