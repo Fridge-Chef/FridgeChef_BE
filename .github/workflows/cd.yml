@@ -43,15 +43,13 @@ jobs:
           ls -l /home/runner/work/FridgeChef_BE/FridgeChef_BE/Wallet_fridgeChef
       - name: Build and Test with Gradle
         run: |
-          ./gradlew clean test -Pprofile=cicd --info
-          ./gradlew build -Pprofile=cicd --info
+          ./gradlew clean test -Pprofile=cicd -Dspring.profiles.active=cicd --info
 
-      - name: create docs step-1
-        run: ./gradlew openapi3 -Dspring.profiles.active=cicd
-
-      - name: create docs step-2
-        run:  redoc-cli bundle build/api-spec/openapi3.yaml --output src/main/resources/static/my-api-docs.html
-
+      - name: create docs
+        run: |
+          ./gradlew openapi3 
+          redoc-cli bundle build/api-spec/openapi3.yaml --output src/main/resources/static/my-api-docs.html
+          ./gradlew build
       #------------------ssh 사용 권한 ---------------------------------
       - name: Setup SSH Key
         run: |
