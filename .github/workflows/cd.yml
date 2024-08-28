@@ -43,8 +43,9 @@ jobs:
           ls -l /home/runner/work/FridgeChef_BE/FridgeChef_BE/Wallet_fridgeChef
       - name: Build and Test with Gradle
         run: |
-          ./gradlew clean build --info
-          ./gradlew test -Dspring.profiles.active=cicd --info
+          ./gradlew clean 
+          ./gradlew build --spring.profiles.active=cicd --info
+          ./gradlew test --spring.profiles.active=cicd --info
 
       - name: create docs step-1
         run: ./gradlew openapi3 -Dspring.profiles.active=cicd
