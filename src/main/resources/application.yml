@@ -67,7 +67,6 @@ spring:
     username: ENC(VhOrGvMaPi2etM/K8z6Kbw==)
     password: ENC(mE7S46BWUTZS1ES17svBz72u6sA6c0No)
     driver-class-name: oracle.jdbc.OracleDriver
-
   jpa:
     open-in-view: false
     hibernate:
