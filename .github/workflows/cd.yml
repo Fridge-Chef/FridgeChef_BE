@@ -37,6 +37,14 @@ jobs:
           mkdir -p /home/runner/work/FridgeChef_BE/FridgeChef_BE/Wallet_fridgeChef
           unzip Wallet_fridgeChef.zip -d /home/runner/work/FridgeChef_BE/FridgeChef_BE/Wallet_fridgeChef
 
+      - name: Disable Gradle cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}-no-cache
+          restore-keys: |
+            ${{ runner.os }}-gradle
+
       - name: List files in Wallet_fridgeChef
         run: |
           echo "Listing files in Wallet_fridgeChef:"
@@ -44,7 +52,7 @@ jobs:
       - name: Build and Test with Gradle
         run: |
           ./gradlew clean  package -Pprod 
-          ./gradlew test -Dspring.profiles.active=dev --info
+          ./gradlew test -Pprofile=dev -Dspring.profiles.active=dev --info
 
       - name: create docs
         run: |
