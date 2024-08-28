@@ -17,7 +17,11 @@ jasypt:
 logging:
   level:
     org.springframework.core.env.PropertySourcesPropertyResolver: DEBUG
-
+    org:
+      springframework:
+        core:
+          env:
+            PropertySourcesPropertyResolver: DEBU
 spring:
   profiles:
     default: local
