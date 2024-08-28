@@ -18,7 +18,6 @@ jobs:
         with:
           distribution: 'corretto'
           java-version: '17'
-          architecture: 'aarch64'
 
      # npm 있나 없나 없으면 설치하고 알지?
       - name: Install redoc-cli
