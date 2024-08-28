@@ -20,7 +20,7 @@ spring:
     ansi:
       enabled: always
   datasource:
-    url: jdbc:oracle:thin:@fridgechef_high?TNS_ADMIN=(description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.ap-chuncheon-1.oraclecloud.com))(connect_data=(service_name=g9df66667042fa2_fridgechef_high.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))
+    url: jdbc:oracle:thin:@fridgechef_high
     username: ENC(VhOrGvMaPi2etM/K8z6Kbw==)
     password: ENC(mE7S46BWUTZS1ES17svBz72u6sA6c0No)
     driver-class-name: oracle.jdbc.OracleDriver
