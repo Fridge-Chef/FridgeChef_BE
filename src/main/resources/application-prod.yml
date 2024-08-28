@@ -23,7 +23,11 @@ logging:
         core:
           env:
             PropertySourcesPropertyResolver: DEBUG
+
 spring:
+  config:
+    activate:
+      on-profile: prod
   jpa:
     open-in-view: false
     hibernate:

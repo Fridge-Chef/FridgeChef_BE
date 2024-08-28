@@ -1,7 +1,7 @@
 spring:
   config:
     activate:
-      on-profile: cicd
+      on-profile: dev
   jpa:
     open-in-view: false
     hibernate:
