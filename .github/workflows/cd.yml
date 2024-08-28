@@ -19,9 +19,6 @@ jobs:
           distribution: 'corretto'
           java-version: '17'
 
-      - name: Install redoc-cli
-        run: npm install -g @redocly/cli
-
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
@@ -31,13 +28,17 @@ jobs:
       - name: Decode and Unzip OCI Wallet
         run: |
           echo "${{ secrets.OCI_WALLET }}" | base64 --decode > Wallet_fridgeChef.zip
-          mkdir -p /home/runner/work/FridgeChef_BE/FridgeChef_BE/Wallet_fridgeChef
-          unzip Wallet_fridgeChef.zip -d /home/runner/work/FridgeChef_BE/FridgeChef_BE/Wallet_fridgeChef
-          echo "TNS_ADMIN=/home/runner/work/FridgeChef_BE/FridgeChef_BE/Wallet_fridgeChef" >> $GITHUB_ENV
-          chmod -R 755 /home/runner/work/FridgeChef_BE/FridgeChef_BE/Wallet_fridgeChef
+          mkdir -p /home/runner/work/FridgeChef_BE/FridgeChef_BE/src/main/resources/Wallet_fridgeChef
+          unzip Wallet_fridgeChef.zip -d /home/runner/work/FridgeChef_BE/FridgeChef_BE/src/main/resources/Wallet_fridgeChef
+          echo "TNS_ADMIN=/home/runner/work/FridgeChef_BE/FridgeChef_BE/src/main/resources/Wallet_fridgeChef" >> $GITHUB_ENV
+          chmod -R 755 /home/runner/work/FridgeChef_BE/FridgeChef_BE/src/main/resources/Wallet_fridgeChef
 
       - name: Build with Gradle
         run: ./gradlew bootJar -Dspring.profiles.active=dev
+
+
+      - name: Install redoc-cli
+        run: npm install -g @redocly/cli
 
       - name: create docs
         run: |
