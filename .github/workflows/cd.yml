@@ -38,10 +38,8 @@ jobs:
           mkdir -p /home/runner/work/FridgeChef_BE/FridgeChef_BE/Wallet_fridgeChef
           unzip Wallet_fridgeChef.zip -d /home/runner/work/FridgeChef_BE/FridgeChef_BE/Wallet_fridgeChef
 
-      - name: List files in Wallet_fridgeChef
-        run: |
-          echo "Listing files in Wallet_fridgeChef:"
-          ls -l /home/runner/work/FridgeChef_BE/FridgeChef_BE/Wallet_fridgeChef
+      - name: Set TNS_ADMIN Environment Variable
+        run: echo "TNS_ADMIN=/home/runner/work/FridgeChef_BE/FridgeChef_BE/Wallet_fridgeChef" >> $GITHUB_ENV
 
       - name: Build and Test with Gradle
         run: |
