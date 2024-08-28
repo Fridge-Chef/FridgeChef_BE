@@ -43,7 +43,7 @@ spring:
 
 spring:
   profiles:
-    activate:  cicd
+    active:  cicd
   datasource:
     url: ENC(jcEW/bO6sIZF+NGGBcDCJxXKDm4LnjdN8pgLDHn4sS9ON+JBSbRyssbkjKk4I1qoqjc5EsdifWUatla4Kr71nBR+Fde9nEhmV6FsDs5BqaCsYpixYyNLZqMzmYz1EQSB1Jpw9HtlRNnPErxFiuypx33WOlWBa7SAN2waTilyHSAkdhon/7A9jg==)
     username: ENC(VhOrGvMaPi2etM/K8z6Kbw==)
@@ -54,7 +54,7 @@ spring:
 
 spring:
   profiles:
-    activate: local
+    active: local
   datasource:
     url: ENC(nLUowu+l48yswIqo2djyCUfrvsAud+pXPbxR29GQYNhyFeW2uUbm1stmZviGjuRMme/bEiHIKSIDPSSpqa3UsqJyXCL90VeNvlp58NPp7v+UzZjBl2xJHg==)
     username: ENC(VhOrGvMaPi2etM/K8z6Kbw==)
@@ -65,7 +65,7 @@ spring:
 
 spring:
   profiles:
-    activate:  prod
+    active:  prod
   datasource:
     url: ENC(hc7lJcR6SjGGfihVl9itWifm9vA5CVy+JW/at3yYnJee1XDzu+pQYuKg3z3XqNQe9YbusoS9kIdmPIdi1djj7jQMQ6h7pPPBdy4SfHOdgtaz6ceEQFpiwg==)
     username: ENC(VhOrGvMaPi2etM/K8z6Kbw==)
