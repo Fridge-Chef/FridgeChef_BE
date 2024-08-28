@@ -24,7 +24,7 @@ logging:
             PropertySourcesPropertyResolver: DEBUG
 spring:
   profiles:
-    default: local
+    default: cicd
   jpa:
     open-in-view: false
     hibernate:
