@@ -13,18 +13,18 @@ public class RecipeServiceTest {
     //
     @Test
     public void save() {
+
+        String password = System.getenv("JASYPT_PASSWORD");
+        System.out.println("password:"+password);
         String str = "새우두부계란찜\n연두부 75g(3/4모), 칵테일새우 20g(5마리), 달걀 30g(1/2개), 생크림 13g(1큰술), 설탕 5g(1작은술), 무염버터 5g(1작은술)\n고명\n시금치 10g(3줄기)";
 
         // 예외 단어 목록
-        String[] excludeWords = {"약간", "재료", "양념", "다진", "붉은"};
-
+        String[] excludeWords = {"약간", "재료", "양념", "다진", "붉은","채소준비"};
         String[] ingredientsArray = str.split(",");
-
         List<String> ingredientList = new ArrayList<>();
 
         // 정규식을 이용해 "숫자g" 부분을 추출
         Pattern pattern = Pattern.compile("(\\D+)(\\d+g.*)");
-
         for (String ingredient : ingredientsArray) {
             ingredient = ingredient.trim();  // 공백 제거
             boolean exclude = false;
@@ -49,11 +49,9 @@ public class RecipeServiceTest {
                 }
             }
         }
-
         // 결과 출력
         for (String item : ingredientList) {
             System.out.println(item);
         }
     }
-
 }

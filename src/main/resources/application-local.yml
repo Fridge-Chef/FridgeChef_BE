@@ -1,4 +1,10 @@
 
+jasypt:
+  encryptor:
+    password: ${JASYPT_PASSWORD}
+    bean: jasyptStringEncryptor
+
+
 spring:
   config:
     activate:

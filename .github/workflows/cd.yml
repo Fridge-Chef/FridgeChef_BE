@@ -31,6 +31,7 @@ jobs:
           echo "JASYPT_PASSWORD='${{ secrets.JASYPT_PASSWORD }}'" >> $GITHUB_ENV
           echo "${{ secrets.JASYPT_PASSWORD }}" 
 
+
       - name: Decode and Unzip OCI Wallet
         run: |
           echo "${{ secrets.OCI_WALLET }}" | base64 --decode > Wallet_fridgeChef.zip
