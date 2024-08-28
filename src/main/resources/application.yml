@@ -22,11 +22,6 @@ logging:
         core:
           env:
             PropertySourcesPropertyResolver: DEBUG
-management:
-  endpoints:
-    web:
-      exposure:
-        include: '*'
 spring:
   profiles:
     default: local
