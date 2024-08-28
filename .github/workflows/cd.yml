@@ -44,8 +44,8 @@ jobs:
       - name: Build and Test with Gradle
         run: |
           ./gradlew clean 
-          ./gradlew build --spring.profiles.active=cicd --info
-          ./gradlew test --spring.profiles.active=cicd --info
+          ./gradlew build -Dspring.profiles.active=cicd --info
+          ./gradlew test -Dspring.profiles.active=cicd --info
 
       - name: create docs step-1
         run: ./gradlew openapi3 -Dspring.profiles.active=cicd
