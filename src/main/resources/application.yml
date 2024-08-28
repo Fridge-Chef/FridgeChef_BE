@@ -22,6 +22,11 @@ logging:
         core:
           env:
             PropertySourcesPropertyResolver: DEBUG
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
 spring:
   profiles:
     default: local
@@ -59,6 +64,17 @@ spring:
       on-profile: prod
   datasource:
     url: ENC(hc7lJcR6SjGGfihVl9itWifm9vA5CVy+JW/at3yYnJee1XDzu+pQYuKg3z3XqNQe9YbusoS9kIdmPIdi1djj7jQMQ6h7pPPBdy4SfHOdgtaz6ceEQFpiwg==)
+    username: ENC(VhOrGvMaPi2etM/K8z6Kbw==)
+    password: ENC(mE7S46BWUTZS1ES17svBz72u6sA6c0No)
+    driver-class-name: oracle.jdbc.OracleDriver
+
+---
+spring:
+  config:
+    activate:
+      on-profile: cicd
+  datasource:
+    url: ENC(jcEW/bO6sIZF+NGGBcDCJxXKDm4LnjdN8pgLDHn4sS9ON+JBSbRyssbkjKk4I1qoqjc5EsdifWUatla4Kr71nBR+Fde9nEhmV6FsDs5BqaCsYpixYyNLZqMzmYz1EQSB1Jpw9HtlRNnPErxFiuypx33WOlWBa7SAN2waTilyHSAkdhon/7A9jg==)
     username: ENC(VhOrGvMaPi2etM/K8z6Kbw==)
     password: ENC(mE7S46BWUTZS1ES17svBz72u6sA6c0No)
     driver-class-name: oracle.jdbc.OracleDriver
