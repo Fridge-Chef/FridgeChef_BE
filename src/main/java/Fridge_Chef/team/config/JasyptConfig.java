@@ -21,6 +21,8 @@ public class JasyptConfig {
 
     public static StringEncryptor createStringEncryptor(String password) {
         System.out.println("-");
+        System.out.println("-"+password.split("<")[0]);
+        System.out.println("-"+password.split("<")[1]);
         PooledPBEStringEncryptor encryptor = new PooledPBEStringEncryptor();
         SimpleStringPBEConfig config = new SimpleStringPBEConfig();
         config.setPassword(password);
