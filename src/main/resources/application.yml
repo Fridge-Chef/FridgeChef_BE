@@ -21,7 +21,7 @@ logging:
       springframework:
         core:
           env:
-            PropertySourcesPropertyResolver: DEBU
+            PropertySourcesPropertyResolver: DEBUG
 spring:
   profiles:
     default: local
