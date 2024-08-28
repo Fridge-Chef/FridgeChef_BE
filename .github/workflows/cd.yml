@@ -13,11 +13,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v2
+      - name: Set up Amazon Corretto JDK 17
+        uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
+          distribution: 'corretto'
           java-version: '17'
+          architecture: 'aarch64'
 
      # npm 있나 없나 없으면 설치하고 알지?
       - name: Install redoc-cli
