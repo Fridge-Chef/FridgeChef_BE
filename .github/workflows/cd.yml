@@ -34,7 +34,7 @@ jobs:
           chmod -R 755 /home/runner/work/FridgeChef_BE/FridgeChef_BE/src/main/resources/Wallet_fridgeChef
 
       - name: Build with Gradle
-        run: ./gradlew bootJar -Dspring.profiles.active=dev
+        run: ./gradlew bootJar -Dspring.profiles.active=dev -Pdev
 
 
       - name: Install redoc-cli
