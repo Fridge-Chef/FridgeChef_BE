@@ -29,19 +29,17 @@ jobs:
         run: |
           echo "${{ secrets.OCI_WALLET }}" | base64 --decode > Wallet_fridgeChef.zip
           unzip Wallet_fridgeChef.zip -d./src/main/resources/Wallet_fridgeChef
-          echo "TNS_ADMIN=./src/main/resources/Wallet_fridgeChef" >> $GITHUB_ENV
-          chmod -R 755 ./src/main/resources/Wallet_fridgeChef
-
-      - name: Build with Gradle
-        run: ./gradlew bootJar
 
       - name: Install redoc-cli
         run: npm install -g @redocly/cli
 
       - name: create docs
         run: |
-          ./gradlew openapi3 -Dspring.profiles.active=dev -Pdev --info
+          ./gradlew openapi3 --info
           redoc-cli bundle build/api-spec/openapi3.yaml --output src/main/resources/static/my-api-docs.html
+
+      - name: Build with Gradle
+        run: ./gradlew bootJar
 
       #------------------ssh 사용 권한 ---------------------------------
       - name: Setup SSH Key
