@@ -33,14 +33,14 @@ jobs:
           chmod -R 755 ./src/main/resources/Wallet_fridgeChef
 
       - name: Build with Gradle
-        run: ./gradlew bootJar -Dspring.profiles.active=dev -Pdev
+        run: ./gradlew bootJar
 
       - name: Install redoc-cli
         run: npm install -g @redocly/cli
 
       - name: create docs
         run: |
-          ./gradlew openapi3 --info
+          ./gradlew openapi3 -Dspring.profiles.active=dev -Pdev --info
           redoc-cli bundle build/api-spec/openapi3.yaml --output src/main/resources/static/my-api-docs.html
 
       #------------------ssh 사용 권한 ---------------------------------
