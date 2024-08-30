@@ -1,7 +1,7 @@
 
 spring:
   datasource:
-    url: jdbc:oracle:thin:@fridgechefdev_high?TNS_ADMIN=/home/ubuntu/dev/Wallet_fridgeChefDev
+    url: jdbc:oracle:thin:@fridgechefdev_high?TNS_ADMIN=./src/main/resources/Wallet_fridgeChefDev
     username: ADMIN
     password: ENC(TaQurWARB9zfJ553U8MwSYPydWytzJREkfzDc14piIQ=)
     driver-class-name: oracle.jdbc.OracleDriver
