@@ -21,7 +21,7 @@ spring:
     ansi:
       enabled: always
   datasource:
-    url: ENC(hc7lJcR6SjGGfihVl9itWifm9vA5CVy+JW/at3yYnJee1XDzu+pQYuKg3z3XqNQe9YbusoS9kIdmPIdi1djj7jQMQ6h7pPPBdy4SfHOdgtaz6ceEQFpiwg==)
+    url: jdbc:oracle:thin:@fridgechef_high?TNS_ADMIN
     username: ENC(VhOrGvMaPi2etM/K8z6Kbw==)
     password: ENC(mE7S46BWUTZS1ES17svBz72u6sA6c0No)
     driver-class-name: oracle.jdbc.OracleDriver
