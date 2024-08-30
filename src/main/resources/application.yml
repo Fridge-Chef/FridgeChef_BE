@@ -15,7 +15,9 @@ jasypt:
 ssl:
   ip: ENC(00Nqx0PQj8MjOpoJ4m27bVNtyRwlTJFWLT8QRfCZORQg/hoDboeJzjyk3M0wsxem)
 
-
 spring:
   profiles:
     default: local
+  output:
+    ansi:
+      enabled: always

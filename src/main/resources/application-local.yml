@@ -1,15 +1,11 @@
-jasypt:
-  encryptor:
-    password: ${JASYPT_PASSWORD}
-    bean: jasyptStringEncryptor
 
 spring:
   config:
     activate:
       on-profile: local
   datasource:
-    url: jdbc:oracle:thin:@fridgechef_high
-    username: ENC(VhOrGvMaPi2etM/K8z6Kbw==)
+    url: jdbc:oracle:thin:@fridgechef_high?TNS_ADMIN=./src/main/resources/Wallet_fridgeChef
+    username: ADMIN
     password: ENC(mE7S46BWUTZS1ES17svBz72u6sA6c0No)
     driver-class-name: oracle.jdbc.OracleDriver
   jpa:
@@ -29,13 +25,3 @@ spring:
   output:
     ansi:
       enabled: always
-
-
-logging:
-  level:
-    org.springframework.core.env.PropertySourcesPropertyResolver: DEBUG
-    org:
-      springframework:
-        core:
-          env:
-            PropertySourcesPropertyResolver: DEBUG
