@@ -1,16 +1,24 @@
+
 spring:
-  config:
-    activate:
-      on-profile: dev
+  datasource:
+    url: jdbc:oracle:thin:@fridgechefdev_high?TNS_ADMIN=/home/ubuntu/dev/Wallet_fridgeChefDev
+    username: ADMIN
+    password: ENC(TaQurWARB9zfJ553U8MwSYPydWytzJREkfzDc14piIQ=)
+    driver-class-name: oracle.jdbc.OracleDriver
   jpa:
     open-in-view: false
     hibernate:
       ddl-auto: update
+    properties:
+      hibernate:
+        order_inserts: true
+        order_updates: true
+        connection:
+          pool_size: 70
+        jdbc:
+          batch_size: 1000
+        show_sql:
+        format_sql:
   output:
     ansi:
       enabled: always
-  datasource:
-    url: jdbc:oracle:thin:@fridgechef_high?TNS_ADMIN
-    username: ENC(VhOrGvMaPi2etM/K8z6Kbw==)
-    password: ENC(1yKYCYAkc06JfgEShnJZbkDaxqOwToR0zZuhDC6OF/g=)
-    driver-class-name: oracle.jdbc.OracleDriver
