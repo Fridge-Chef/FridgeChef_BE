@@ -1,12 +1,9 @@
 
 spring:
-  config:
-    activate:
-      on-profile: local
   datasource:
-    url: jdbc:oracle:thin:@fridgechef_high?TNS_ADMIN=./src/main/resources/Wallet_fridgeChef
+    url: jdbc:oracle:thin:@fridgechefdev_high?TNS_ADMIN=./src/main/resources/Wallet_fridgeChefDev
     username: ADMIN
-    password: ENC(mE7S46BWUTZS1ES17svBz72u6sA6c0No)
+    password: ENC(TaQurWARB9zfJ553U8MwSYPydWytzJREkfzDc14piIQ=)
     driver-class-name: oracle.jdbc.OracleDriver
   jpa:
     open-in-view: false
