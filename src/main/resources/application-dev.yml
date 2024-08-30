@@ -6,30 +6,11 @@ spring:
     open-in-view: false
     hibernate:
       ddl-auto: update
-    properties:
-      hibernate:
-        order_inserts: true
-        order_updates: true
-        connection:
-          pool_size: 70
-        jdbc:
-          batch_size: 1000
-        show_sql:
-        format_sql:
   output:
     ansi:
       enabled: always
   datasource:
-    url: jdbc:oracle:thin:@fridgechef_high
+    url: jdbc:oracle:thin:@fridgechef_high?TNS_ADMIN=./src/main/resources/Wallet_fridgeChefDev
     username: ENC(VhOrGvMaPi2etM/K8z6Kbw==)
-    password: ENC(mE7S46BWUTZS1ES17svBz72u6sA6c0No)
+    password: ENC(1yKYCYAkc06JfgEShnJZbkDaxqOwToR0zZuhDC6OF/g=)
     driver-class-name: oracle.jdbc.OracleDriver
-
-logging:
-  level:
-    org.springframework.core.env.PropertySourcesPropertyResolver: DEBUG
-    org:
-      springframework:
-        core:
-          env:
-            PropertySourcesPropertyResolver: DEBUG
