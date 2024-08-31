@@ -18,6 +18,20 @@ ssl:
 spring:
   profiles:
     default: local
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        order_inserts: true
+        order_updates: true
+        connection:
+          pool_size: 70
+        jdbc:
+          batch_size: 1000
+        show_sql:
+        format_sql:
   output:
     ansi:
       enabled: always
