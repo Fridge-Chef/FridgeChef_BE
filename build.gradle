@@ -61,7 +61,7 @@ dependencies {
 ext {
     snippetsDir = file('build/generated-snippets')
 }
-//125.187.185.102,158.179.194.111
+
 test {
     useJUnitPlatform()
 }
