@@ -2,7 +2,7 @@ name: "dev hotfix"
 
 on:
   push:
-    branches: [ "hotfix/dev"]
+    branches: [ "main"]
   pull_request:
     branches: [ "hotfix/dev" ]
 
