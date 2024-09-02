@@ -9,8 +9,46 @@ import java.util.Arrays;
 public enum ErrorCode {
     //Server
     INTERNAL_SERVER_ERROR(500, "서버 오류"),
-    INVALID_VALUE(400, "유효하지 않은 값 입니다.");
+    INVALID_VALUE(400, "유효하지 않은 값 입니다."),
 
+
+    //security
+    SECURITY_AUTHENTICATION_METHOD_NOT_SUPPORTED(450, "인증 방법이 지원되지 않습니다."),
+    SECURITY_MESSAGE(451, ""),
+
+    //image
+    IMAGE_REMOTE_UPLOAD(401, "이미지 원격 업로드 실패"),
+    IMAGE_REMOTE_SESSION(402, "이미지 세션 오류"),
+    IMAGE_REMOTE_DELETE_FAIL(403, "이미지 삭제 실패"),
+    IMAGE_NOT_ID(404,"이미지의 고유한 ID 가 존재하지 않음"),
+    IMAGE_AUTHOR_MISMATCH(404,"이미지의 작성자가 일치하지 않음"),
+
+    //USER
+    USER_EMAIL_UNIQUE(401, "이메일 중복 에러"),
+    USER_PHONE_UNIQUE(402, "휴대폰 중복 에러"),
+    USER_ID_DUPLICATE(403, "아이디 중복 에러"),
+    USER_NOT_FOUND(404,"유저 정보 없음"),
+    USER_NOT_EMAIL(405,"이메일 정보 없음"),
+    USER_NOT_PHONE(406,"휴대폰 정보 없음"),
+
+    //email
+    EMAIL_SEND_PARSE(401, "메시지 구문 분석에 실패"),
+    EMAIL_SEND_AUTHENTICATION(402, "인증이 실패"),
+    EMAIL_SEND(403, "메시지 전송에 실패"),
+
+    //sms
+    SMS_SEND_FAIL(401, "문자 전송 실패"),
+
+    //signup
+    SIGNUP_SMS_EXCEED(401, "회원가입 휴대폰 인증 횟수 초과"),
+    SIGNUP_SMS_VERIFY_CODE_FAILED(402, "휴대폰 문자 인증 실패"),
+    SIGNUP_SMS_DUPLICATE(403, "회원가입 휴대폰 번호 중복"),
+    SIGNUP_EMAIL_EXCEED(404, "회원가입 이메일 인증 횟수 초과"),
+    SIGNUP_EMAIL_VERIFY_CODE_FAILED(405, "이메일 인증 실패"),
+    SIGNUP_EMAIL_DUPLICATE(406, "회원가입 이메일 중복"),
+    SIGNUP_CERT_CODE_UNVERIFIED(407, "회원가입 인증코드 미인증"),
+    TOKEN_ACCESS_FAIL(401,"로그인 토큰 복호화 실패"),
+    TOKEN_ACCESS_EXPIRED_FAIL(401,"로그인 토큰값 만료"),;
     private final int status;
     private final String message;
 
