@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <configuration>
-    <springProfile name="local,serverprod,serverdev">
+    <springProfile name="local,dev">
         <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
         <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
             <encoder>
@@ -14,7 +14,7 @@
         </root>
     </springProfile>
 
-    <springProfile name="serverprod,serverdev">
+    <springProfile name="dev,prod">
         <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
         <appender name="WARN_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
             <file>logs/warn/warn.log</file>
