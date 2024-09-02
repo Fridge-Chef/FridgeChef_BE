@@ -72,7 +72,7 @@ public class SecurityConfig {
     private void authorizeHttpRequests(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry configurer) {
         configurer
                 .requestMatchers("/","/docs.html","/favicon.io").permitAll()
-                .requestMatchers("/api","/api/test").permitAll()
+                .requestMatchers("/api","/api/test","/api/token","/api/token/**","/api/signup","/api/signup/**").permitAll()
                 .requestMatchers("/api/user/**").hasAnyRole(Role.USER.name(),Role.ADMIN.name())
                 .requestMatchers("/api/admin/**").hasAnyRole(Role.ADMIN.name())
                 .requestMatchers("/all/api/token/**").permitAll()
