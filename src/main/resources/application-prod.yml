@@ -1,0 +1,29 @@
+server:
+  port: 443
+  ssl:
+    enabled: true
+    key-store: ENC(Cmq2bDQ2BfQgRbaKwl+d6oq1dSSkTqqHKV15mnzxiDwCCSoJ2nBKGrO10PUw2N6n)
+    key-store-password: ENC(hszW13G6NdoeC8AcwJ/qenix8O6jiGXL)
+    key-store-type: PKCS12
+    key-alias: fridgebe-site
+
+spring:
+  datasource:
+    url: jdbc:oracle:thin:@fridgechef_high?TNS_ADMIN=/home/ubuntu/dev/Wallet_fridgeChef
+    username: ADMIN
+    password: ENC(mE7S46BWUTZS1ES17svBz72u6sA6c0No)
+    driver-class-name: oracle.jdbc.OracleDriver
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        order_inserts: true
+        order_updates: true
+        connection:
+          pool_size: 70
+        jdbc:
+          batch_size: 1000
+        show_sql:
+        format_sql:
