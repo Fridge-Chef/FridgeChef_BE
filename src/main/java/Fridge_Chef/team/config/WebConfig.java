@@ -1,6 +1,8 @@
 package Fridge_Chef.team.config;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -15,5 +17,10 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowCredentials(true)
                 .allowedHeaders("*");
         ; // 쿠키 인증 요청 허용;
+    }
+
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
     }
 }

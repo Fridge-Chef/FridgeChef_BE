@@ -8,3 +8,6 @@ spring:
   output:
     ansi:
       enabled: always
+
+#recipe 조회 사용 url
+recipeRequestUrl: ${URL}
