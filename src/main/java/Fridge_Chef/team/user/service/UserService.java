@@ -3,13 +3,17 @@ package Fridge_Chef.team.user.service;
 
 import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.exception.ErrorCode;
-import Fridge_Chef.team.user.domain.Role;
 import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.repository.UserRepository;
+import Fridge_Chef.team.user.rest.model.AuthenticatedUser;
+import Fridge_Chef.team.user.rest.request.UserRegistrationRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -17,19 +21,28 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    @Transactional(readOnly = true)
+    public Optional<User> findByUserId(AuthenticatedUser userId) {
+        return userRepository.findByUserId_Value(userId.userId().getValue());
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<User> findByUserId(String uudid) {
+        return userRepository.findByUserId_Value(UUID.fromString(uudid));
+    }
 
     @Transactional
-    public void signup(String password, String id, String name, String email) {
+    public User signup(String email, String password, String name) {
         String encodePassword = passwordEncoder.encode(password);
 
-        User user = new User(id, name, encodePassword, email, Role.USER);
+        User user = User.create(email, encodePassword, name);
 
-        userRepository.save(user);
+        return userRepository.save(user);
     }
 
     @Transactional(readOnly = true)
     public boolean isIdCheck(String id) {
-        if (userRepository.findByUserId(id).isPresent()) {
+        if (findByUserId(id).isPresent()) {
             throw new ApiException(ErrorCode.USER_ID_DUPLICATE);
         }
         return true;
@@ -37,7 +50,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public void validateMemberRegistration(String userid, String email) {
-        if (userRepository.findByUserId(userid).isPresent()) {
+        if (findByUserId(userid).isPresent()) {
             throw new ApiException(ErrorCode.USER_ID_DUPLICATE);
         }
         if (userRepository.findByEmail(email).isPresent()) {
@@ -53,28 +66,18 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public User validEmail(String userId) {
-        User user = userRepository.findByUserId(userId)
-                .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
-        if (user.getEmail() == null) {
-            throw new ApiException(ErrorCode.USER_NOT_EMAIL);
+    public User findUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_EMAIL));
+    }
+
+    public void authenticate(User user, String password) {
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new ApiException(ErrorCode.LOGIN_PASSWORD_INCORRECT);
         }
-        return user;
     }
 
-
-    @Transactional
-    public void passwordChange(String userId, String password) {
-        String encodePassword = passwordEncoder.encode(password);
-        User user = userRepository.findByUserId(userId)
-                .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
-        user.updatePassword(encodePassword);
-    }
-
-    @Transactional
-    public void updateEmail(String userId, String send) {
-        userRepository.findByUserId(userId)
-                .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND))
-                .updateEmail(send);
+    public User registerUser(UserRegistrationRequest request) {
+        return signup(request.email(), request.password(), request.username());
     }
 }
