@@ -1,0 +1,32 @@
+### signup
+POST https://localhost/api/user
+Content-Type: application/json
+
+{
+    "email": "kang.dev@gmail.com",
+    "password": "test",
+    "username": "kang"
+}
+
+### login
+POST https://localhost/api/user/login
+Content-Type: application/json
+
+{
+    "email": "kang.dev@gmail.com",
+    "password": "test"
+}
+
+### Get Current User test
+GET https://localhost/api/user
+Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJ1c2VySWQiOiJhMjdkODYwYy1hNmIyLTRkNGMtODVkNC0yYzg5YmI3ZTVmZDgiLCJpYXQiOjE3MjU2NDU3MTAsImV4cCI6MTcyNTY0NzUxMH0.ecPLwVWG2at1eB0ShUIj_WZJSwRcuhkiBPJ--4Y4YxRtXd_g8TovEN5PTmogB3ueeCQ49LWlJUeSt1e9-A4LzdTz0GpHxV-DCjrKiU_cNiVazVybtQMJ8SXaKSTGbT2oJFWozj83aAAkqNL7dtFbDQcI4YD7aBjKEW0Xf3702cbcONFe--EqfSxOXCbuBV9SiqKOPeEoGksgHv09x9crA5pEXV4RIm93_UrrLMol-x5Nq1OBK8bzxW1QY7VtUvDjCyw-ewoqHMLjYrxahvP7XkjiovAt0ycgNrrtkemLNluidFU_fKKkQh8Rzk0dhmrtMuXxcRFtx9woFPJTlM_RyA
+
+### access token
+GET https://localhost/api/auth/access
+Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJ1c2VySWQiOiIzZTlkODAwOC0yMWYwLTQ0YTUtOWZhNC02M2JlNjI1ZWEwYWIiLCJpYXQiOjE3MjU2NDcwNjMsImV4cCI6MTcyNTY0ODg2M30.UqXPwrQEGZHaxtLJAggwPyuloqxoNLD4SUMk62J5pKvvO-kgRvNgd8xWW88OSW_XYXbxTYWaUASoKAlY_D8YiRapiJhTEQImowKDEEFvZkRbrxAWQ6WAR2B2j6ON0ABbRPBKw3ePjf44PinVQRY-1WvZ_AQkZOKeN9yM92nAZoZLNJW7vuzuROgK75ufR6xiGihWgMWIbxOPJ6z4SkLO6BpVEaVUBnd3VWXYR3-nWuCYf0CageJSv9iawsZM3qinHm1iChn9BSAUxRoHcbiRObiK2EwlTW17SV5I0SfnvWC7tykUyKTFP148A8yLpgT-zqJEh_EFz3a1ZcWVr8zLIA
+
+### refresh token
+GET https://localhost/api/auth/refresh
+Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJ1c2VySWQiOiIzZTlkODAwOC0yMWYwLTQ0YTUtOWZhNC02M2JlNjI1ZWEwYWIiLCJpYXQiOjE3MjU2NDcwNjMsImV4cCI6MTcyNTY0ODg2M30.UqXPwrQEGZHaxtLJAggwPyuloqxoNLD4SUMk62J5pKvvO-kgRvNgd8xWW88OSW_XYXbxTYWaUASoKAlY_D8YiRapiJhTEQImowKDEEFvZkRbrxAWQ6WAR2B2j6ON0ABbRPBKw3ePjf44PinVQRY-1WvZ_AQkZOKeN9yM92nAZoZLNJW7vuzuROgK75ufR6xiGihWgMWIbxOPJ6z4SkLO6BpVEaVUBnd3VWXYR3-nWuCYf0CageJSv9iawsZM3qinHm1iChn9BSAUxRoHcbiRObiK2EwlTW17SV5I0SfnvWC7tykUyKTFP148A8yLpgT-zqJEh_EFz3a1ZcWVr8zLIA
+
+

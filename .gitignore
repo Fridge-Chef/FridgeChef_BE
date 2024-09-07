@@ -48,3 +48,5 @@ out/
 ### VS Code ###
 .vscode/
 /src/main/resources/Wallet_**
+/src/main/resources/fridgejwt.priv
+/src/main/resources/fridgejwt.pub
