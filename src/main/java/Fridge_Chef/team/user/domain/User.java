@@ -2,8 +2,6 @@ package Fridge_Chef.team.user.domain;
 
 import Fridge_Chef.team.common.entity.BaseEntity;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Size;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -12,57 +10,36 @@ import static lombok.AccessLevel.PROTECTED;
 @Entity
 @Getter
 @Table(name = "users")
-@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @NoArgsConstructor(access = PROTECTED)
 public class User extends BaseEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Long id;
-
-    @Size(min = 4, max = 20)
-    @Column(name = "user_id", unique = true)
-    private String userId;
-    @Size(min = 2, max = 30)
-    @Column(name = "user_name")
-    private String userName;
-    private String password;
-    @Column(name = "email", unique = true)
-    private String email;
+    private UserId userId;
     @Column(unique = true)
-    private String phone;
+    private String email;
+    private String password;
+    @Embedded
+    private Profile profile;
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    public User(String userId, String userName, String password, String email, Role role) {
+    private User(UserId userId, String email, String password, Profile profile, Role role) {
         this.userId = userId;
-        this.userName = userName;
-        this.password = password;
         this.email = email;
+        this.password = password;
+        this.profile = profile;
         this.role = role;
     }
 
-    public static User ofMeta(Long user) {
-        return new User(user);
+    public static User create(String email, String password, String nickname) {
+        return new User(UserId.create(), email, password,
+                new Profile(nickname), Role.USER);
     }
 
-    private User(Long id) {
-        this.id = id;
-    }
-
-    public void roleUpdate(Role role) {
-        this.role = role;
-    }
-
-    public void updatePassword(String encodePassword) {
-        this.password = encodePassword;
+    public void updatePassword(String password) {
+        this.password = password;
     }
 
     public void updateEmail(String email) {
         this.email = email;
-    }
-
-    public void updateRole(Role role) {
-        this.role = role;
     }
 }

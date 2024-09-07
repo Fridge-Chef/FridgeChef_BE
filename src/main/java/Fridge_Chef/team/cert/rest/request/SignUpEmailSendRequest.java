@@ -1,4 +1,4 @@
-package Fridge_Chef.team.user.rest.request;
+package Fridge_Chef.team.cert.rest.request;
 
 import jakarta.validation.constraints.NotNull;
 
