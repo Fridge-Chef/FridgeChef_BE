@@ -3,10 +3,6 @@ jasypt:
     password: ${JASYPT_PASSWORD}
     bean: jasyptStringEncryptor
 
-jwt:
-  secret:
-    private: classpath:fridgejwt.priv
-    public: classpath:fridgejwt.pub
 
 spring:
   profiles:
@@ -25,3 +21,6 @@ spring:
   output:
     ansi:
       enabled: always
+
+#recipe 조회 사용 url
+recipeRequestUrl: h
