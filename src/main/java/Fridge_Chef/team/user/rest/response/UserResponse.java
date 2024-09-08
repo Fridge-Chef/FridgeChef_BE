@@ -9,10 +9,8 @@ import lombok.Getter;
 import static com.fasterxml.jackson.annotation.JsonTypeInfo.As.WRAPPER_OBJECT;
 import static com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME;
 
-@Getter
 @JsonTypeName("user")
 @JsonTypeInfo(include = WRAPPER_OBJECT, use = NAME)
-@AllArgsConstructor
 public record UserResponse(String email, String token, String username) {
     public static UserResponse from(User user, String token) {
         return new UserResponse(
