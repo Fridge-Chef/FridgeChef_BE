@@ -11,12 +11,13 @@ import java.util.UUID;
 @Embeddable
 public class UserId implements Serializable {
 
-    @Column(name = "id")
+    @Column(name = "id", updatable = false, nullable = false)
     private final UUID value;
 
     protected UserId() {
         this.value = UUID.randomUUID();
     }
+
     public UserId(UUID value) {
         this.value = value;
     }
