@@ -27,3 +27,14 @@ spring:
           batch_size: 1000
         show_sql:
         format_sql:
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: fridge.chef.team@gmail.com
+    password: ENC(4ESVZpPemF9wqU+mgLAQIFBiD9noZ9sLxf93Vp4jfAY=)
+    transport:
+      protocol: smtp
+    smtp:
+      auth: true
+      starttls:
+        enable: true
