@@ -48,7 +48,10 @@ public enum ErrorCode {
     SIGNUP_EMAIL_DUPLICATE(406, "회원가입 이메일 중복"),
     SIGNUP_CERT_CODE_UNVERIFIED(407, "회원가입 인증코드 미인증"),
     TOKEN_ACCESS_FAIL(401,"로그인 토큰 복호화 실패"),
-    TOKEN_ACCESS_EXPIRED_FAIL(401,"로그인 토큰값 만료"),;
+    TOKEN_ACCESS_EXPIRED_FAIL(401,"로그인 토큰값 만료"),
+    PASSWORD_LEN_8_must(400, "패스워드 길이 부족"),
+    LOGIN_PASSWORD_INCORRECT(400, "로그인 패스워드 불일치"),
+    TOKEN_ACCESS_NOT_USER(400,"토큰값 유저정보 없음" );
     private final int status;
     private final String message;
 

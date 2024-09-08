@@ -13,11 +13,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationExtension;
-import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
-import org.springframework.restdocs.operation.preprocess.OperationRequestPreprocessor;
-import org.springframework.restdocs.operation.preprocess.OperationResponsePreprocessor;
-import org.springframework.restdocs.operation.preprocess.Preprocessors;
-import org.springframework.restdocs.snippet.Attributes;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -27,7 +22,7 @@ import org.springframework.test.web.servlet.result.StatusResultMatchers;
 
 import static Fridge_Chef.team.common.RestDocControllerTests.SCHEME;
 import static org.springframework.http.HttpHeaders.HOST;
-import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 @MockBean(JpaMetamodelMappingContext.class)
@@ -40,23 +35,8 @@ public class RestDocControllerTests {
     public static final String HOST = "localhost";
     protected static ObjectMapper objectMapper = new ObjectMapper();
     protected static JSONParser jsonParser = new JSONParser();
-
     @Autowired
     protected MockMvc mockMvc;
-
-
-    protected static OperationRequestPreprocessor documentRequest() {
-        return Preprocessors.preprocessRequest(
-                Preprocessors.modifyUris()
-                        .scheme(SCHEME)
-                        .host(HOST)
-                        .removePort(),
-                prettyPrint());
-    }
-
-    protected static OperationResponsePreprocessor documentResponse() {
-        return Preprocessors.preprocessResponse(prettyPrint());
-    }
 
 
     protected static StatusResultMatchers status() {
@@ -65,10 +45,6 @@ public class RestDocControllerTests {
 
     protected static ContentResultMatchers content() {
         return MockMvcResultMatchers.content();
-    }
-
-    protected static Attributes.Attribute optional() {
-        return new Attributes.Attribute("optional", "false"); //default true
     }
 
     protected static String strToJson(String id, String value) {
@@ -100,8 +76,7 @@ public class RestDocControllerTests {
 
 
     protected ResultActions jsonGetWhen(String uri, String request) throws Exception {
-        return mockMvc.perform(MockMvcRequestBuilders
-                .get(uri)
+        return mockMvc.perform(get(uri)
                 .characterEncoding("UTF-8")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
@@ -111,20 +86,16 @@ public class RestDocControllerTests {
     }
 
     protected ResultActions jsonPostWhen(String uri, String request) throws Exception {
-        return mockMvc.perform(
-                MockMvcRequestBuilders
-                        .post(uri)
-                        .characterEncoding("UTF-8")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .content(request)
-                        .with(csrf())
+        return mockMvc.perform(post(uri)
+                .characterEncoding("UTF-8")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(request)
         );
     }
 
     protected ResultActions jsonUpdatesWhen(String uri, String request) throws Exception {
-        return mockMvc.perform(MockMvcRequestBuilders
-                .patch(uri)
+        return mockMvc.perform(patch(uri)
                 .characterEncoding("UTF-8")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
@@ -134,8 +105,7 @@ public class RestDocControllerTests {
     }
 
     protected ResultActions jsonUpdateWhen(String uri, String request) throws Exception {
-        return mockMvc.perform(MockMvcRequestBuilders
-                .put(uri)
+        return mockMvc.perform(put(uri)
                 .characterEncoding("UTF-8")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
@@ -145,8 +115,7 @@ public class RestDocControllerTests {
     }
 
     protected ResultActions jsonDeleteWhen(String uri, String request) throws Exception {
-        return mockMvc.perform(MockMvcRequestBuilders
-                .delete(uri)
+        return mockMvc.perform(delete(uri)
                 .characterEncoding("UTF-8")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
@@ -167,8 +136,7 @@ public class RestDocControllerTests {
     }
 
     protected ResultActions jsonPostWhen(String uri) throws Exception {
-        return mockMvc.perform(MockMvcRequestBuilders
-                .post(uri)
+        return mockMvc.perform(post(uri)
                 .characterEncoding("UTF-8")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
@@ -178,8 +146,7 @@ public class RestDocControllerTests {
     }
 
     protected ResultActions jsonUpdatesWhen(String uri) throws Exception {
-        return mockMvc.perform(MockMvcRequestBuilders
-                .patch(uri)
+        return mockMvc.perform(patch(uri)
                 .characterEncoding("UTF-8")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
@@ -188,8 +155,7 @@ public class RestDocControllerTests {
     }
 
     protected ResultActions jsonUpdateWhen(String uri) throws Exception {
-        return mockMvc.perform(MockMvcRequestBuilders
-                .put(uri)
+        return mockMvc.perform(put(uri)
                 .characterEncoding("UTF-8")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
@@ -198,8 +164,7 @@ public class RestDocControllerTests {
     }
 
     protected ResultActions jsonDeleteWhen(String uri) throws Exception {
-        return mockMvc.perform(MockMvcRequestBuilders
-                .delete(uri)
+        return mockMvc.perform(delete(uri)
                 .characterEncoding("UTF-8")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
@@ -208,8 +173,7 @@ public class RestDocControllerTests {
     }
 
     protected ResultActions jsonGetPathWhen(String uri, Object... path) throws Exception {
-        return mockMvc.perform(RestDocumentationRequestBuilders
-                .get(uri, path)
+        return mockMvc.perform(get(uri, path)
                 .characterEncoding("UTF-8")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
@@ -218,8 +182,7 @@ public class RestDocControllerTests {
     }
 
     protected ResultActions jsonPostPathWhen(String uri, Object... path) throws Exception {
-        return mockMvc.perform(RestDocumentationRequestBuilders
-                .post(uri, path)
+        return mockMvc.perform(post(uri, path)
                 .characterEncoding("UTF-8")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
@@ -228,8 +191,7 @@ public class RestDocControllerTests {
     }
 
     protected ResultActions jsonDeletePathWhen(String uri, Object... path) throws Exception {
-        return mockMvc.perform(RestDocumentationRequestBuilders
-                .delete(uri, path)
+        return mockMvc.perform(delete(uri, path)
                 .characterEncoding("UTF-8")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
@@ -238,8 +200,7 @@ public class RestDocControllerTests {
     }
 
     protected ResultActions jsonUpdatePathWhen(String uri, Object... path) throws Exception {
-        return mockMvc.perform(RestDocumentationRequestBuilders
-                .patch(uri, path)
+        return mockMvc.perform(patch(uri, path)
                 .characterEncoding("UTF-8")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
@@ -249,8 +210,7 @@ public class RestDocControllerTests {
 
 
     protected ResultActions jsonUpdatePathAndJsonWhen(String uri, int path, String json) throws Exception {
-        return mockMvc.perform(RestDocumentationRequestBuilders
-                .patch(uri, path)
+        return mockMvc.perform(patch(uri, path)
                 .characterEncoding("UTF-8")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)

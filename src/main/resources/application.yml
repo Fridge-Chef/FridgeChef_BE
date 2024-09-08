@@ -4,12 +4,9 @@ jasypt:
     bean: jasyptStringEncryptor
 
 jwt:
-  token:
-    secret-key: ENC(RPeR3ypRdy8K05y7t7RjHt/oihlerBYQAp6Srz9yJnZL+3Y7Rf9DiAKkkgvLtFDlXTtG1d3dgSY=)
-    expTime: 30      # 분
-    refreshTime: 365 # 일
-    issuer: "jhkoder"
-
+  secret:
+    private: classpath:fridgejwt.priv
+    public: classpath:fridgejwt.pub
 
 spring:
   profiles:
