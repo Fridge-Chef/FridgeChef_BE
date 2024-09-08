@@ -12,7 +12,7 @@ import static lombok.AccessLevel.PROTECTED;
 @Table(name = "users")
 @NoArgsConstructor(access = PROTECTED)
 public class User extends BaseEntity {
-    @Id
+    @EmbeddedId
     private UserId userId;
     @Column(unique = true)
     private String email;
