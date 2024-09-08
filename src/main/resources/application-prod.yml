@@ -7,6 +7,12 @@ server:
     key-store-type: PKCS12
     key-alias: fridgebe-site
 
+
+jwt:
+  secret:
+    private: /home/ubuntu/dev/fridgejwt.priv
+    public: /home/ubuntu/dev/fridgejwt.pub
+
 spring:
   datasource:
     url: jdbc:oracle:thin:@fridgechef_high?TNS_ADMIN=/home/ubuntu/dev/Wallet_fridgeChef
