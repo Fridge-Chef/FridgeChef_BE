@@ -34,7 +34,7 @@ public class UserControllerTest extends RestDocControllerTests {
     void setup() {
         String email = "UserFixture_1_@gmail.com";
         String pw = "password";
-        user = UserFixture.create(email, passwordEncoder.encode(pw));
+        user = UserFixture.create(email, pw);
     }
 
     @Test
