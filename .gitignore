@@ -50,3 +50,7 @@ out/
 /src/main/resources/Wallet_**
 /src/main/resources/fridgejwt.priv
 /src/main/resources/fridgejwt.pub
+/venv/
+/redoc-static.html
+/package-lock.json
+/openapi-fixed.yaml

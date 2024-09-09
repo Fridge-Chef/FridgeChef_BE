@@ -23,6 +23,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.2'
+
     //auth
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
     implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.5'
@@ -63,6 +64,9 @@ dependencies {
     testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
     testImplementation 'com.epages:restdocs-api-spec-mockmvc:0.18.2'
     implementation 'org.springdoc:springdoc-openapi-ui:1.8.0'
+    testImplementation 'com.epages:restdocs-api-spec-restassured:0.18.2'
+    testImplementation 'org.springframework.restdocs:spring-restdocs-restassured'
+
 }
 
 ext {
@@ -81,3 +85,54 @@ openapi3 {
     version = '0.1.0'
     format = 'yaml'
 }
+
+
+// Gradle task to generate OpenAPI specification
+task makeOAS(type: Exec) {
+    commandLine './gradlew', 'openapi3'
+}
+
+// Gradle task to fix OpenAPI YAML file
+task openapi3fix(type: Exec) {
+    // Ensure the virtual environment is activated and use the specific Python to run the script
+    commandLine 'bash', '-c', 'source venv/bin/activate && python fix-openapi-yaml.py build/api-spec/openapi3.yaml'
+    standardOutput = new ByteArrayOutputStream()
+
+    doLast {
+        def outputStream = new FileOutputStream('openapi-fixed.yaml')
+        outputStream.write(standardOutput.toString().getBytes())
+        outputStream.close()
+
+        def processResult = standardOutput.toString()
+        if (processResult.contains('Traceback') || processResult.contains('Error')) {
+            println "오류가 발생했습니다."
+        } else {
+            println "YAML 파일이 성공적으로 수정되었습니다."
+        }
+    }
+}
+
+// Gradle task to generate Redoc documentation
+task redocGenerationIntegration(type: Exec) {
+    // Ensure the virtual environment is activated and use the specific Redoc CLI to bundle the documentation
+    commandLine 'bash', '-c', 'source venv/bin/activate && redoc-cli bundle openapi-fixed.yaml'
+
+    doLast {
+        // Move the generated redoc-static.html to src/main/resources/static/docs.html
+        copy {
+            from 'redoc-static.html'
+            into 'src/main/resources/static'
+            rename { 'docs.html' }
+        }
+    }
+}
+
+// Set task dependencies
+openapi3fix.dependsOn makeOAS
+redocGenerationIntegration.dependsOn openapi3fix
+
+// Group tasks for better organization
+def groupName = "automatic_documentation"
+makeOAS.group = groupName
+openapi3fix.group = groupName
+redocGenerationIntegration.group = groupName
