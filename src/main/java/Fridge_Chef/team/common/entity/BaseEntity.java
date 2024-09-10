@@ -25,4 +25,8 @@ public class BaseEntity {
     @LastModifiedDate
     private LocalDateTime updateTime;
     private OracleBoolean isDelete;
+
+    protected void updateIsDelete(boolean isDelete){
+        this.isDelete = OracleBoolean.of(isDelete);
+    }
 }
