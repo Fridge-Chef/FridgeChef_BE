@@ -1,5 +1,7 @@
 package Fridge_Chef.team.security;
 
+import Fridge_Chef.team.exception.ApiException;
+import Fridge_Chef.team.exception.ErrorCode;
 import Fridge_Chef.team.user.domain.UserId;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -69,7 +71,7 @@ public class JwtProvider {
 
         String userIdClaim = claims.get(JwtProvider.USER_ID_PAYLOAD_PARAMETER, String.class);
         if (userIdClaim == null) {
-            throw new IllegalArgumentException("userId is required");
+            throw new ApiException(ErrorCode.TOKEN_ACCESS_EXPIRED_FAIL);
         }
         return new UserId(UUID.fromString(userIdClaim));
     }

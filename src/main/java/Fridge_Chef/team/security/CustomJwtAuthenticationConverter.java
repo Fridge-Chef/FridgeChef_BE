@@ -1,5 +1,7 @@
 package Fridge_Chef.team.security;
 
+import Fridge_Chef.team.exception.ApiException;
+import Fridge_Chef.team.exception.ErrorCode;
 import Fridge_Chef.team.user.domain.UserId;
 import Fridge_Chef.team.user.rest.model.AuthenticatedUser;
 import org.springframework.core.convert.converter.Converter;
@@ -15,7 +17,7 @@ public class CustomJwtAuthenticationConverter implements Converter<Jwt, Abstract
     public AbstractAuthenticationToken convert(Jwt jwt) {
         String userIdClaim = (String) jwt.getClaims().get("userId");
         if (userIdClaim == null) {
-            throw new IllegalArgumentException("userId is required");
+            throw new ApiException(ErrorCode.TOKEN_ACCESS_EXPIRED_FAIL);
         }
         return new CustomJwtAuthenticationToken(
                 new AuthenticatedUser(new UserId(UUID.fromString(userIdClaim))),
