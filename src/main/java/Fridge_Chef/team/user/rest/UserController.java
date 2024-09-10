@@ -1,14 +1,20 @@
 package Fridge_Chef.team.user.rest;
 
+import Fridge_Chef.team.cert.rest.request.SignUpRequest;
+import Fridge_Chef.team.cert.service.CertService;
 import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.exception.ErrorCode;
 import Fridge_Chef.team.security.JwtProvider;
 import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.rest.model.AuthenticatedUser;
+import Fridge_Chef.team.user.rest.request.UserAccountDeleteRequest;
 import Fridge_Chef.team.user.rest.request.UserAuthenticateRequest;
-import Fridge_Chef.team.user.rest.request.UserRegistrationRequest;
+import Fridge_Chef.team.user.rest.request.UserEmailCheckRequest;
+import Fridge_Chef.team.user.rest.request.UserPasswordChangeRequest;
+import Fridge_Chef.team.user.rest.response.UserProfileResponse;
 import Fridge_Chef.team.user.rest.response.UserResponse;
 import Fridge_Chef.team.user.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -19,12 +25,21 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private final UserService userService;
     private final JwtProvider jwtProvider;
+    private final CertService certService;
 
+    @GetMapping
+    public UserProfileResponse get(@AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
+        User user = userService.findByUserId(authenticatedUser)
+                .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
+        return UserProfileResponse.from(user);
+    }
 
-    @PostMapping
-    public UserResponse registration(@RequestBody UserRegistrationRequest request) {
-        User registeredUser = userService.registerUser(request);
-        return createUserResponse(registeredUser);
+    @PostMapping("/signup")
+    public void signup(@Valid @RequestBody SignUpRequest request) {
+        certService.validateCert(request.email());
+        userService.validateMemberRegistration(request.email());
+        userService.signup(request.email(), request.password(), request.username());
+        certService.deleteAuthenticationComplete(request);
     }
 
     @PostMapping("/login")
@@ -34,11 +49,19 @@ public class UserController {
         return createUserResponse(user);
     }
 
-    @GetMapping
-    public UserResponse get(@AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
-        User user = userService.findByUserId(authenticatedUser)
-                .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
-        return createUserResponse(user);
+    @DeleteMapping("/account")
+    public void userAccount(@AuthenticationPrincipal AuthenticatedUser authenticatedUser, @RequestBody UserAccountDeleteRequest request) {
+        userService.accountDelete(authenticatedUser.userId(), request.username());
+    }
+
+    @PatchMapping("/password")
+    public void passwordChange(@AuthenticationPrincipal AuthenticatedUser authenticatedUser, @RequestBody UserPasswordChangeRequest request) {
+        userService.updatePassword(authenticatedUser.userId(), request.password(), request.newPassword());
+    }
+
+    @PostMapping("/email/check")
+    public void emailCheck(@RequestBody UserEmailCheckRequest request) {
+        userService.checkEmailValidAndUnique(request.email());
     }
 
     private UserResponse createUserResponse(User user) {
