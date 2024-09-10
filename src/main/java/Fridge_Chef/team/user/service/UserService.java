@@ -4,9 +4,9 @@ package Fridge_Chef.team.user.service;
 import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.exception.ErrorCode;
 import Fridge_Chef.team.user.domain.User;
+import Fridge_Chef.team.user.domain.UserId;
 import Fridge_Chef.team.user.repository.UserRepository;
 import Fridge_Chef.team.user.rest.model.AuthenticatedUser;
-import Fridge_Chef.team.user.rest.request.UserRegistrationRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -49,10 +49,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public void validateMemberRegistration(String userid, String email) {
-        if (findByUserId(userid).isPresent()) {
-            throw new ApiException(ErrorCode.USER_ID_DUPLICATE);
-        }
+    public void validateMemberRegistration(String email) {
         if (userRepository.findByEmail(email).isPresent()) {
             throw new ApiException(ErrorCode.SIGNUP_EMAIL_DUPLICATE);
         }
@@ -77,7 +74,29 @@ public class UserService {
         }
     }
 
-    public User registerUser(UserRegistrationRequest request) {
-        return signup(request.email(), request.password(), request.username());
+    @Transactional
+    public void accountDelete(UserId userId, String username) {
+        User user = userRepository.findByUserId_Value(userId.getValue())
+                .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
+        if (user.getIsDelete() != null && user.getIsDelete().bool()) {
+            throw new ApiException(ErrorCode.USER_ACCOUNT_DELETE);
+        }
+        if (user.getProfile().getUsername().equals(username)) {
+            throw new ApiException(ErrorCode.USER_ACCOUNT_DELETE_NAME_INCORRECT);
+        }
+        user.accountDelete(true);
+    }
+
+    @Transactional
+    public void updatePassword(UserId userId, String password, String newPassword) {
+        User user = userRepository.findByUserId_Value(userId.getValue())
+                .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new ApiException(ErrorCode.USER_PASSWORD_INPUT_FAIL);
+        }
+        if (password.equals(newPassword)) {
+            throw new ApiException(ErrorCode.USER_NEW_PASSWORD_SAME_AS_OLD);
+        }
+        user.updatePassword(passwordEncoder.encode(newPassword));
     }
 }

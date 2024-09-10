@@ -26,4 +26,8 @@ public class Cert extends BaseEntity {
         this.email = email;
         this.authentication=authentication;
     }
+
+    public void updateAuthentication(boolean authentication){
+        this.authentication=OracleBoolean.of(authentication);
+    }
 }

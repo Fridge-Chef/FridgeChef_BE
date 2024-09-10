@@ -2,6 +2,7 @@ package Fridge_Chef.team.config;
 
 
 import Fridge_Chef.team.security.CustomJwtAuthenticationConverter;
+import Fridge_Chef.team.user.domain.Role;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -45,7 +46,11 @@ public class SecurityConfig {
 
     private void configureAuthorization(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry registry) {
         registry
-                .requestMatchers("/docs.html", "/favicon.ico", "/api/user/**", "/api/auth/**").permitAll()
+                .requestMatchers(
+                        "/docs.html", "/favicon.ico", "/api/auth/**", "/api/cert/email/**",
+                        "/api/user/email/**","/api/user/signup","/api/user/login"
+                ).permitAll()
+                .requestMatchers("/api/user","/api/user/account","/api/user/password").hasAnyRole(Role.USER.name(),Role.ADMIN.name())
                 .requestMatchers(PathRequest.toH2Console()).permitAll()
                 .anyRequest().authenticated();
     }

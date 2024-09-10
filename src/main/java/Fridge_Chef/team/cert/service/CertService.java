@@ -38,10 +38,11 @@ public class CertService {
         }
     }
 
+    @Transactional
     public SignUpCertVerifyResponse emailVerifyCodeCheck(EmailVerifyRequest request) {
-        verifyCodeCheck(request)
+        Cert cert = verifyCodeCheck(request)
                 .orElseThrow(() -> new ApiException(ErrorCode.SIGNUP_EMAIL_VERIFY_CODE_FAILED));
-        updateSignCert(request.email());
+        cert.updateAuthentication(true);
         return new SignUpCertVerifyResponse(true);
     }
 
@@ -50,18 +51,6 @@ public class CertService {
         return 100000 + random.nextInt(900000);
     }
 
-
-    @Transactional(readOnly = true)
-    public void validateEmailVerificationExceed(String email) {
-        int count = 1;
-        //dslRepository.countByVerificationSent(email);
-
-        if (count >= 10) {
-            throw new ApiException(ErrorCode.SIGNUP_EMAIL_EXCEED);
-        }
-    }
-
-
     @Transactional
     public void deleteAuthenticationComplete(SignUpRequest request) {
         List<Cert> certs = repository.findByEmailAndAuthentication(request.email(), OracleBoolean.T)
@@ -69,15 +58,7 @@ public class CertService {
         repository.deleteAll(certs);
     }
 
-
-    @Transactional
-    public void updateSignCert(String sent) {
-//       dslRepository.countByVerificationSent(sent);
-    }
-
-    @Transactional(readOnly = true)
-    public Optional<Cert> verifyCodeCheck(EmailVerifyRequest request) {
-        return null;
-//        return dslRepository.findByEmailAndVerificationCode(request.email(), request.code());
+    private Optional<Cert> verifyCodeCheck(EmailVerifyRequest request) {
+        return repository.findFirstByEmailAndVerificationCodeOrderByCreateTimeDesc(request.email(),request.code());
     }
 }
