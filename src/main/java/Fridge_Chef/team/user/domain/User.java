@@ -39,7 +39,7 @@ public class User extends BaseEntity {
         this.password = password;
     }
 
-    public void updateEmail(String email) {
-        this.email = email;
+    public void accountDelete(boolean isDelete) {
+        updateIsDelete(isDelete);
     }
 }
