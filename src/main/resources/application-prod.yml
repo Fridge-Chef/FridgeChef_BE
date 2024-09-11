@@ -22,7 +22,7 @@ spring:
   jpa:
     open-in-view: false
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     properties:
       hibernate:
         order_inserts: true
@@ -36,8 +36,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: fridge.chef.team@gmail.com
-    password: ENC(4ESVZpPemF9wqU+mgLAQIFBiD9noZ9sLxf93Vp4jfAY=)
+    username: kjh22522252@gmail.com
+    password: ENC(KJTTvFWL10rABIoKBDvGX/GCFZ837cc55s6y58DFQxw=)
     transport:
       protocol: smtp
     smtp:
