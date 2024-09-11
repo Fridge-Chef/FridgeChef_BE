@@ -54,3 +54,4 @@ out/
 /redoc-static.html
 /package-lock.json
 /openapi-fixed.yaml
+/http/private.http
