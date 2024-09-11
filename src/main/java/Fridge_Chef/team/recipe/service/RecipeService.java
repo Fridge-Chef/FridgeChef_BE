@@ -5,6 +5,7 @@ import Fridge_Chef.team.exception.ErrorCode;
 import Fridge_Chef.team.recipe.domain.Recipe;
 import Fridge_Chef.team.recipe.repository.RecipeRepository;
 import Fridge_Chef.team.recipe.rest.request.RecipeRequest;
+import Fridge_Chef.team.recipe.rest.response.RecipeDetailsResponse;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -17,63 +18,53 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class RecipeService {
 
     private final RecipeRepository recipeRepository;
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    private static final Pattern pattern = Pattern.compile("●[^:]+:\\s*(.*?)\\n|([^,\\n]+)(\\((.*?)\\))?");
+
     @Value("${recipeRequestUrl}")
     private String baseUrl;
 
-    //재료 AND조건으로 recipe titles 검색 메서드
     public List<String> getRecipeTitles(RecipeRequest request) throws ApiException {
 
-        //요청 url 생성
         String url = baseUrl + "/RCP_PARTS_DTLS=" + request.toString();
-        //레시피 조회 요청
         JsonNode json = requestRecipe(url);
-        //레시피 이름 추출
         List<String> recipeNames = extractRecipeNames(json);
 
         return recipeNames;
     }
 
-    //recipe 정보 json으로 리턴
-    public Map<String, Object> getRecipeDetails(String recipeName) throws ApiException {
+    public RecipeDetailsResponse getRecipeDetails(String recipeName) throws ApiException {
 
         Optional<Recipe> optionalRecipe = recipeRepository.findByName(recipeName);
-        //recipe 정보가 db에 저장이 되어 있음
         if (!optionalRecipe.isEmpty()) {
             Recipe recipe = optionalRecipe.get();
-            return recipeToJson(recipe);
+            return recipeToDto(recipe);
         }
 
-        //요청 url 생성
         String url = baseUrl + "/RCP_NM=" + recipeName;
-        System.out.println(url);
-        //레시피 조회 요청
         JsonNode json = requestRecipe(url);
-        System.out.println(json);
-        //레시피 정보 추출
         Recipe recipe = extractRecipeDetails(json);
         recipeRepository.save(recipe);
 
-        return recipeToJson(recipe);
+        return recipeToDto(recipe);
     }
 
-    //레시피 조회 요청 메서드
     private JsonNode requestRecipe(String url) {
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/json");
-        //요청 body 필요 없음. 헤더만 적재
         HttpEntity<String> request = new HttpEntity<>(null, headers);
 
-        //get 요청
         try {
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, request, String.class);
             String responseBody = response.getBody();
@@ -85,7 +76,6 @@ public class RecipeService {
         }
     }
 
-    //JSON에서 레시피 이름 추출 메서드
     private List<String> extractRecipeNames(JsonNode json) {
 
         List<String> recipeNames = new ArrayList<>();
@@ -105,28 +95,24 @@ public class RecipeService {
         return recipeNames;
     }
 
-    //json에서 레시피 상세 정보 추출 -> Recipe 엔티티 반환
     private Recipe extractRecipeDetails(JsonNode json) {
 
         JsonNode recipeInfo = json.get("COOKRCP01").get("row").get(0);
 
-        //json 추출
         String name = recipeInfo.get("RCP_NM").asText();
-        String category = recipeInfo.get("RCP_PAT2").asText();
-//        String ingredients = recipeInfo.get("RCP_PARTS_DTLS").asText();
+//        String category = recipeInfo.get("RCP_PAT2").asText();
+        String ingredients = recipeInfo.get("RCP_PARTS_DTLS").asText();
         String instructions = extractInstructions(recipeInfo);
         String imageUrl = recipeInfo.get("ATT_FILE_NO_MAIN").asText();
 
-        //엔티티 반환
         return Recipe.builder()
                 .name(name)
-                .category(category)
+                .ingredients(extractIngredients(ingredients))
                 .instructions(instructions)
                 .imageUrl(imageUrl)
                 .build();
     }
 
-    //요리 순서 추출
     private String extractInstructions(JsonNode recipeInfo) {
 
         StringBuilder instructions = new StringBuilder();
@@ -140,15 +126,36 @@ public class RecipeService {
         return instructions.toString().trim();
     }
 
-    //엔티티 -> json 변환
-    private Map<String, Object> recipeToJson(Recipe recipe) {
+    private List<String> extractIngredients(String ingredientsDetails) {
 
-        Map<String, Object> recipeDetails = new HashMap<>();
-        recipeDetails.put("name", recipe.getName());
-        recipeDetails.put("category", recipe.getCategory());
-        recipeDetails.put("instructions", recipe.getInstructions());
-        recipeDetails.put("imageUrl", recipe.getImageUrl());
+        List<String> ingredientsList = new ArrayList<>();
 
-        return recipeDetails;
+        Matcher matcher = pattern.matcher(ingredientsDetails);
+
+        while (matcher.find()) {
+            if (matcher.group(1) != null) {
+                String[] mainIngredients = matcher.group(1).split(",");
+                for (String ingredient : mainIngredients) {
+                    ingredientsList.add(ingredient.trim());
+                }
+            } else if (matcher.group(2) != null) {
+                String ingredient = matcher.group(2).trim();
+                String quantity = matcher.group(4) != null ? matcher.group(4).trim() : "";
+                ingredientsList.add(ingredient + (quantity.isEmpty() ? "" : " (" + quantity + ")"));
+            }
+        }
+
+        return ingredientsList;
     }
+
+    private RecipeDetailsResponse recipeToDto(Recipe recipe) {
+
+        return RecipeDetailsResponse.builder()
+                .name(recipe.getName())
+                .ingredients(recipe.getIngredients())
+                .instructions(recipe.getInstructions())
+                .imageUrl(recipe.getImageUrl())
+                .build();
+    }
+
 }

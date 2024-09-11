@@ -13,8 +13,6 @@ import java.util.List;
 @AllArgsConstructor
 public class RecipeRequest {
 
-    //레시피 요청 dto
-    //ingredients 필드가 아예 없거나, 아무 재료도 없다면? -> not valid
     @NotNull
     @Size(min = 1)
     private List<String> ingredients;
