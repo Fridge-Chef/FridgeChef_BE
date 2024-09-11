@@ -1,12 +1,12 @@
 package Fridge_Chef.team.mail.service;
 
-
 import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.exception.ErrorCode;
 import Fridge_Chef.team.mail.config.EmailConfig;
 import Fridge_Chef.team.mail.service.request.EmailRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.mail.MailAuthenticationException;
 import org.springframework.mail.MailParseException;
 import org.springframework.mail.MailSendException;
@@ -17,12 +17,13 @@ import static Fridge_Chef.team.mail.output.EmailSignupOutput.signupText;
 import static Fridge_Chef.team.mail.output.EmailSignupOutput.signupTitle;
 
 @Configuration
-public class EmailSenderService implements EmailService {
+@Profile("prod")
+public class EmailSenderRealService  implements EmailService {
     private final JavaMailSender emailConfig;
 
     private final String email;
 
-    public EmailSenderService(EmailConfig emailConfig,
+    public EmailSenderRealService(EmailConfig emailConfig,
                               @Value("${spring.mail.username}")String email) {
         this.emailConfig = emailConfig.getJavaMailSender();
         this.email=email;
