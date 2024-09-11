@@ -77,8 +77,10 @@ test {
     useJUnitPlatform()
 }
 
+def docsDir = 'build/generated-snippets'
+
 openapi3 {
-    server = 'https://158.179.194.111'
+    server = 'https://fridgebe.site'
     title = 'Fridge Chef API Docs'
     description = 'Fridge Chef API description'
     tagDescriptionsPropertiesFile = 'src/test/resources/docs/tag.yaml'
@@ -86,15 +88,13 @@ openapi3 {
     format = 'yaml'
 }
 
-
-// Gradle task to generate OpenAPI specification
 task makeOAS(type: Exec) {
     commandLine './gradlew', 'openapi3'
 }
 
-// Gradle task to fix OpenAPI YAML file
 task openapi3fix(type: Exec) {
-    // Ensure the virtual environment is activated and use the specific Python to run the script
+    delete file(docsDir)
+
     commandLine 'bash', '-c', 'source venv/bin/activate && python fix-openapi-yaml.py build/api-spec/openapi3.yaml'
     standardOutput = new ByteArrayOutputStream()
 
@@ -112,13 +112,10 @@ task openapi3fix(type: Exec) {
     }
 }
 
-// Gradle task to generate Redoc documentation
 task redocGenerationIntegration(type: Exec) {
-    // Ensure the virtual environment is activated and use the specific Redoc CLI to bundle the documentation
     commandLine 'bash', '-c', 'source venv/bin/activate && redoc-cli bundle openapi-fixed.yaml'
 
     doLast {
-        // Move the generated redoc-static.html to src/main/resources/static/docs.html
         copy {
             from 'redoc-static.html'
             into 'src/main/resources/static'
@@ -127,12 +124,11 @@ task redocGenerationIntegration(type: Exec) {
     }
 }
 
-// Set task dependencies
 openapi3fix.dependsOn makeOAS
 redocGenerationIntegration.dependsOn openapi3fix
 
-// Group tasks for better organization
 def groupName = "automatic_documentation"
 makeOAS.group = groupName
 openapi3fix.group = groupName
 redocGenerationIntegration.group = groupName
+

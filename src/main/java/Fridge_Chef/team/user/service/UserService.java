@@ -79,7 +79,7 @@ public class UserService {
         if (user.getIsDelete() != null && user.getIsDelete().bool()) {
             throw new ApiException(ErrorCode.USER_ACCOUNT_DELETE);
         }
-        if (user.getProfile().getUsername().equals(username)) {
+        if (!user.getProfile().getUsername().equals(username)) {
             throw new ApiException(ErrorCode.USER_ACCOUNT_DELETE_NAME_INCORRECT);
         }
         user.accountDelete(true);
@@ -96,5 +96,11 @@ public class UserService {
             throw new ApiException(ErrorCode.USER_NEW_PASSWORD_SAME_AS_OLD);
         }
         user.updatePassword(passwordEncoder.encode(newPassword));
+    }
+
+    @Transactional(readOnly = true)
+    public User findByUser(UserId userId){
+        return findByUserId(userId.getValue().toString())
+                .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
     }
 }

@@ -3,7 +3,6 @@ package Fridge_Chef.team.cert.rest.request;
 import Fridge_Chef.team.common.validator.PasswordValid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public record SignUpRequest(
@@ -13,7 +12,7 @@ public record SignUpRequest(
         @PasswordValid
         String password,
 
-        @Size(min=2,max=30 ,message = "이름:2~30자")
+        @Size(min = 2, max = 30, message = "이름:2~30자를 입력해 주세요.")
         @NotNull(message = "이름: 필수 정보입니다")
         String username
 ) {
