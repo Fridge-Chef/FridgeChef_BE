@@ -31,9 +31,11 @@ public class CertService {
 
     @Transactional(readOnly = true)
     public void validateCert(String email) {
-        boolean isAuthentication = repository.findByEmailAndAuthentication(email, OracleBoolean.T).isPresent();
-
-        if (!isAuthentication) {
+        Optional<Cert> cert = repository.findFirstByEmailOrderByCreateTimeDesc(email);
+        if(cert.isEmpty()){
+            throw new ApiException(ErrorCode.SIGNUP_CERT_NON_REQUEST);
+        }
+        if (!cert.get().getAuthentication().bool()){
             throw new ApiException(ErrorCode.SIGNUP_CERT_CODE_UNVERIFIED);
         }
     }
@@ -48,6 +50,7 @@ public class CertService {
 
     public int newVerificationCode() {
         Random random = new Random();
+
         return 100000 + random.nextInt(900000);
     }
 

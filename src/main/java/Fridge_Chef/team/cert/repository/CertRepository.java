@@ -12,5 +12,6 @@ import java.util.Optional;
 public interface CertRepository extends JpaRepository<Cert, Long> {
 
     Optional<List<Cert>> findByEmailAndAuthentication( String email, OracleBoolean oracleBoolean);
-    Optional<Cert> findFirstByEmailAndVerificationCodeOrderByCreateTimeDesc (String email,int verificationCode);
+    Optional<Cert> findFirstByEmailAndVerificationCodeOrderByCreateTimeDesc(String email,int verificationCode);
+    Optional<Cert> findFirstByEmailOrderByCreateTimeDesc(String email);
 }
