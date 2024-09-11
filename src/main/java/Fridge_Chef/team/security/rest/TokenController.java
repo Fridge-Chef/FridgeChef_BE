@@ -37,12 +37,12 @@ public class TokenController {
     }
 
     private UserResponse createUserResponse(User user) {
-        String token = jwtProvider.create(user.getUserId());
+        String token = jwtProvider.create(user.getUserId(),user.getRole());
         return UserResponse.from(user, token);
     }
 
     private TokenRefreshResponse createUserRefreshTokenResponse(User user) {
-        String token = jwtProvider.createRefreshToken(user.getUserId());
+        String token = jwtProvider.createRefreshToken(user.getUserId(),user.getRole());
         return TokenRefreshResponse.from(token);
     }
 }
