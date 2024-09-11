@@ -29,8 +29,7 @@ public class UserController {
 
     @GetMapping
     public UserProfileResponse get(@AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
-        User user = userService.findByUserId(authenticatedUser)
-                .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
+        User user = userService.findByUser(authenticatedUser.userId());
         return UserProfileResponse.from(user);
     }
 
