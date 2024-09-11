@@ -35,11 +35,12 @@ public class UserController {
     }
 
     @PostMapping("/signup")
-    public void signup(@Valid @RequestBody SignUpRequest request) {
+    public UserResponse signup(@Valid @RequestBody SignUpRequest request) {
         certService.validateCert(request.email());
         userService.validateMemberRegistration(request.email());
-        userService.signup(request.email(), request.password(), request.username());
+        User user = userService.signup(request.email(), request.password(), request.username());
         certService.deleteAuthenticationComplete(request);
+        return createUserResponse(user);
     }
 
     @PostMapping("/login")
@@ -65,7 +66,7 @@ public class UserController {
     }
 
     private UserResponse createUserResponse(User user) {
-        String token = jwtProvider.create(user.getUserId());
+        String token = jwtProvider.create(user.getUserId(),user.getRole());
         return UserResponse.from(user, token);
     }
 }
