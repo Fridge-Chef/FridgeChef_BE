@@ -7,11 +7,16 @@ public class PasswordValidator implements ConstraintValidator<PasswordValid, Str
 
     private static final String PASSWORD_PATTERN = "^[a-zA-Z0-9]{6,38}$";
 
+
     @Override
     public boolean isValid(String password, ConstraintValidatorContext context) {
         if (password == null) {
             return false;
         }
-        return password.matches(PASSWORD_PATTERN);
+        if (!password.matches(PASSWORD_PATTERN)) {
+            return false;
+        }
+        return true;
     }
+
 }

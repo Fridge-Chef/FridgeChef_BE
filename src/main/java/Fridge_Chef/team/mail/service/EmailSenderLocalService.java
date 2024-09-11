@@ -5,8 +5,10 @@ import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.exception.ErrorCode;
 import Fridge_Chef.team.mail.config.EmailConfig;
 import Fridge_Chef.team.mail.service.request.EmailRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.mail.MailAuthenticationException;
 import org.springframework.mail.MailParseException;
 import org.springframework.mail.MailSendException;
@@ -16,14 +18,16 @@ import org.springframework.mail.javamail.JavaMailSender;
 import static Fridge_Chef.team.mail.output.EmailSignupOutput.signupText;
 import static Fridge_Chef.team.mail.output.EmailSignupOutput.signupTitle;
 
+@Slf4j
+@Profile("local")
 @Configuration
-public class EmailSenderService implements EmailService {
+public class EmailSenderLocalService implements EmailService {
     private final JavaMailSender emailConfig;
 
     private final String email;
 
-    public EmailSenderService(EmailConfig emailConfig,
-                              @Value("${spring.mail.username}")String email) {
+    public EmailSenderLocalService(EmailConfig emailConfig,
+                                   @Value("${spring.mail.username}")String email) {
         this.emailConfig = emailConfig.getJavaMailSender();
         this.email=email;
     }
@@ -38,7 +42,9 @@ public class EmailSenderService implements EmailService {
     }
 
     private void send(SimpleMailMessage message){
-        emailConfig.send(message);
+        log.info(message.getFrom());
+        log.info(message.getSubject());
+        log.info(message.getText());
     }
 
     @Override

@@ -32,6 +32,6 @@ public class EmailSignupController {
 
     @PostMapping("/verify")
     public SignUpCertVerifyResponse emailCertVerify(@Valid @RequestBody SignUpEmailVerifyRequest verifyRequest) {
-        return certService.emailVerifyCodeCheck(EmailVerifyRequest.of(verifyRequest.send(), verifyRequest.code()));
+        return certService.emailVerifyCodeCheck(EmailVerifyRequest.of(verifyRequest.email(), verifyRequest.code()));
     }
 }

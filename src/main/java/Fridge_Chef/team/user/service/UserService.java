@@ -3,6 +3,7 @@ package Fridge_Chef.team.user.service;
 
 import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.exception.ErrorCode;
+import Fridge_Chef.team.user.domain.Role;
 import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.domain.UserId;
 import Fridge_Chef.team.user.repository.UserRepository;
@@ -33,19 +34,16 @@ public class UserService {
 
     @Transactional
     public User signup(String email, String password, String name) {
-        String encodePassword = passwordEncoder.encode(password);
-
-        User user = User.create(email, encodePassword, name);
-
-        return userRepository.save(user);
+        return signup(email,password,name,Role.USER);
     }
 
-    @Transactional(readOnly = true)
-    public boolean isIdCheck(String id) {
-        if (findByUserId(id).isPresent()) {
-            throw new ApiException(ErrorCode.USER_ID_DUPLICATE);
-        }
-        return true;
+    @Transactional
+    public User signup(String email, String password, String name, Role role) {
+        String encodePassword = passwordEncoder.encode(password);
+
+        User user = User.create(email, encodePassword, name,role);
+
+        return userRepository.save(user);
     }
 
     @Transactional(readOnly = true)

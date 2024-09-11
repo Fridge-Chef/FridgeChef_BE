@@ -2,6 +2,7 @@ package Fridge_Chef.team.common;
 
 
 import Fridge_Chef.team.config.TestSecurityConfig;
+import Fridge_Chef.team.exception.ErrorCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.minidev.json.parser.JSONParser;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,16 +14,21 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationExtension;
+import org.springframework.restdocs.payload.ResponseFieldsSnippet;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.ContentResultMatchers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.result.StatusResultMatchers;
+
+import java.util.Arrays;
 
 import static Fridge_Chef.team.common.RestDocControllerTests.SCHEME;
 import static org.springframework.http.HttpHeaders.HOST;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 @MockBean(JpaMetamodelMappingContext.class)
@@ -43,8 +49,20 @@ public class RestDocControllerTests {
         return MockMvcResultMatchers.status();
     }
 
-    protected static ContentResultMatchers content() {
-        return MockMvcResultMatchers.content();
+    protected static ResultMatcher status(ErrorCode errorCode) {
+        return status().is(errorCode.getStatus());
+    }
+
+    public static ResponseFieldsSnippet errorFields() {
+        return responseFields(Arrays.asList(
+                fieldWithPath("status").description("에러 상태"),
+                fieldWithPath("message").description("에러 메시지")));
+    }
+
+    public static ResponseFieldsSnippet errorFields(ErrorCode errorCode) {
+        return responseFields(Arrays.asList(
+                fieldWithPath("status").description(errorCode.getStatus()),
+                fieldWithPath("message").description(errorCode.getMessage())));
     }
 
     protected static String strToJson(String id, String value) {
