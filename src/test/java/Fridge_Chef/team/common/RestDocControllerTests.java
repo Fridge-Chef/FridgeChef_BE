@@ -14,17 +14,18 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationExtension;
+import org.springframework.restdocs.payload.RequestFieldsSnippet;
 import org.springframework.restdocs.payload.ResponseFieldsSnippet;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.ResultMatcher;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.result.StatusResultMatchers;
 
 import java.util.Arrays;
 
 import static Fridge_Chef.team.common.RestDocControllerTests.SCHEME;
+import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
 import static org.springframework.http.HttpHeaders.HOST;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
@@ -53,16 +54,38 @@ public class RestDocControllerTests {
         return status().is(errorCode.getStatus());
     }
 
-    public static ResponseFieldsSnippet errorFields() {
-        return responseFields(Arrays.asList(
-                fieldWithPath("status").description("에러 상태"),
-                fieldWithPath("message").description("에러 메시지")));
+    protected static ResultMatcher status(int errorCode) {
+        return status().is(errorCode);
     }
 
     public static ResponseFieldsSnippet errorFields(ErrorCode errorCode) {
         return responseFields(Arrays.asList(
                 fieldWithPath("status").description(errorCode.getStatus()),
                 fieldWithPath("message").description(errorCode.getMessage())));
+    }
+
+    public static ResponseFieldsSnippet errorFields(int status, String message) {
+        return responseFields(Arrays.asList(
+                fieldWithPath("status").description(status),
+                fieldWithPath("message").description(message)));
+    }
+
+    protected static void failResultAction(ResultActions actions, String message, RequestFieldsSnippet snippet, ErrorCode errorCode) throws Exception {
+        actions.andExpect(status(errorCode))
+                .andDo(document(message + " - " + errorCode,
+                        snippet, errorFields(errorCode)));
+    }
+
+    protected static void failResultAction(ResultActions actions, String message, RequestFieldsSnippet snippet, String errorMessage, int errorCode) throws Exception {
+        actions.andExpect(status(errorCode))
+                .andDo(document(message + " - " + errorCode,
+                        snippet, errorFields(errorCode, errorMessage)));
+    }
+
+    protected static void failResultAction(ResultActions actions, String message, RequestFieldsSnippet snippet, ErrorCode errorCode, String errorMessage) throws Exception {
+        actions.andExpect(status(errorCode))
+                .andDo(document(message + " - " + errorCode,
+                        snippet, errorFields(errorCode.getStatus(), errorMessage)));
     }
 
     protected static String strToJson(String id, String value) {
@@ -142,16 +165,24 @@ public class RestDocControllerTests {
         );
     }
 
-    //        mockMvc.perform(get(uri,))
-    protected ResultActions jsonGetWhen(String uri) throws Exception {
-        return mockMvc.perform(MockMvcRequestBuilders
-                .get(uri)
+    protected ResultActions jsonPatchPathWhen(String uri, String request) throws Exception {
+        return mockMvc.perform(patch(uri)
                 .characterEncoding("UTF-8")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
+                .content(request)
                 .with(csrf())
         );
     }
+
+    protected ResultActions jsonGetWhen(String uri) throws Exception {
+        return mockMvc.perform(get(uri)
+                .characterEncoding("UTF-8")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+        );
+    }
+
 
     protected ResultActions jsonPostWhen(String uri) throws Exception {
         return mockMvc.perform(post(uri)
@@ -159,7 +190,6 @@ public class RestDocControllerTests {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(csrf())
-
         );
     }
 
