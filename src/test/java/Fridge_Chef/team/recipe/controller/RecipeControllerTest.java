@@ -24,7 +24,7 @@ public class RecipeControllerTest extends RestDocControllerTests {
 
     @Test
     void testDocs() throws Exception {
-       SampleRequest request = new SampleRequest("name", "value");
+        SampleRequest request = new SampleRequest("name", "value");
         String jsonContent = objectMapper.writeValueAsString(request);
         this.mockMvc.perform(post("/api/test")
                         .contentType(MediaType.APPLICATION_JSON)
