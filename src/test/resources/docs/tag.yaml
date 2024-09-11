@@ -1,9 +1,8 @@
 introduction: |
     프로젝트에 관한 소개
     - Git 주소: [https://github.com/Fridge-Chef/FridgeChef_BE](https://github.com/Fridge-Chef/FridgeChef_BE)
-    - 서버 주소: [https://158.179.194.111](https://158.179.194.111)
+    - 서버 주소: [https://fridgebe.site](https://fridgebe.site)
 
 server-environment: |
     서버 환경:
-    - 언어: Java17
     - 클라우드: OCS(Oracle Cloud Service)
