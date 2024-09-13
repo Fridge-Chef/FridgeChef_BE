@@ -2,7 +2,10 @@ package Fridge_Chef.team.recipe.service;
 
 import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.exception.ErrorCode;
+import Fridge_Chef.team.ingredient.rest.response.IngredientResponse;
+import Fridge_Chef.team.ingredient.service.IngredientService;
 import Fridge_Chef.team.recipe.domain.Recipe;
+import Fridge_Chef.team.recipe.domain.RecipeIngredient;
 import Fridge_Chef.team.recipe.repository.RecipeRepository;
 import Fridge_Chef.team.recipe.rest.request.RecipeRequest;
 import Fridge_Chef.team.recipe.rest.response.RecipeDetailsResponse;
@@ -15,6 +18,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
@@ -28,10 +32,9 @@ import java.util.regex.Pattern;
 public class RecipeService {
 
     private final RecipeRepository recipeRepository;
+    private final IngredientService ingredientService;
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
-
-    private static final Pattern pattern = Pattern.compile("●[^:]+:\\s*(.*?)\\n|([^,\\n]+)(\\((.*?)\\))?");
 
     @Value("${recipeRequestUrl}")
     private String baseUrl;
@@ -45,6 +48,7 @@ public class RecipeService {
         return recipeNames;
     }
 
+    @Transactional
     public RecipeDetailsResponse getRecipeDetails(String recipeName) throws ApiException {
 
         Optional<Recipe> optionalRecipe = recipeRepository.findByName(recipeName);
@@ -56,6 +60,13 @@ public class RecipeService {
         String url = baseUrl + "/RCP_NM=" + recipeName;
         JsonNode json = requestRecipe(url);
         Recipe recipe = extractRecipeDetails(json);
+
+        for (RecipeIngredient recipeIngredient : recipe.getRecipeIngredients()) {
+            if (recipeIngredient.getIngredient().getId() == null) {
+                ingredientService.save(recipeIngredient.getIngredient());
+            }
+        }
+
         recipeRepository.save(recipe);
 
         return recipeToDto(recipe);
@@ -106,11 +117,13 @@ public class RecipeService {
         String instructions = extractInstructions(recipeInfo);
         String imageUrl = recipeInfo.get("ATT_FILE_NO_MAIN").asText();
 
+        List<RecipeIngredient> recipeIngredientList = ingredientService.extractIngredients(ingredients);
+
         return Recipe.builder()
                 .name(name)
-                .ingredients(extractIngredients(ingredients))
                 .instructions(instructions)
                 .imageUrl(imageUrl)
+                .recipeIngredients(recipeIngredientList)
                 .build();
     }
 
@@ -127,36 +140,20 @@ public class RecipeService {
         return instructions.toString().trim();
     }
 
-    private List<String> extractIngredients(String ingredientsDetails) {
-
-        List<String> ingredientsList = new ArrayList<>();
-
-        Matcher matcher = pattern.matcher(ingredientsDetails);
-
-        while (matcher.find()) {
-            if (matcher.group(1) != null) {
-                String[] mainIngredients = matcher.group(1).split(",");
-                for (String ingredient : mainIngredients) {
-                    ingredientsList.add(ingredient.trim());
-                }
-            } else if (matcher.group(2) != null) {
-                String ingredient = matcher.group(2).trim();
-                String quantity = matcher.group(4) != null ? matcher.group(4).trim() : "";
-                ingredientsList.add(ingredient + (quantity.isEmpty() ? "" : " (" + quantity + ")"));
-            }
-        }
-
-        return ingredientsList;
-    }
-
     private RecipeDetailsResponse recipeToDto(Recipe recipe) {
+
+        List<IngredientResponse> ingredients = recipe.getRecipeIngredients().stream()
+                .map(recipeIngredient -> IngredientResponse.builder()
+                        .name(recipeIngredient.getIngredient().getName())
+                        .quantity(recipeIngredient.getQuantity())
+                        .build())
+                .toList();
 
         return RecipeDetailsResponse.builder()
                 .name(recipe.getName())
-                .ingredients(recipe.getIngredients())
+                .ingredients(ingredients)
                 .instructions(recipe.getInstructions())
                 .imageUrl(recipe.getImageUrl())
                 .build();
     }
-
 }

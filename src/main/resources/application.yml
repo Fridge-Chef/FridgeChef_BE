@@ -30,6 +30,4 @@ springdoc:
   api-docs:
     enabled: false
 
-
-#recipe 조회 사용 url
 recipeRequestUrl: ENC(RqCgrjm8BoLrSVLTLm+65PJNK0r+zK1XhUinUMvGZ+YXpJHOLn5z9kOQi1zYwv2YHNOg6ZYyiRnrlRE9apEvGHJ8CS5UHUVoxx1091dPGrwgLneL9l64atnPFejJEtEY)

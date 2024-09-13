@@ -31,5 +31,7 @@ public class Recipe extends BaseEntity {
     @Column(name = "instructions", columnDefinition = "TEXT")   //임시로 길이 늘림. 수정 필요
     private String instructions;
     private String imageUrl;
-    private List<String> ingredients;
+
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RecipeIngredient> recipeIngredients;
 }
