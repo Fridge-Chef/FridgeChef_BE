@@ -16,6 +16,13 @@ repositories {
     mavenCentral()
 }
 
+configurations {
+    asciidoctorExt
+    querydsl.extendsFrom compileClasspath
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-security'
@@ -60,12 +67,12 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-params'
     testImplementation 'org.junit.jupiter:junit-jupiter-engine'
 
-    //openapi - docs
+    //docs -> rest doc -openapi - swagger - redocly
     testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
     testImplementation 'com.epages:restdocs-api-spec-mockmvc:0.18.2'
-    implementation 'org.springdoc:springdoc-openapi-ui:1.8.0'
+    implementation 'org.springdoc:springdoc-openapi-ui:1.7.0'
     testImplementation 'com.epages:restdocs-api-spec-restassured:0.18.2'
-    testImplementation 'org.springframework.restdocs:spring-restdocs-restassured'
+    testImplementation 'org.springframework.restdocs:spring-restdocs-core'
 
 }
 
@@ -84,7 +91,6 @@ openapi3 {
     title = 'Fridge Chef API Docs'
     description = 'Fridge Chef API description'
     tagDescriptionsPropertiesFile = 'src/test/resources/docs/tag.yaml'
-    version = '0.1.0'
     format = 'yaml'
 }
 
@@ -92,9 +98,8 @@ task makeOAS(type: Exec) {
     commandLine './gradlew', 'openapi3'
 }
 
-task openapi3fix(type: Exec) {
-    delete file(docsDir)
 
+task openapi3fix(type: Exec) {
     commandLine 'bash', '-c', 'source venv/bin/activate && python fix-openapi-yaml.py build/api-spec/openapi3.yaml'
     standardOutput = new ByteArrayOutputStream()
 
@@ -113,7 +118,8 @@ task openapi3fix(type: Exec) {
 }
 
 task redocGenerationIntegration(type: Exec) {
-    commandLine 'bash', '-c', 'source venv/bin/activate && redoc-cli bundle openapi-fixed.yaml'
+    sleep(1000)
+    commandLine 'bash', '-c', 'source venv/bin/activate && python fix-openapi-required-yaml.py && redoc-cli bundle openapi-fixed.yaml'
 
     doLast {
         copy {
