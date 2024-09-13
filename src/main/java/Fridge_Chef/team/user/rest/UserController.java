@@ -1,15 +1,12 @@
 package Fridge_Chef.team.user.rest;
 
-import Fridge_Chef.team.cert.rest.request.SignUpRequest;
 import Fridge_Chef.team.cert.service.CertService;
-import Fridge_Chef.team.exception.ApiException;
-import Fridge_Chef.team.exception.ErrorCode;
+import Fridge_Chef.team.mail.rest.request.SignUpRequest;
 import Fridge_Chef.team.security.JwtProvider;
 import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.rest.model.AuthenticatedUser;
 import Fridge_Chef.team.user.rest.request.UserAccountDeleteRequest;
 import Fridge_Chef.team.user.rest.request.UserAuthenticateRequest;
-import Fridge_Chef.team.user.rest.request.UserEmailCheckRequest;
 import Fridge_Chef.team.user.rest.request.UserPasswordChangeRequest;
 import Fridge_Chef.team.user.rest.response.UserProfileResponse;
 import Fridge_Chef.team.user.rest.response.UserResponse;
@@ -59,13 +56,8 @@ public class UserController {
         userService.updatePassword(authenticatedUser.userId(), request.password(), request.newPassword());
     }
 
-    @PostMapping("/email/check")
-    public void emailCheck(@RequestBody UserEmailCheckRequest request) {
-        userService.checkEmailValidAndUnique(request.email());
-    }
-
     private UserResponse createUserResponse(User user) {
-        String token = jwtProvider.create(user.getUserId(),user.getRole());
+        String token = jwtProvider.create(user.getUserId(), user.getRole());
         return UserResponse.from(user, token);
     }
 }
