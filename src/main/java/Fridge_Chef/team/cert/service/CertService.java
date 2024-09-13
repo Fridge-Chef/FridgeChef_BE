@@ -1,14 +1,13 @@
 package Fridge_Chef.team.cert.service;
 
+import Fridge_Chef.team.cert.domain.Cert;
+import Fridge_Chef.team.cert.repository.CertRepository;
+import Fridge_Chef.team.cert.service.request.EmailVerifyRequest;
+import Fridge_Chef.team.cert.service.request.SignUpCertRequest;
 import Fridge_Chef.team.common.entity.OracleBoolean;
 import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.exception.ErrorCode;
-import Fridge_Chef.team.cert.domain.Cert;
-import Fridge_Chef.team.cert.repository.CertRepository;
-import Fridge_Chef.team.cert.rest.request.SignUpRequest;
-import Fridge_Chef.team.cert.rest.response.SignUpCertVerifyResponse;
-import Fridge_Chef.team.cert.service.request.EmailVerifyRequest;
-import Fridge_Chef.team.cert.service.request.SignUpCertRequest;
+import Fridge_Chef.team.mail.rest.request.SignUpRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,20 +31,19 @@ public class CertService {
     @Transactional(readOnly = true)
     public void validateCert(String email) {
         Optional<Cert> cert = repository.findFirstByEmailOrderByCreateTimeDesc(email);
-        if(cert.isEmpty()){
+        if (cert.isEmpty()) {
             throw new ApiException(ErrorCode.SIGNUP_CERT_NON_REQUEST);
         }
-        if (!cert.get().getAuthentication().bool()){
+        if (!cert.get().getAuthentication().bool()) {
             throw new ApiException(ErrorCode.SIGNUP_CERT_CODE_UNVERIFIED);
         }
     }
 
     @Transactional
-    public SignUpCertVerifyResponse emailVerifyCodeCheck(EmailVerifyRequest request) {
+    public void emailVerifyCodeCheck(EmailVerifyRequest request) {
         Cert cert = verifyCodeCheck(request)
                 .orElseThrow(() -> new ApiException(ErrorCode.SIGNUP_EMAIL_VERIFY_CODE_FAILED));
         cert.updateAuthentication(true);
-        return new SignUpCertVerifyResponse(true);
     }
 
     public int newVerificationCode() {
@@ -62,6 +60,6 @@ public class CertService {
     }
 
     private Optional<Cert> verifyCodeCheck(EmailVerifyRequest request) {
-        return repository.findFirstByEmailAndVerificationCodeOrderByCreateTimeDesc(request.email(),request.code());
+        return repository.findFirstByEmailAndVerificationCodeOrderByCreateTimeDesc(request.email(), request.code());
     }
 }
