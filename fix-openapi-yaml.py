@@ -16,7 +16,23 @@ def fix_examples(res: dict):
                 except:
                     pass
 
+def update_tags(api_dict: dict):
+    for path, methods in api_dict.items():
+        for method, details in methods.items():
+            if "tags" in details:
+                # 기존 태그를 삭제
+                details.pop("tags")
+            # 도메인 추출
+            path_parts = path.strip('/').split('/')
+            if len(path_parts) > 1:
+                domain = path_parts[1]
+            else:
+                domain = 'default'
+            details['tags'] = [domain]
+
 with open(sys.argv[1], "r") as api_file:
     res = yaml.safe_load(api_file)
     fix_examples(res)
-    print(yaml.dump(res))
+    if 'paths' in res:
+        update_tags(res['paths'])
+    yaml.dump(res, sys.stdout)
