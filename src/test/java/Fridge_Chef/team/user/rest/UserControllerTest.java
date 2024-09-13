@@ -1,11 +1,11 @@
 package Fridge_Chef.team.user.rest;
 
-import Fridge_Chef.team.cert.rest.request.SignUpRequest;
 import Fridge_Chef.team.cert.service.CertService;
 import Fridge_Chef.team.common.RestDocControllerTests;
 import Fridge_Chef.team.common.auth.WithMockCustomUser;
 import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.exception.ErrorCode;
+import Fridge_Chef.team.mail.rest.request.SignUpRequest;
 import Fridge_Chef.team.security.JwtProvider;
 import Fridge_Chef.team.user.domain.Role;
 import Fridge_Chef.team.user.domain.User;
@@ -13,13 +13,13 @@ import Fridge_Chef.team.user.domain.UserId;
 import Fridge_Chef.team.user.repository.UserRepository;
 import Fridge_Chef.team.user.rest.request.UserAccountDeleteRequest;
 import Fridge_Chef.team.user.rest.request.UserAuthenticateRequest;
-import Fridge_Chef.team.user.rest.request.UserEmailCheckRequest;
 import Fridge_Chef.team.user.rest.request.UserPasswordChangeRequest;
 import Fridge_Chef.team.user.service.UserService;
 import fixture.UserFixture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.restdocs.payload.RequestFieldsSnippet;
@@ -28,6 +28,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static Fridge_Chef.team.exception.ErrorCode.*;
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
@@ -47,8 +48,9 @@ public class UserControllerTest extends RestDocControllerTests {
     private UserRepository userRepository;
     @MockBean
     private PasswordEncoder passwordEncoder;
-
     private User user;
+    @Autowired
+    private JwtProvider jreJwtProvider;
 
     @BeforeEach
     void setup() {
@@ -112,35 +114,6 @@ public class UserControllerTest extends RestDocControllerTests {
     }
 
     @Test
-    void email_success() throws Exception {
-        UserEmailCheckRequest jsonRequest = new UserEmailCheckRequest(user.getEmail());
-        String request = objectMapper.writeValueAsString(jsonRequest);
-
-        doNothing().when(userService).checkEmailValidAndUnique(jsonRequest.email());
-
-        ResultActions actions = jsonPostWhen("/api/user/email/check", request);
-
-        actions.andExpect(status().isOk())
-                .andDo(document("이메일 체크",
-                        userEmailCheckRequestProvider()
-                ));
-    }
-
-    @Test
-    void email_check_fail() throws Exception {
-        UserEmailCheckRequest jsonRequest = new UserEmailCheckRequest(user.getEmail());
-        String request = objectMapper.writeValueAsString(jsonRequest);
-        ErrorCode errorCode = USER_EMAIL_UNIQUE;
-
-        doThrow(new ApiException(USER_EMAIL_UNIQUE))
-                .when(userService).checkEmailValidAndUnique(jsonRequest.email());
-
-        ResultActions actions = jsonPostWhen("/api/user/email/check", request);
-
-        failResultAction(actions, "이메일 중복", userEmailCheckRequestProvider(), errorCode);
-    }
-
-    @Test
     @WithMockCustomUser
     void account_delete() throws Exception {
         UserAccountDeleteRequest jsonRequest = new UserAccountDeleteRequest(user.getProfile().getUsername());
@@ -148,7 +121,7 @@ public class UserControllerTest extends RestDocControllerTests {
 
         doNothing().when(userService).accountDelete(user.getUserId(), jsonRequest.username());
 
-        ResultActions actions = jsonDeleteWhen("/api/user/account", request);
+        ResultActions actions = jwtJsonDeleteWhen("/api/user/account", request);
 
         actions.andExpect(status().isOk())
                 .andDo(document("회원탈퇴",
@@ -167,7 +140,7 @@ public class UserControllerTest extends RestDocControllerTests {
                 .when(userService)
                 .accountDelete(any(UserId.class), eq(jsonRequest.username()));
 
-        ResultActions actions = jsonDeleteWhen("/api/user/account", request);
+        ResultActions actions = jwtJsonDeleteWhen("/api/user/account", request);
 
         failResultAction(actions, "회원탈퇴 ", userAccountDeleteRequestProvider(), errorCode);
     }
@@ -183,7 +156,7 @@ public class UserControllerTest extends RestDocControllerTests {
                 .when(userService)
                 .accountDelete(any(UserId.class), eq(jsonRequest.username()));
 
-        ResultActions actions = jsonDeleteWhen("/api/user/account", request);
+        ResultActions actions = jwtJsonDeleteWhen("/api/user/account", request);
 
         failResultAction(actions, "회원탈퇴 ", userAccountDeleteRequestProvider(), errorCode);
     }
@@ -199,7 +172,7 @@ public class UserControllerTest extends RestDocControllerTests {
                 .when(userService)
                 .accountDelete(any(UserId.class), eq(jsonRequest.username()));
 
-        ResultActions actions = jsonDeleteWhen("/api/user/account", request);
+        ResultActions actions = jwtJsonDeleteWhen("/api/user/account", request);
 
         failResultAction(actions, "회원탈퇴 ", userAccountDeleteRequestProvider(), errorCode);
     }
@@ -213,10 +186,11 @@ public class UserControllerTest extends RestDocControllerTests {
 
         doNothing().when(userService).updatePassword(user.getUserId(), jsonRequest.password(), jsonRequest.newPassword());
 
-        ResultActions actions = jsonPatchPathWhen("/api/user/password", request);
+        ResultActions actions = jwtJsonPatchWhen("/api/user/password", request);
 
         actions.andExpect(status().isOk())
                 .andDo(document("비밀번호 변경",
+                        jwtTokenRequest(),
                         userPasswordChangeRequestProvider()
                 ));
     }
@@ -232,11 +206,10 @@ public class UserControllerTest extends RestDocControllerTests {
                 .when(userService)
                 .updatePassword(any(UserId.class), eq(jsonRequest.password()), eq(jsonRequest.newPassword()));
 
-        ResultActions actions = jsonPatchPathWhen("/api/user/password", request);
+        ResultActions actions = jwtJsonPatchWhen("/api/user/password", request);
 
         failResultAction(actions, "비밀번호 변경 ", userPasswordChangeRequestProvider(), errorCode);
     }
-
 
     @Test
     @WithMockCustomUser
@@ -249,7 +222,7 @@ public class UserControllerTest extends RestDocControllerTests {
                 .when(userService)
                 .updatePassword(any(UserId.class), eq(jsonRequest.password()), eq(jsonRequest.newPassword()));
 
-        ResultActions actions = jsonPatchPathWhen("/api/user/password", request);
+        ResultActions actions = jwtJsonPatchWhen("/api/user/password", request);
 
         failResultAction(actions, "비밀번호 변경 ", userPasswordChangeRequestProvider(), errorCode);
     }
@@ -265,7 +238,7 @@ public class UserControllerTest extends RestDocControllerTests {
                 .when(userService)
                 .updatePassword(any(UserId.class), eq(jsonRequest.password()), eq(jsonRequest.newPassword()));
 
-        ResultActions actions = jsonPatchPathWhen("/api/user/password", request);
+        ResultActions actions = jwtJsonPatchWhen("/api/user/password", request);
 
         failResultAction(actions, "비밀번호 변경 ", userPasswordChangeRequestProvider(), errorCode);
     }
@@ -277,11 +250,10 @@ public class UserControllerTest extends RestDocControllerTests {
         String request = objectMapper.writeValueAsString(jsonRequest);
         ErrorCode errorCode = PASSWORD_VALID_FAIL;
 
-        doThrow(new ApiException(errorCode))
-                .when(userService)
+        doThrow(new ApiException(errorCode)).when(userService)
                 .updatePassword(any(UserId.class), eq(jsonRequest.password()), eq(jsonRequest.newPassword()));
 
-        ResultActions actions = jsonPatchPathWhen("/api/user/password", request);
+        ResultActions actions = jwtJsonPatchWhen("/api/user/password", request);
 
         failResultAction(actions, "비밀번호 변경 ", userPasswordChangeRequestProvider(), errorCode);
     }
@@ -291,13 +263,12 @@ public class UserControllerTest extends RestDocControllerTests {
     void user_select() throws Exception {
         when(userService.findByUser(any(UserId.class)))
                 .thenReturn(user);
-        when(jwtProvider.create(user.getUserId(), user.getRole()))
-                .thenReturn("token");
 
-        ResultActions actions = jsonGetWhen("/api/user");
+        ResultActions actions = jwtGetWhen("/api/user");
 
         actions.andExpect(status().isOk())
                 .andDo(document("유저 조회",
+                        jwtTokenRequest(),
                         responseFields(
                                 fieldWithPath("user").description("유저"),
                                 fieldWithPath("user.email").description("이메일"),
@@ -371,16 +342,16 @@ public class UserControllerTest extends RestDocControllerTests {
 
     private RequestFieldsSnippet userSignupRequestProvider() {
         return requestFields(Arrays.asList(
-                fieldWithPath("email").description("이메일 형식에 맞게 입력해주세요."),
-                fieldWithPath("password").description("현재 " + PASSWORD_VALID_FAIL.getMessage()),
-                fieldWithPath("username").description("이름:2~30자를 입력해 주세요.")
+                fieldWithPath("email").description("이메일 형식에 맞게 입력해주세요.").optional(),
+                fieldWithPath("password").description("현재 " + PASSWORD_VALID_FAIL.getMessage()).optional(),
+                fieldWithPath("username").description("이름:2~30자를 입력해 주세요.").optional()
         ));
     }
 
     public static ResponseFieldsSnippet userSignupResponseProvider() {
         return responseFields(Arrays.asList(
                 fieldWithPath("user").description("유저"),
-                fieldWithPath("user.email").description("이메일 ."),
+                fieldWithPath("user.email").description("이메일"),
                 fieldWithPath("user.token").description("access token (30분)"),
                 fieldWithPath("user.username").description("이름")
         ));
@@ -388,27 +359,22 @@ public class UserControllerTest extends RestDocControllerTests {
 
     private RequestFieldsSnippet userPasswordChangeRequestProvider() {
         return requestFields(Arrays.asList(
-                fieldWithPath("password").description("현재 비밀번호"),
-                fieldWithPath("newPassword").description("새로운 " + PASSWORD_VALID_FAIL.getMessage())
+                fieldWithPath("password").description("현재 비밀번호").optional(),
+                fieldWithPath("newPassword").description("새로운 " + PASSWORD_VALID_FAIL.getMessage()).optional()
         ));
     }
 
     private RequestFieldsSnippet userAccountDeleteRequestProvider() {
-        return requestFields(Arrays.asList(
-                fieldWithPath("username").description("탈퇴 여부 재확인용 이름 입력")
+        return requestFields(List.of(
+                fieldWithPath("username").description("탈퇴 여부 재확인용 이름 입력").optional()
         ));
     }
 
-    private RequestFieldsSnippet userEmailCheckRequestProvider() {
-        return requestFields(Arrays.asList(
-                fieldWithPath("email").description("이메일 중복 체크")
-        ));
-    }
 
     private RequestFieldsSnippet userLoginRequestProvider() {
         return requestFields(Arrays.asList(
-                fieldWithPath("email").description("이메일"),
-                fieldWithPath("password").description(PASSWORD_VALID_FAIL.getMessage())
+                fieldWithPath("email").description("이메일").optional(),
+                fieldWithPath("password").description(PASSWORD_VALID_FAIL.getMessage()).optional()
         ));
     }
 }
