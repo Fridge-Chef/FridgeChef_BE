@@ -1,4 +1,4 @@
-package Fridge_Chef.team.cert.rest.request;
+package Fridge_Chef.team.mail.rest.request;
 
 import Fridge_Chef.team.common.validator.PasswordValid;
 import jakarta.validation.constraints.Email;
