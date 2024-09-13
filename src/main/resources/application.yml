@@ -22,5 +22,14 @@ spring:
     ansi:
       enabled: always
 
+springdoc:
+  swagger-ui:
+    enabled: false
+    tags-sorter: method
+    operations-sorter: method
+  api-docs:
+    enabled: false
+
+
 #recipe 조회 사용 url
 recipeRequestUrl: h
