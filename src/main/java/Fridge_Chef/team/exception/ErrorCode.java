@@ -15,40 +15,41 @@ public enum ErrorCode {
     SECURITY_AUTHENTICATION_METHOD_NOT_SUPPORTED(450, "인증 방법이 지원되지 않습니다."),
     SECURITY_MESSAGE(451, ""),
 
+    //token
+    TOKEN_ACCESS_EXPIRED_FAIL(401, "토큰값 만료"),
+    TOKEN_ACCESS_NOT_USER(400, "토큰값 유저정보 없음"),
+
     //image
-    IMAGE_REMOTE_UPLOAD(401, "이미지 원격 업로드 실패"),
-    IMAGE_REMOTE_SESSION(402, "이미지 세션 오류"),
-    IMAGE_REMOTE_DELETE_FAIL(403, "이미지 삭제 실패"),
-    IMAGE_NOT_ID(404, "이미지의 고유한 ID 가 존재하지 않음"),
-    IMAGE_AUTHOR_MISMATCH(404, "이미지의 작성자가 일치하지 않음"),
+    IMAGE_REMOTE_UPLOAD(405, "이미지 원격 업로드 실패"),
+    IMAGE_REMOTE_SESSION(406, "이미지 세션 오류"),
+    IMAGE_REMOTE_DELETE_FAIL(407, "이미지 삭제 실패"),
+    IMAGE_NOT_ID(408, "이미지의 고유한 ID 가 존재하지 않음"),
+    IMAGE_AUTHOR_MISMATCH(409, "이미지의 작성자가 일치하지 않음"),
 
     //USER
-    USER_EMAIL_UNIQUE(401, "이메일 중복 에러"),
-    USER_ID_DUPLICATE(403, "아이디 중복 에러"),
-    USER_NOT_FOUND(404, "유저 정보 없음"),
-    USER_NOT_EMAIL(405, "이메일 정보 없음"),
-    LOGIN_PASSWORD_INCORRECT(402, "로그인 패스워드 불일치"),
+    USER_EMAIL_UNIQUE(406, "이메일 중복 에러"),
+    USER_NOT_FOUND(405, "유저 정보 없음"),
+    USER_NOT_EMAIL(407, "이메일 정보 없음"),
+    LOGIN_PASSWORD_INCORRECT(408, "로그인 패스워드 불일치"),
 
     //email
-    EMAIL_SEND_PARSE(401, "메시지 구문 분석에 실패"),
-    EMAIL_SEND_AUTHENTICATION(402, "인증이 실패"),
-    EMAIL_SEND(403, "메시지 전송에 실패"),
+    EMAIL_SEND_PARSE(405, "메시지 구문 분석에 실패"),
+    EMAIL_SEND_AUTHENTICATION(406, "인증이 실패"),
+    EMAIL_SEND(407, "메시지 전송에 실패"),
 
 
     //signup
     SIGNUP_EMAIL_VERIFY_CODE_FAILED(405, "이메일 인증 실패"),
-    SIGNUP_EMAIL_DUPLICATE(402, "회원가입 이메일 중복"),
-    SIGNUP_CERT_CODE_UNVERIFIED(401, "회원가입 인증코드 미인증"),
-    TOKEN_ACCESS_EXPIRED_FAIL(401, "토큰값 만료"),
-    TOKEN_ACCESS_NOT_USER(400, "토큰값 유저정보 없음"),
-    USER_ACCOUNT_DELETE(405, "이미 탈퇴 요청한 사용자 입니다. "),
-    USER_ACCOUNT_DELETE_NAME_INCORRECT(406, "회원탈퇴 요청중 이름을 다르게 입력"),
-    USER_PASSWORD_INPUT_FAIL(401, "기존 비밀번호 틀림"),
-    USER_NEW_PASSWORD_SAME_AS_OLD(402, "사용자 새 비밀번호가 이전 비밀번호와 동일"),
+    SIGNUP_EMAIL_DUPLICATE(406, "회원가입 이메일 중복"),
+    SIGNUP_CERT_CODE_UNVERIFIED(407, "회원가입 인증코드 미인증"),
+    USER_ACCOUNT_DELETE(408, "이미 탈퇴 요청한 사용자 입니다. "),
+    USER_ACCOUNT_DELETE_NAME_INCORRECT(409, "회원탈퇴 요청중 이름을 다르게 입력"),
+    USER_PASSWORD_INPUT_FAIL(410, "기존 비밀번호 틀림"),
+    USER_NEW_PASSWORD_SAME_AS_OLD(411, "사용자 새 비밀번호가 이전 비밀번호와 동일"),
 
-    PASSWORD_IS_REQUIRED(400,"비밀번호를 입력해주세요." ),
-    PASSWORD_VALID_FAIL(400,"비밀번호는 6자 이상 38자 이하의 숫자 또는 영문자로 입력해주세요." ),
-    SIGNUP_CERT_NON_REQUEST(403,"회원가입 인증과정을 무시했습니다." );
+    PASSWORD_IS_REQUIRED(412,"비밀번호를 입력해주세요." ),
+    PASSWORD_VALID_FAIL(413,"비밀번호는 6자 이상 38자 이하의 숫자 또는 영문자로 입력해주세요." ),
+    SIGNUP_CERT_NON_REQUEST(414,"회원가입 인증과정을 무시했습니다." );
 
     private final int status;
     private final String message;
