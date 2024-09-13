@@ -1,5 +1,7 @@
-package Fridge_Chef.team.cert.rest.request;
+package Fridge_Chef.team.mail.rest.request;
 
+import io.micrometer.common.lang.Nullable;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 
