@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationExtension;
+import org.springframework.restdocs.headers.RequestHeadersSnippet;
 import org.springframework.restdocs.payload.RequestFieldsSnippet;
 import org.springframework.restdocs.payload.ResponseFieldsSnippet;
 import org.springframework.test.web.servlet.MockMvc;
@@ -21,12 +22,12 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.result.StatusResultMatchers;
-
 import java.util.Arrays;
 
-import static Fridge_Chef.team.common.RestDocControllerTests.SCHEME;
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
-import static org.springframework.http.HttpHeaders.HOST;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
+import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
@@ -34,12 +35,10 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 @MockBean(JpaMetamodelMappingContext.class)
 @ExtendWith(RestDocumentationExtension.class)
-@AutoConfigureRestDocs(uriScheme = SCHEME, uriHost = HOST)
+@AutoConfigureRestDocs
 @AutoConfigureMockMvc(addFilters = false)
 @Import(TestSecurityConfig.class)
 public class RestDocControllerTests {
-    public static final String SCHEME = "https";
-    public static final String HOST = "localhost";
     protected static ObjectMapper objectMapper = new ObjectMapper();
     protected static JSONParser jsonParser = new JSONParser();
     @Autowired
@@ -72,21 +71,27 @@ public class RestDocControllerTests {
 
     protected static void failResultAction(ResultActions actions, String message, RequestFieldsSnippet snippet, ErrorCode errorCode) throws Exception {
         actions.andExpect(status(errorCode))
-                .andDo(document(message + " - " + errorCode,
+                .andDo(document(message + " - " + errorCode.getMessage(),
                         snippet, errorFields(errorCode)));
     }
 
     protected static void failResultAction(ResultActions actions, String message, RequestFieldsSnippet snippet, String errorMessage, int errorCode) throws Exception {
         actions.andExpect(status(errorCode))
-                .andDo(document(message + " - " + errorCode,
+                .andDo(document(message + " - " + errorMessage,
                         snippet, errorFields(errorCode, errorMessage)));
     }
 
     protected static void failResultAction(ResultActions actions, String message, RequestFieldsSnippet snippet, ErrorCode errorCode, String errorMessage) throws Exception {
         actions.andExpect(status(errorCode))
-                .andDo(document(message + " - " + errorCode,
+                .andDo(document(message + " - " + errorCode.getMessage(),
                         snippet, errorFields(errorCode.getStatus(), errorMessage)));
     }
+
+    protected RequestHeadersSnippet jwtTokenRequest(){
+        return requestHeaders(headerWithName("Authorization").description("Bearer token for authentication"));
+    }
+
+
 
     protected static String strToJson(String id, String value) {
         try {
@@ -128,7 +133,6 @@ public class RestDocControllerTests {
 
     protected ResultActions jsonPostWhen(String uri, String request) throws Exception {
         return mockMvc.perform(post(uri)
-                .characterEncoding("UTF-8")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(request)
@@ -165,13 +169,69 @@ public class RestDocControllerTests {
         );
     }
 
-    protected ResultActions jsonPatchPathWhen(String uri, String request) throws Exception {
+    protected ResultActions jsonPatchWhen(String uri, String request) throws Exception {
         return mockMvc.perform(patch(uri)
                 .characterEncoding("UTF-8")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(request)
                 .with(csrf())
+        );
+    }
+
+    protected ResultActions jwtGetWhen(String uri) throws Exception {
+        return mockMvc.perform(get(uri)
+                .header(AUTHORIZATION, "Bearer ")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+        );
+    }
+
+    protected ResultActions jwtJsonGetWhen(String uri, String request) throws Exception {
+        return mockMvc.perform(get(uri)
+                .characterEncoding("UTF-8")
+                .header(AUTHORIZATION, "Bearer ")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(request)
+        );
+    }
+
+    protected ResultActions jwtJsonPostWhen(String uri, String request) throws Exception {
+        return mockMvc.perform(post(uri)
+                .characterEncoding("UTF-8")
+                .header(AUTHORIZATION, "Bearer ")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(request)
+        );
+    }
+
+
+    protected ResultActions jwtJsonPatchWhen(String uri, String request) throws Exception {
+        return mockMvc.perform(patch(uri)
+                .header(AUTHORIZATION, "Bearer ")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(request)
+        );
+    }
+
+    protected ResultActions jwtJsonPutWhen(String uri, String request) throws Exception {
+        return mockMvc.perform(put(uri)
+                .header(AUTHORIZATION, "Bearer ")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(request)
+        );
+    }
+
+    protected ResultActions jwtJsonDeleteWhen(String uri, String request) throws Exception {
+        return mockMvc.perform(delete(uri)
+                .header(AUTHORIZATION, "Bearer ")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(request)
         );
     }
 
@@ -182,7 +242,6 @@ public class RestDocControllerTests {
                 .accept(MediaType.APPLICATION_JSON)
         );
     }
-
 
     protected ResultActions jsonPostWhen(String uri) throws Exception {
         return mockMvc.perform(post(uri)
@@ -252,18 +311,7 @@ public class RestDocControllerTests {
                 .characterEncoding("UTF-8")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(csrf())
         );
     }
 
-
-    protected ResultActions jsonUpdatePathAndJsonWhen(String uri, int path, String json) throws Exception {
-        return mockMvc.perform(patch(uri, path)
-                .characterEncoding("UTF-8")
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .content(json)
-                .with(csrf())
-        );
-    }
 }
