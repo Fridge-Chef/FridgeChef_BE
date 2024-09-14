@@ -16,14 +16,14 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/api/recipe")
+@RequestMapping("/api/recipes")
 @RequiredArgsConstructor
 public class RecipeController {
 
     private final RecipeService recipeService;
 
     //레시피 이름 조회 api
-    @GetMapping("")
+    @GetMapping("/")
     public ResponseEntity<?> recipesFromIngredients(@RequestParam("ingredients") List<String> ingredients) throws ApiException {
 
         try {

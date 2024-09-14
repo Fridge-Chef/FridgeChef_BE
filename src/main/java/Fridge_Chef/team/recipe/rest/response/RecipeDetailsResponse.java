@@ -1,5 +1,6 @@
 package Fridge_Chef.team.recipe.rest.response;
 
+import Fridge_Chef.team.ingredient.rest.response.IngredientResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,8 +13,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RecipeDetailsResponse {
-    String name;
-    List<String> ingredients;
-    String instructions;
-    String imageUrl;
+
+    private String name;
+    private List<IngredientResponse> ingredients;
+    private String instructions;
+    private String imageUrl;
 }
