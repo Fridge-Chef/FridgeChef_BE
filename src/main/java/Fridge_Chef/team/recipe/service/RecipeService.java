@@ -62,7 +62,7 @@ public class RecipeService {
         for (RecipeIngredient recipeIngredient : recipe.getRecipeIngredients()) {
             recipeIngredient.setRecipe(recipe);
             if (recipeIngredient.getIngredient().getId() == null) {
-                ingredientService.save(recipeIngredient.getIngredient());
+                ingredientService.insertIngredient(recipeIngredient.getIngredient());
             }
         }
 

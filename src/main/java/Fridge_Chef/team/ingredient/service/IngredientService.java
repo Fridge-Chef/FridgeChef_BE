@@ -17,7 +17,7 @@ public class IngredientService {
 
     private final IngredientRepository ingredientRepository;
 
-
+    private static final List<String> SEASONINGS = List.of("소금", "후추", "설탕", "식초", "간장", "고추장", "기름", "식용유", "가루");
     private static final Pattern pattern = Pattern.compile("([^,\\(\\n]+)\\s*\\(([^\\)]+)\\)");
 
 
@@ -48,7 +48,7 @@ public class IngredientService {
         return recipeIngredients;
     }
 
-    public void save(Ingredient ingredient) {
+    public void insertIngredient(Ingredient ingredient) {
         if (ingredient.getId() == null || !ingredientRepository.existsById(ingredient.getId())) {
             ingredientRepository.save(ingredient);
         }
@@ -56,12 +56,18 @@ public class IngredientService {
 
     private RecipeIngredient createRecipeIngredient(String ingredientName, String quantity) {
 
+        boolean isSeasoning = isSeasoning(ingredientName);
+
         Ingredient ingredient = ingredientRepository.findByName(ingredientName)
-                .orElse(Ingredient.builder().name(ingredientName).isSeasoning(false).build());
+                .orElse(Ingredient.builder().name(ingredientName).isSeasoning(isSeasoning).build());
 
         return RecipeIngredient.builder()
                 .ingredient(ingredient)
                 .quantity(quantity.isEmpty() ? "X" : quantity)
                 .build();
+    }
+
+    private boolean isSeasoning(String ingredientName) {
+        return SEASONINGS.stream().anyMatch(seasoning -> ingredientName.contains(seasoning));
     }
 }
