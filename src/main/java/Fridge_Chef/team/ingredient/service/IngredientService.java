@@ -17,18 +17,31 @@ public class IngredientService {
 
     private final IngredientRepository ingredientRepository;
 
-    private static final Pattern pattern = Pattern.compile("(.*?)(?:\\(([^)]+)\\))?$");
+
+    private static final Pattern pattern = Pattern.compile("([^,\\(\\n]+)\\s*\\(([^\\)]+)\\)");
+
 
     public List<RecipeIngredient> extractIngredients(String ingredients) {
         List<RecipeIngredient> recipeIngredients = new ArrayList<>();
-        String[] ingredientLines = ingredients.split("\\n");
 
-        for (String line : ingredientLines) {
-            Matcher matcher = pattern.matcher(line.trim());
-            if (matcher.matches()) {
-                String ingredientName = matcher.group(1).trim();
-                String quantity = matcher.group(2) != null ? matcher.group(2).trim() : "알 수 없음";
-                recipeIngredients.add(createRecipeIngredient(ingredientName, quantity));
+        String[] lines = ingredients.split("\n");
+
+        for (String line : lines) {
+            if (line.contains(":")) {
+                line = line.split(":")[1].trim();
+            }
+
+            String[] items = line.split(",");
+            for (String item : items) {
+                Matcher matcher = pattern.matcher(item.trim());
+
+                if (matcher.find()) {
+                    String ingredientName = matcher.group(1).trim();
+                    String quantity = matcher.group(2).trim();
+                    recipeIngredients.add(createRecipeIngredient(ingredientName, quantity));
+                } else {
+                    recipeIngredients.add(createRecipeIngredient(item.trim(), "X"));
+                }
             }
         }
 
@@ -48,7 +61,7 @@ public class IngredientService {
 
         return RecipeIngredient.builder()
                 .ingredient(ingredient)
-                .quantity(quantity.isEmpty() ? "알 수 없음" : quantity)
+                .quantity(quantity.isEmpty() ? "X" : quantity)
                 .build();
     }
 }
