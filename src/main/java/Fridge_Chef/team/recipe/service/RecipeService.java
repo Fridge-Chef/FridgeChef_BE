@@ -24,8 +24,6 @@ import org.springframework.web.client.RestTemplate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -59,9 +57,10 @@ public class RecipeService {
 
         String url = baseUrl + "/RCP_NM=" + recipeName;
         JsonNode json = requestRecipe(url);
-        Recipe recipe = extractRecipeDetails(json);
+        Recipe recipe = createRecipe(json);
 
         for (RecipeIngredient recipeIngredient : recipe.getRecipeIngredients()) {
+            recipeIngredient.setRecipe(recipe);
             if (recipeIngredient.getIngredient().getId() == null) {
                 ingredientService.save(recipeIngredient.getIngredient());
             }
@@ -70,6 +69,26 @@ public class RecipeService {
         recipeRepository.save(recipe);
 
         return recipeToDto(recipe);
+    }
+
+    private Recipe createRecipe(JsonNode json) {
+
+        JsonNode recipeInfo = json.get("COOKRCP01").get("row").get(0);
+
+        String name = recipeInfo.get("RCP_NM").asText();
+//        String category = recipeInfo.get("RCP_PAT2").asText();
+        String ingredients = recipeInfo.get("RCP_PARTS_DTLS").asText();
+        String instructions = extractInstructions(recipeInfo);
+        String imageUrl = recipeInfo.get("ATT_FILE_NO_MAIN").asText();
+
+        List<RecipeIngredient> recipeIngredientList = ingredientService.extractIngredients(ingredients);
+
+        return Recipe.builder()
+                .name(name)
+                .instructions(instructions)
+                .imageUrl(imageUrl)
+                .recipeIngredients(recipeIngredientList)
+                .build();
     }
 
     private JsonNode requestRecipe(String url) {
@@ -105,26 +124,6 @@ public class RecipeService {
         }
 
         return recipeNames;
-    }
-
-    private Recipe extractRecipeDetails(JsonNode json) {
-
-        JsonNode recipeInfo = json.get("COOKRCP01").get("row").get(0);
-
-        String name = recipeInfo.get("RCP_NM").asText();
-//        String category = recipeInfo.get("RCP_PAT2").asText();
-        String ingredients = recipeInfo.get("RCP_PARTS_DTLS").asText();
-        String instructions = extractInstructions(recipeInfo);
-        String imageUrl = recipeInfo.get("ATT_FILE_NO_MAIN").asText();
-
-        List<RecipeIngredient> recipeIngredientList = ingredientService.extractIngredients(ingredients);
-
-        return Recipe.builder()
-                .name(name)
-                .instructions(instructions)
-                .imageUrl(imageUrl)
-                .recipeIngredients(recipeIngredientList)
-                .build();
     }
 
     private String extractInstructions(JsonNode recipeInfo) {

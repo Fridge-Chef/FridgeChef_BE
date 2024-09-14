@@ -28,4 +28,8 @@ public class RecipeIngredient {
     private Ingredient ingredient;
 
     private String quantity;
+
+    public void setRecipe(Recipe recipe) {
+        this.recipe = recipe;
+    }
 }
