@@ -28,8 +28,10 @@ public class Recipe extends BaseEntity {
     private UUID id;
     private String name;
 
-    @Column(name = "instructions", columnDefinition = "TEXT")   //임시로 길이 늘림. 수정 필요
-    private String instructions;
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "recipe_manuals", joinColumns = @JoinColumn(name = "recipe_id"))
+    @Column(name = "manual")
+    private List<String> manuals;
     private String imageUrl;
 
     @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
