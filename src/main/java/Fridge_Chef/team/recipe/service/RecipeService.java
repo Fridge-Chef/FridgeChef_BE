@@ -76,16 +76,15 @@ public class RecipeService {
         JsonNode recipeInfo = json.get("COOKRCP01").get("row").get(0);
 
         String name = recipeInfo.get("RCP_NM").asText();
-//        String category = recipeInfo.get("RCP_PAT2").asText();
         String ingredients = recipeInfo.get("RCP_PARTS_DTLS").asText();
-        String instructions = extractInstructions(recipeInfo);
         String imageUrl = recipeInfo.get("ATT_FILE_NO_MAIN").asText();
 
         List<RecipeIngredient> recipeIngredientList = ingredientService.extractIngredients(ingredients);
+        List<String> manuals = extractManuals(recipeInfo);
 
         return Recipe.builder()
                 .name(name)
-                .instructions(instructions)
+                .manuals(manuals)
                 .imageUrl(imageUrl)
                 .recipeIngredients(recipeIngredientList)
                 .build();
@@ -126,17 +125,21 @@ public class RecipeService {
         return recipeNames;
     }
 
-    private String extractInstructions(JsonNode recipeInfo) {
+    private List<String> extractManuals(JsonNode recipeInfo) {
 
-        StringBuilder instructions = new StringBuilder();
+        List<String> manuals = new ArrayList<>();
 
         for (int i = 1; i <= 20; i++) {
-            String manual = recipeInfo.get("MANUAL" + String.format("%02d", i)).asText();
-            if (manual != null && !manual.isEmpty()) {
-                instructions.append(manual).append("\n");
+            String key = "MANUAL" + String.format("%02d", i);
+            JsonNode manualNode = recipeInfo.get(key);
+
+            if (manualNode != null && !manualNode.asText().isEmpty()) {
+                String manualText = manualNode.asText().replace("\n", " ").trim();
+                manuals.add(manualText);
             }
         }
-        return instructions.toString().trim();
+
+        return manuals;
     }
 
     private RecipeDetailsResponse recipeToDto(Recipe recipe) {
@@ -151,7 +154,7 @@ public class RecipeService {
         return RecipeDetailsResponse.builder()
                 .name(recipe.getName())
                 .ingredients(ingredients)
-                .instructions(recipe.getInstructions())
+                .manuals(recipe.getManuals())
                 .imageUrl(recipe.getImageUrl())
                 .build();
     }

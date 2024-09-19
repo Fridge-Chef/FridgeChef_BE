@@ -16,6 +16,6 @@ public class RecipeDetailsResponse {
 
     private String name;
     private List<IngredientResponse> ingredients;
-    private String instructions;
+    private List<String> manuals;
     private String imageUrl;
 }
