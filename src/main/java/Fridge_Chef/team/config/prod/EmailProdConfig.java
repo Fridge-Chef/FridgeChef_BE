@@ -1,14 +1,18 @@
-package Fridge_Chef.team.mail.config;
+package Fridge_Chef.team.config.prod;
 
+import Fridge_Chef.team.config.EmailConfig;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 import java.util.Properties;
 
+@Profile({"prod", "dev"})
 @Configuration
-public class EmailConfig {
+public class EmailProdConfig implements EmailConfig {
     @Value("${spring.mail.host}")
     private String host;
     @Value("${spring.mail.port}")
@@ -24,6 +28,7 @@ public class EmailConfig {
     @Value("${spring.mail.smtp.starttls.enable}")
     private boolean starttls;
 
+    @Bean
     public JavaMailSender getJavaMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         mailSender.setHost(host);

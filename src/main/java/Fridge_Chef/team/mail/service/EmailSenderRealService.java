@@ -1,8 +1,8 @@
 package Fridge_Chef.team.mail.service;
 
+import Fridge_Chef.team.config.prod.EmailProdConfig;
 import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.exception.ErrorCode;
-import Fridge_Chef.team.mail.config.EmailConfig;
 import Fridge_Chef.team.mail.service.request.EmailRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -17,16 +17,16 @@ import static Fridge_Chef.team.mail.output.EmailSignupOutput.signupText;
 import static Fridge_Chef.team.mail.output.EmailSignupOutput.signupTitle;
 
 @Configuration
-@Profile("prod")
-public class EmailSenderRealService  implements EmailService {
+@Profile({"prod", "dev"})
+public class EmailSenderRealService implements EmailService {
     private final JavaMailSender emailConfig;
 
     private final String email;
 
-    public EmailSenderRealService(EmailConfig emailConfig,
-                              @Value("${spring.mail.username}")String email) {
+    public EmailSenderRealService(EmailProdConfig emailConfig,
+                                  @Value("${spring.mail.username}") String email) {
         this.emailConfig = emailConfig.getJavaMailSender();
-        this.email=email;
+        this.email = email;
     }
 
     public void sendMessage(EmailRequest request) {
