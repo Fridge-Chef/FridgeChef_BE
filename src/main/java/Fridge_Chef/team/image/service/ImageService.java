@@ -7,7 +7,7 @@ import Fridge_Chef.team.image.domain.Image;
 import Fridge_Chef.team.image.domain.ImageType;
 import Fridge_Chef.team.image.repository.ImageRepository;
 import Fridge_Chef.team.user.domain.UserId;
-import com.oracle.bmc.objectstorage.ObjectStorageClient;
+import com.oracle.bmc.objectstorage.ObjectStorage;
 import com.oracle.bmc.objectstorage.transfer.UploadManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,10 +24,9 @@ import java.util.stream.Collectors;
 public class ImageService {
     private final static Pattern mimePattern = Pattern.compile("image/(png|jpeg|jpg)");
     private final UploadManager uploadManager;
-    private final ObjectStorageClient objectStorageClient;
+    private final ObjectStorage objectStorageClient;
     private final ImageRepository imageRepository;
     private final ImageConfigMeta imageConfigMeta;
-
 
     @Transactional
     public Image imageUpload(UserId userId, MultipartFile file) {
