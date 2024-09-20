@@ -31,23 +31,28 @@ public class ImageOciConfig {
     @Value("${oci.remove.path}")
     private String removePath;
 
+
     @Bean
-    UploadManager uploadManager() {
+    ObjectStorage ociObjectStorage() {
         try {
-            ObjectStorage client = ObjectStorageClient.builder()
+            return ObjectStorageClient.builder()
                     .region(Region.AP_CHUNCHEON_1)
                     .build(new ConfigFileAuthenticationDetailsProvider(
                             ConfigFileReader.parse(configurationFilePath, "DEFAULT"))
                     );
-            uploadConfiguration =
-                    UploadConfiguration.builder()
-                            .allowMultipartUploads(true)
-                            .allowParallelUploads(true)
-                            .build();
-            return new UploadManager(client, uploadConfiguration);
         } catch (IOException e) {
             throw new ApiException(ErrorCode.IMAGE_REMOTE_SESSION);
         }
+    }
+
+    @Bean
+    UploadManager uploadManager() {
+        uploadConfiguration =
+                UploadConfiguration.builder()
+                        .allowMultipartUploads(true)
+                        .allowParallelUploads(true)
+                        .build();
+        return new UploadManager(ociObjectStorage(), uploadConfiguration);
     }
 
     @Bean
