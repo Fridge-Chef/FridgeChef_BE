@@ -17,8 +17,8 @@ public class AuthentificationProvider {
     public AuthenticationDetailsProvider getAuthenticationDetailsProvider() throws IOException {
 
         ClassLoader classLoader = AuthentificationProvider.class.getClassLoader();
-        File tempConfigFile = new File(classLoader.getResource("config").getFile());
-        File tempOCIAPIKey = new File(classLoader.getResource("oci_api_key.pem").getFile());
+        File tempConfigFile = new File(classLoader.getResource("private/config").getFile());
+        File tempOCIAPIKey = new File(classLoader.getResource("private/oci_api_key.pem").getFile());
 
         ConfigFile config = ConfigFileReader.parse(tempConfigFile.getPath(), "DEFAULT");
 

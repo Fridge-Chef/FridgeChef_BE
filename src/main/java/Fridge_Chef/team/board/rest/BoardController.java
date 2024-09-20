@@ -9,8 +9,6 @@ import Fridge_Chef.team.category.domain.Category;
 import Fridge_Chef.team.category.service.CategoryService;
 import Fridge_Chef.team.image.domain.Image;
 import Fridge_Chef.team.image.service.ImageService;
-import Fridge_Chef.team.ingredient.service.IngredientService;
-import Fridge_Chef.team.recipe.service.RecipeService;
 import Fridge_Chef.team.user.rest.model.AuthenticatedUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -29,8 +27,6 @@ public class BoardController {
     private final BoardService boardService;
     private final ImageService imageService;
     private final CategoryService categoryService;
-    private final RecipeService recipeService;
-    private final IngredientService ingredientService;
 
     @PostMapping
     void create(@AuthenticationPrincipal AuthenticatedUser user,
