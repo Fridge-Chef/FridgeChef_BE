@@ -42,14 +42,21 @@ public enum ErrorCode {
     SIGNUP_EMAIL_VERIFY_CODE_FAILED(405, "이메일 인증 실패"),
     SIGNUP_EMAIL_DUPLICATE(406, "회원가입 이메일 중복"),
     SIGNUP_CERT_CODE_UNVERIFIED(407, "회원가입 인증코드 미인증"),
-    USER_ACCOUNT_DELETE(408, "이미 탈퇴 요청한 사용자 입니다. "),
+    USER_ACCOUNT_DELETE(408, "탈퇴 요청한 사용자 입니다. "),
     USER_ACCOUNT_DELETE_NAME_INCORRECT(409, "회원탈퇴 요청중 이름을 다르게 입력"),
     USER_PASSWORD_INPUT_FAIL(410, "기존 비밀번호 틀림"),
     USER_NEW_PASSWORD_SAME_AS_OLD(411, "사용자 새 비밀번호가 이전 비밀번호와 동일"),
 
-    PASSWORD_IS_REQUIRED(412,"비밀번호를 입력해주세요." ),
-    PASSWORD_VALID_FAIL(413,"비밀번호는 6자 이상 38자 이하의 숫자 또는 영문자로 입력해주세요." ),
-    SIGNUP_CERT_NON_REQUEST(414,"회원가입 인증과정을 무시했습니다." );
+    PASSWORD_IS_REQUIRED(412, "비밀번호를 입력해주세요."),
+    PASSWORD_VALID_FAIL(413, "비밀번호는 6자 이상 38자 이하의 숫자 또는 영문자로 입력해주세요."),
+    SIGNUP_CERT_NON_REQUEST(414, "회원가입 인증과정을 무시했습니다."),
+
+    IMAGE_FILE_ANALYIS(405, "이미지 파일 읽기 오류"),
+    IMAGE_CONTENT_TYPE_FAIL(406, "지원하지 않는 이미지 타입(허용타입: png,jpeg,jpg"),
+    IMAGE_FILE_DELETE_FAIL(407, "이미지 삭제 실패"),
+    IMAGE_REMOVE_NOT_USER(408, "이미지 제거 유저 불일치"),
+    CATEGORY_NOT_FOUND(405, "카테고리를 찾지 못했습니다."),
+    CATEGORY_ALREADY(405, "카테고리가 이미 있습니다.");
 
     private final int status;
     private final String message;
