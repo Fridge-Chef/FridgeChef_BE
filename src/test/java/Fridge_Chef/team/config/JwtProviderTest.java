@@ -1,6 +1,7 @@
 package Fridge_Chef.team.config;
 
 import Fridge_Chef.team.security.JwtProvider;
+import Fridge_Chef.team.security.prod.JwtProdProvider;
 import Fridge_Chef.team.user.domain.Role;
 import Fridge_Chef.team.user.domain.UserId;
 import Fridge_Chef.team.user.rest.model.AuthenticatedUser;
@@ -39,14 +40,14 @@ public class JwtProviderTest {
     @Test
     @DisplayName("jwt 생성 ")
     public void shouldCreateJWTTokenSuccessfully() {
-        JwtProvider sut = new JwtProvider(privateKey, publicKey);
+        JwtProvider sut = new JwtProdProvider(privateKey, publicKey);
         assertDoesNotThrow(() -> sut.create(USER_ID, Role.USER));
     }
 
     @Test
     @DisplayName("jwt to String 변환 ")
     public void shouldParseJWTTokenCorrectly() {
-        JwtProvider sut = new JwtProvider(privateKey, publicKey);
+        JwtProvider sut = new JwtProdProvider(privateKey, publicKey);
         String jws = sut.create(USER_ID, Role.USER);
         assertEquals(TEST_USER_ID, sut.parse(jws));
     }
