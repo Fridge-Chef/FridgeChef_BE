@@ -17,10 +17,10 @@ import org.springframework.context.annotation.Profile;
 
 import java.io.IOException;
 
-@Profile("dev")
+@Profile("prod")
 @Configuration
-public class ImageOciConfig {
-    private String configurationFilePath = "src/main/resources/private/config";
+public class ImageOciProdConfig {
+    private String configurationFilePath = "/home/ubuntu/dev/config";
     private UploadConfiguration uploadConfiguration;
     @Value("${oci.namespace.name}")
     private String namespaceName;
