@@ -8,16 +8,13 @@ public class EmailSenderServiceTest implements EmailService {
 
     @Override
     public void sendMessage(EmailRequest emailRequest) {
-
+        //
     }
 
     @Override
     public void signupCertSend(String email, int verificationCode) {
 
-    }
-
-    @Override
-    public void certSend(String email, int verificationCode) {
 
     }
+
 }

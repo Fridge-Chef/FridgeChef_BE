@@ -8,5 +8,4 @@ public interface EmailService {
 
     void signupCertSend(String email, int verificationCode);
 
-    void certSend(String email, int verificationCode);
 }
