@@ -30,6 +30,7 @@ public class User extends BaseEntity {
         this.password = password;
         this.profile = profile;
         this.role = role;
+        super.updateIsDelete(false);
     }
 
     public static User create(String email, String password, String nickname, Role role) {

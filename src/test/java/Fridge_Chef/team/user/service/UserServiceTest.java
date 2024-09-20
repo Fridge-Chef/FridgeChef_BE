@@ -9,9 +9,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 
-import java.util.Objects;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -95,20 +95,24 @@ public class UserServiceTest extends ServiceLayerTest {
     }
 
     @Test
-    @DisplayName("로그인  검증")
-    void login() {
-        String password = user.getPassword();
+    @DisplayName("로그인 검증 ")
+    void login_success() {
+        when(passwordEncoder.matches(user.getPassword(), user.getPassword()))
+                .thenReturn(true);
 
-        when(userRepository.findByUserId_Value(user.getId()))
-                .thenReturn(Optional.of(user));
+        assertDoesNotThrow(() -> userService.authenticate(user, user.getPassword()));
+    }
 
-        when(passwordEncoder.matches(password, user.getPassword()))
-                .thenReturn(Objects.equals(user.getPassword(), password));
+    @Test
+    @DisplayName("로그인 검증 - 비밀번호 불일치로 인한 로그인 실패 ")
+    void login_password_fail() {
+        String wrongPassword = "wrong_password";
 
-        userService.authenticate(user, password);
+        when(passwordEncoder.matches(wrongPassword, user.getPassword()))
+                .thenReturn(false);
 
         assertThrows(ApiException.class, () -> {
-            userService.authenticate(user, password + "");
+            userService.authenticate(user, wrongPassword);
         });
     }
 }

@@ -57,3 +57,4 @@ out/
 /http/private.http
 /src/main/resources/config
 /src/main/resources/oci_private.pem
+/src/main/resources/private/

@@ -12,11 +12,11 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:3000","https://localhost:3000")
-                .allowedMethods("GET", "POST","DELETE","PUT","PETCH") // 허용할 HTTP method
+                .allowedOrigins("http://localhost:3000", "https://localhost:3000")
+                .allowedMethods("GET", "POST", "DELETE", "PUT", "PATCH") // 허용할 HTTP method
                 .allowCredentials(true)
                 .allowedHeaders("*");
-        ; // 쿠키 인증 요청 허용;
+        ;
     }
 
     @Bean

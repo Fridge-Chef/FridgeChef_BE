@@ -6,9 +6,9 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class ImageConfigMeta {
-    String namespaceName;
-    String bucketName;
-    String url;
-    String uploadPath;
-    String removePath;
+    private String namespaceName;
+    private String bucketName;
+    private String url;
+    private String uploadPath;
+    private String removePath;
 }

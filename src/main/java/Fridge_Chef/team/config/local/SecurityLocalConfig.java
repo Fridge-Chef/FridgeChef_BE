@@ -1,12 +1,11 @@
-package Fridge_Chef.team.config;
-
+package Fridge_Chef.team.config.local;
 
 import Fridge_Chef.team.security.CustomJwtAuthenticationConverter;
 import Fridge_Chef.team.user.domain.Role;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -18,14 +17,17 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.interfaces.RSAPublicKey;
 
+@Profile("local")
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig {
+public class SecurityLocalConfig {
+    private static final KeyPair keyPair = generateKeyPair();
 
-    @Value("${jwt.secret.public}")
-    private RSAPublicKey publicKey;
+    private static final RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -48,15 +50,15 @@ public class SecurityConfig {
         registry
                 .requestMatchers(
                         "/docs.html", "/favicon.ico", "/api/auth/**", "/api/cert/email/**",
-                        "/api/email/**","/api/user/signup","/api/user/login",
-                        "/api/ingredients/**","/api/fridge/ingredients","/api/recipes/","/api/recipes/{id}",
-                        "/api/categorys","/api/categorys/boards/**","/api/recipes/{recipe_id}/comments",
+                        "/api/email/**", "/api/user/signup", "/api/user/login",
+                        "/api/ingredients/**", "/api/fridge/ingredients", "/api/recipes/", "/api/recipes/{id}",
+                        "/api/categorys", "/api/categorys/boards/**", "/api/recipes/{recipe_id}/comments",
                         "/api/categorys/{category_id}/boards/{board_id}/comments"
 
                 ).permitAll()
                 .requestMatchers(
-                        "/api/user","/api/user/account","/api/user/password",
-                        "/api/recipes/book","/api/categorys/{category_id}/board","/api/recipes/{recipe_id}/comment",
+                        "/api/user", "/api/user/account", "/api/user/password",
+                        "/api/recipes/book", "/api/categorys/{category_id}/board", "/api/recipes/{recipe_id}/comment",
                         "/api/categorys/{category_id}/boards/{board_id}/comment"
                 )
                 .hasAnyAuthority(Role.USER.getAuthority(), Role.ADMIN.getAuthority())
@@ -76,4 +78,15 @@ public class SecurityConfig {
     private void configureHeaders(HeadersConfigurer<HttpSecurity> headers) {
         headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin);
     }
+
+    private static KeyPair generateKeyPair() {
+        try {
+            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+            keyPairGenerator.initialize(2048);
+            return keyPairGenerator.generateKeyPair();
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to generate RSA key pair", e);
+        }
+    }
+
 }

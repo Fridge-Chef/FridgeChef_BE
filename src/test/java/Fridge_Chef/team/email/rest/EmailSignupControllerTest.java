@@ -10,7 +10,7 @@ import Fridge_Chef.team.exception.ErrorCode;
 import Fridge_Chef.team.mail.rest.EmailSignupController;
 import Fridge_Chef.team.mail.rest.request.SignUpEmailSendRequest;
 import Fridge_Chef.team.mail.service.EmailService;
-import Fridge_Chef.team.security.JwtProvider;
+import Fridge_Chef.team.security.prod.JwtProdProvider;
 import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.rest.request.UserEmailCheckRequest;
 import Fridge_Chef.team.user.service.UserService;
@@ -37,7 +37,7 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.requestF
 public class EmailSignupControllerTest extends RestDocControllerTests {
 
     @MockBean
-    private JwtProvider jwtProvider;
+    private JwtProdProvider jwtProvider;
     @MockBean
     private UserService userService;
     @MockBean
