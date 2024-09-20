@@ -7,11 +7,9 @@ server:
     key-store-type: PKCS12
     key-alias: localhost
 
-
 jwt:
   secret:
-    private: classpath:fridgejwt.priv
-    public: classpath:fridgejwt.pub
+    key: 123456789
 
 spring:
   h2:
