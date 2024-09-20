@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 import static lombok.AccessLevel.PROTECTED;
 
 @Entity
@@ -18,14 +20,12 @@ public class Post extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
-    @OneToOne
-    @JoinColumn(name = "board_id")
+    @OneToOne(fetch = FetchType.LAZY)
     private Board board;
-    @Enumerated
-    private UserId user;
+    private UUID user_id;
 
     public Post(Board board, UserId user) {
         this.board = board;
-        this.user = user;
+        this.user_id = user.getValue();
     }
 }
