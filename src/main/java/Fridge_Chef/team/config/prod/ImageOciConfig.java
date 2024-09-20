@@ -1,4 +1,4 @@
-package Fridge_Chef.team.config;
+package Fridge_Chef.team.config.prod;
 
 import Fridge_Chef.team.config.model.ImageConfigMeta;
 import Fridge_Chef.team.exception.ApiException;
@@ -13,12 +13,14 @@ import com.oracle.bmc.objectstorage.transfer.UploadManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import java.io.IOException;
 
+@Profile({"prod", "dev"})
 @Configuration
 public class ImageOciConfig {
-    private String configurationFilePath = "src/main/resources/config";
+    private String configurationFilePath = "src/main/resources/private/config";
     private UploadConfiguration uploadConfiguration;
     @Value("${oci.namespace.name}")
     private String namespaceName;
