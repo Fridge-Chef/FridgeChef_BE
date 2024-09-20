@@ -56,19 +56,4 @@ public class EmailSenderRealService  implements EmailService {
             throw new ApiException(ErrorCode.EMAIL_SEND);
         }
     }
-
-    @Override
-    public void certSend(String email, int verificationCode) {
-        try {
-            String title = signupTitle();
-            String sendText = signupText(verificationCode);
-            sendMessage(new EmailRequest(email, title, sendText));
-        }catch (MailParseException e1){
-            throw new ApiException(ErrorCode.EMAIL_SEND_PARSE);
-        }catch (MailAuthenticationException e2){
-            throw new ApiException(ErrorCode.EMAIL_SEND_AUTHENTICATION);
-        }catch (MailSendException e3){
-            throw new ApiException(ErrorCode.EMAIL_SEND);
-        }
-    }
 }
