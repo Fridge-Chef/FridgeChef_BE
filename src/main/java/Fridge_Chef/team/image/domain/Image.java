@@ -38,6 +38,8 @@ public class Image extends BaseEntity {
 
     public Image(String path, ImageType type) {
         this.path = path;
+        String[] parts = path.split("/");
+        this.name = parts[parts.length - 1];
         this.type = type;
     }
 
@@ -45,5 +47,9 @@ public class Image extends BaseEntity {
         this.uri = uri;
         this.path = path;
         this.type = type;
+    }
+
+    public static Image outUri(String imageUrl) {
+        return new Image(imageUrl, ImageType.DATA_GO);
     }
 }

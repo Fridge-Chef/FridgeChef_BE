@@ -58,7 +58,7 @@ public class ImageService {
     @Transactional
     public void imageRemove(Long imageId) {
         Image image = imageRepository.findById(imageId)
-                .orElseThrow(() -> new ApiException(ErrorCode.IMAGE_REMOVE_NOT_USER));
+                .orElseThrow(() -> new ApiException(ErrorCode.IMAGE_NOT_ID));
 
         FileRemoveManager file = new FileRemoveManager(objectStorageClient, imageConfigMeta, image);
         file.remove();
