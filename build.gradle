@@ -11,7 +11,6 @@ group = 'Fridge-Chef'
 version = '0.0.1-SNAPSHOT'
 
 java { toolchain { languageVersion = JavaLanguageVersion.of(17) } }
-apply from: 'git_config_setup.gradle'
 
 repositories {
     mavenCentral()
@@ -77,8 +76,8 @@ dependencies {
     testImplementation 'org.springframework.restdocs:spring-restdocs-core'
 
     // oracle cloud
-    implementation group: 'com.oracle.oci.sdk', name: 'oci-java-sdk-objectstorage', version: '3.2.0'
-    implementation group: 'com.oracle.oci.sdk', name: 'oci-java-sdk-common-httpclient-jersey3', version: '3.2.0'
+    implementation group: 'com.oracle.oci.sdk', name: 'oci-java-sdk-objectstorage', version: '3.0.0'
+    implementation group: 'com.oracle.oci.sdk', name: 'oci-java-sdk-common-httpclient-jersey3', version: '3.0.0'
 }
 
 ext {
