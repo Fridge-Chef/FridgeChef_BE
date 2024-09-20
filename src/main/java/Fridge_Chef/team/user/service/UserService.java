@@ -34,14 +34,14 @@ public class UserService {
 
     @Transactional
     public User signup(String email, String password, String name) {
-        return signup(email,password,name,Role.USER);
+        return signup(email, password, name, Role.USER);
     }
 
     @Transactional
     public User signup(String email, String password, String name, Role role) {
         String encodePassword = passwordEncoder.encode(password);
 
-        User user = User.create(email, encodePassword, name,role);
+        User user = User.create(email, encodePassword, name, role);
 
         return userRepository.save(user);
     }
@@ -66,9 +66,13 @@ public class UserService {
                 .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_EMAIL));
     }
 
+
     public void authenticate(User user, String password) {
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new ApiException(ErrorCode.LOGIN_PASSWORD_INCORRECT);
+        }
+        if (user.getIsDelete().bool()) {
+            throw new ApiException(ErrorCode.USER_ACCOUNT_DELETE);
         }
     }
 
@@ -99,7 +103,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public User findByUser(UserId userId){
+    public User findByUser(UserId userId) {
         return findByUserId(userId.getValue().toString())
                 .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
     }

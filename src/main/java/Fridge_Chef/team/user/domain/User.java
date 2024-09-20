@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 import static lombok.AccessLevel.PROTECTED;
 
 @Entity
@@ -30,7 +32,7 @@ public class User extends BaseEntity {
         this.role = role;
     }
 
-    public static User create(String email, String password, String nickname,Role role) {
+    public static User create(String email, String password, String nickname, Role role) {
         return new User(UserId.create(), email, password,
                 new Profile(nickname), role);
     }
@@ -46,5 +48,13 @@ public class User extends BaseEntity {
 
     public void accountDelete(boolean isDelete) {
         updateIsDelete(isDelete);
+    }
+
+    public String getUsername() {
+        return profile.getUsername();
+    }
+
+    public UUID getId() {
+        return this.userId.getValue();
     }
 }
