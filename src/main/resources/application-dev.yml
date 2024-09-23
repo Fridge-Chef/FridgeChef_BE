@@ -24,6 +24,8 @@ oci:
   bucket:
     name: ENC(lywUHWc4MZyhF3q0sB7zkg==)
 
+
+
 spring:
   mail:
     host: smtp.gmail.com

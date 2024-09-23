@@ -5,11 +5,11 @@ jasypt:
 
 spring:
   profiles:
+    include: oauth
     default: local
   output:
     ansi:
       enabled: always
-
 springdoc:
   swagger-ui:
     enabled: false
