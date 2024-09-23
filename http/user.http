@@ -1,31 +1,8 @@
-### signup
-POST https://localhost/api/user/signup
-Content-Type: application/json
-
-{
-    "email": "admin@gmail.com",
-    "password": "adminadmin",
-    "username": "na"
-}
-
-### login
-POST https://localhost/api/user/login
-Content-Type: application/json
-
-{
-    "email": "admin@gmail.com",
-    "password": "adminadmin"
-}
-
-### email check
-POST https://localhost/api/user/email/check
-Content-Type: application/json
-
-{
-    "email": "admin@gmail.com"
-}
 
 ### Get Current User test
 GET https://localhost/api/user
-Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJ1c2VySWQiOiIwNGQ5ZGQzYi1iOWM0LTQ0OWMtYWNjZS1iZmM4OTI4MjU1NTYiLCJyb2xlIjoiVVNFUiIsImlhdCI6MTcyNjA1ODA0MiwiZXhwIjoxNzI2MDU5ODQyfQ.WHEExHGd-80xYtKAuNrv9UlB2xJhnR8DGKunn2pMlXRDV9wAAKLpGYcPvfBVi4rfRJfCw-nJabN8v2r192Afk3TeGsdTmuwK3T_S5F5YLDEOeNnv3z9OTvjYB8BrUainBP5sALIq9T-tkQVe2vVRuP2Ddev4KPdtf4OOXOO9aU-qG7ifFGk2ELyqYYCMLcBzymy_uef3e2rj9gnd_LyC6Om_azYjTelNKLs498fJp8aXu9akhkVKXRfe_u6v1sWc0f7L7k3RGMpvfh6p5fZVh4pI1P8mmNf5k8wtvdsUYFtwvfmCkSqpivv1i6hloPPd297JaomUKeh9u7cdi0Z0Tg
+Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJ1c2VySWQiOiI4M2VlNjc1MC00ODUxLTRlYzMtYTdmOC0wZDAxNWQzMzY2OWUiLCJyb2xlIjoiVVNFUiIsImlhdCI6MTcyNzEwMjg5MiwiZXhwIjoxNzI3MTA0NjkyfQ.JJ4M8lnY91FFQyKM4JxogakaLP2ja84C4PUkZbsXCGWOHWP_FN5X6sCwvKzhBe4uiXSV1KAJskNL49_2Pnp6kOVxo4w4ecowSwEQ38TltMbCvA5h41V6dmtE6ccQDp_Cg7vHUInpUoo7pbGis-9pz6jih_k1OLA5aBpKEKXBOJqKLurntdagNKGz0W4sZBo_XeioNWAFnH-FcRsPZQyvdhVxgd1cvoCcq4YaBVSAVAumIZDn6YXmXXYIc_xi6DlbgHptqYNIWLVBlqNTMphiaDehcTNcVbIe2nv7cdSA9Az7qVD1Effmb5xeQWQOeN0fENveK7DaEi6teYrXkmT5XA
+
+
+
 
