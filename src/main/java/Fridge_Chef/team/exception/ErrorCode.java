@@ -10,6 +10,7 @@ public enum ErrorCode {
     //Server
     INTERNAL_SERVER_ERROR(500, "서버 오류"),
     INVALID_VALUE(400, "유효하지 않은 값 입니다."),
+    FILED_UNIQUE(499,"중복된 값 입니다." ),
 
     //security
     SECURITY_AUTHENTICATION_METHOD_NOT_SUPPORTED(450, "인증 방법이 지원되지 않습니다."),
