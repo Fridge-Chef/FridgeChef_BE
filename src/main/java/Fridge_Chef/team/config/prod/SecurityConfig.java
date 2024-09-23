@@ -2,7 +2,10 @@ package Fridge_Chef.team.config.prod;
 
 
 import Fridge_Chef.team.security.CustomJwtAuthenticationConverter;
+import Fridge_Chef.team.security.handler.OAuth2SuccessHandler;
+import Fridge_Chef.team.security.service.CustomOAuth2UserService;
 import Fridge_Chef.team.user.domain.Role;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -13,6 +16,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -21,11 +25,13 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import java.security.interfaces.RSAPublicKey;
 
-@Profile("prod")
+@Profile({"prod", "dev"})
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
-
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2SuccessHandler oAuth2AuthenticationSuccessHandler;
     @Value("${jwt.secret.public}")
     private RSAPublicKey publicKey;
 
@@ -37,27 +43,31 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .headers(this::configureHeaders)
                 .authorizeHttpRequests(this::configureAuthorization)
+                .logout(logoutConfigurer -> logoutConfigurer.logoutSuccessUrl("/"))
                 .oauth2ResourceServer(this::configureJwt)
+                .oauth2Login(this::configureOAuth2Login)
                 .build();
     }
 
-    @Bean
+    private void configureOAuth2Login(OAuth2LoginConfigurer<HttpSecurity> configurer) {
+        configurer.userInfoEndpoint(endpointCustomizer -> endpointCustomizer.userService(customOAuth2UserService));
+        configurer.successHandler(oAuth2AuthenticationSuccessHandler);
+    }
+
     public JwtDecoder jwtDecoder() {
         return NimbusJwtDecoder.withPublicKey(publicKey).build();
     }
 
     private void configureAuthorization(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry registry) {
         registry
-                .requestMatchers(
+                .requestMatchers("/", "/css/**", "/img/**", "/js/**", "/login","/login/oauth2/login/**",
                         "/docs.html", "/favicon.ico", "/api/auth/**", "/api/cert/email/**",
                         "/api/email/**", "/api/user/signup", "/api/user/login",
                         "/api/ingredients/**", "/api/fridge/ingredients", "/api/recipes/", "/api/recipes/{id}",
                         "/api/categorys", "/api/categorys/boards/**", "/api/recipes/{recipe_id}/comments",
                         "/api/categorys/{category_id}/boards/{board_id}/comments"
-
                 ).permitAll()
-                .requestMatchers(
-                        "/api/user", "/api/user/account", "/api/user/password",
+                .requestMatchers("/api/user", "/api/user/account", "/api/user/password",
                         "/api/recipes/book", "/api/categorys/{category_id}/board", "/api/recipes/{recipe_id}/comment",
                         "/api/categorys/{category_id}/boards/{board_id}/comment"
                 )
