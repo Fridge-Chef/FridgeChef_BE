@@ -15,10 +15,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUserId_Value(UUID userId);
 
     Optional<User> findByEmail(String email);
+    Optional<User> findByProfileUsername(String username);
 
     boolean existsByEmail(String email);
-
-    void deleteByUserId(UserId userId);
 
     List<User> findAllByIsDelete(OracleBoolean isDelete);
 }

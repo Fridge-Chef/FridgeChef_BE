@@ -21,7 +21,7 @@ public class CustomJwtAuthenticationConverter implements Converter<Jwt, Abstract
         String userIdClaim = (String) jwt.getClaims().get("userId");
         String roleClaim = (String) jwt.getClaims().get("role");
         if (userIdClaim == null) {
-            throw new ApiException(ErrorCode.TOKEN_ACCESS_EXPIRED_FAIL);
+            throw new ApiException(ErrorCode.TOKEN_ACCESS_NOT_USER);
         }
         Collection<GrantedAuthority> auth = List.of(Role.of(roleClaim));
         return new CustomJwtAuthenticationToken(

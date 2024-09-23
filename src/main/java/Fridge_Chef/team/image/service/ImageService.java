@@ -1,6 +1,7 @@
 package Fridge_Chef.team.image.service;
 
 import Fridge_Chef.team.image.domain.Image;
+import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.domain.UserId;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -9,6 +10,7 @@ import java.util.List;
 public interface ImageService {
 
     Image imageUpload(UserId userId, MultipartFile file);
+    Image imageUploadUserPicture(User user, MultipartFile file);
 
     Image openApiUriImageSave(String path);
 

@@ -6,6 +6,7 @@ import Fridge_Chef.team.exception.ErrorCode;
 import Fridge_Chef.team.image.domain.Image;
 import Fridge_Chef.team.image.domain.ImageType;
 import Fridge_Chef.team.image.repository.ImageRepository;
+import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.domain.UserId;
 import com.oracle.bmc.objectstorage.ObjectStorage;
 import com.oracle.bmc.objectstorage.transfer.UploadManager;
@@ -22,7 +23,7 @@ import java.util.stream.Collectors;
 
 
 @Service
-@Profile("prod")
+@Profile({"prod","dev"})
 @RequiredArgsConstructor
 public class ImageProdService implements ImageService {
     private final static Pattern mimePattern = Pattern.compile("image/(png|jpeg|jpg)");
@@ -37,6 +38,15 @@ public class ImageProdService implements ImageService {
         upload(file, fileName);
         Image image = new Image(imageConfigMeta.getUrl(), imageConfigMeta.getUploadPath(), fileName, ImageType.ORACLE_CLOUD, userId);
         return imageRepository.save(image);
+    }
+    @Transactional
+    public Image imageUploadUserPicture(User user, MultipartFile file) {
+        String fileName = onlyNameChange(file.getName());
+        upload(file, fileName);
+        Image image = new Image(imageConfigMeta.getUrl(), imageConfigMeta.getUploadPath(), fileName, ImageType.ORACLE_CLOUD, user.getUserId());
+        imageRepository.save(image);
+        user.updatePicture(image);
+        return image;
     }
 
     @Transactional

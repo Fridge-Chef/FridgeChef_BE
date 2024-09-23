@@ -46,7 +46,7 @@ public class JwtProdProvider implements JwtProvider {
         return Jwts.builder()
                 .signWith(rsaPrivateKey)
                 .claim(TOKEN_USER_ID_PAYLOAD_PARAMETER, userId.getValue())
-                .claim(TOKEN_USER_ROLE_PAYLOAD_PARAMETER, role.name())
+                .claim(TOKEN_USER_ROLE_PAYLOAD_PARAMETER, role)
                 .issuedAt(Date.from(now.toInstant(ZoneOffset.UTC)))
                 .expiration(Date.from(expirationTime.toInstant(ZoneOffset.UTC)))
                 .compact();
