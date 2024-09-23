@@ -87,10 +87,9 @@ public class RestDocControllerTests {
                         snippet, errorFields(errorCode.getStatus(), errorMessage)));
     }
 
-    protected RequestHeadersSnippet jwtTokenRequest(){
+    protected RequestHeadersSnippet jwtTokenRequest() {
         return requestHeaders(headerWithName("Authorization").description("Bearer token for authentication"));
     }
-
 
 
     protected static String strToJson(String id, String value) {
