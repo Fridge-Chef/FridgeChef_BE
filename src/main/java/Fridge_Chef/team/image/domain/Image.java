@@ -36,6 +36,13 @@ public class Image extends BaseEntity {
         this.userId = userId.getValue();
     }
 
+    public Image(String path, ImageType type,UUID userId) {
+        this.path = path;
+        String[] parts = path.split("/");
+        this.name = parts[parts.length - 1];
+        this.type = type;
+        this.userId=userId;
+    }
     public Image(String path, ImageType type) {
         this.path = path;
         String[] parts = path.split("/");
@@ -49,7 +56,21 @@ public class Image extends BaseEntity {
         this.type = type;
     }
 
+    public static Image imageUpLoad(String uri, String path, String name, ImageType type, UserId userId){
+        return new Image(uri,path,name,type,userId);
+    }
+
     public static Image outUri(String imageUrl) {
         return new Image(imageUrl, ImageType.DATA_GO);
+    }
+    public static Image outUri(String imageUrl,UUID userId) {
+        return new Image(imageUrl, ImageType.DATA_GO,userId);
+    }
+
+    public void updateOutUri(String path) {
+        this.type=ImageType.DATA_GO;
+        this.path = path;
+        String[] parts = path.split("/");
+        this.name = parts[parts.length - 1];
     }
 }

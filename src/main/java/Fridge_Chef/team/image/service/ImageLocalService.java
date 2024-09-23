@@ -1,6 +1,7 @@
 package Fridge_Chef.team.image.service;
 
 import Fridge_Chef.team.image.domain.Image;
+import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.domain.UserId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
@@ -18,6 +19,11 @@ public class ImageLocalService implements ImageService {
 
     @Override
     public Image imageUpload(UserId userId, MultipartFile file) {
+        return null;
+    }
+
+    @Override
+    public Image imageUploadUserPicture(User user, MultipartFile file) {
         return null;
     }
 
