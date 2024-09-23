@@ -20,7 +20,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
 
     @Transactional(readOnly = true)
     public Optional<User> findByUserId(AuthenticatedUser userId) {
@@ -32,48 +31,10 @@ public class UserService {
         return userRepository.findByUserId_Value(UUID.fromString(uudid));
     }
 
-    @Transactional
-    public User signup(String email, String password, String name) {
-        return signup(email, password, name, Role.USER);
-    }
-
-    @Transactional
-    public User signup(String email, String password, String name, Role role) {
-        String encodePassword = passwordEncoder.encode(password);
-
-        User user = User.create(email, encodePassword, name, role);
-
-        return userRepository.save(user);
-    }
-
-    @Transactional(readOnly = true)
-    public void validateMemberRegistration(String email) {
-        if (userRepository.findByEmail(email).isPresent()) {
-            throw new ApiException(ErrorCode.SIGNUP_EMAIL_DUPLICATE);
-        }
-    }
-
-    @Transactional(readOnly = true)
-    public void checkEmailValidAndUnique(String email) {
-        if (userRepository.existsByEmail(email)) {
-            throw new ApiException(ErrorCode.USER_EMAIL_UNIQUE);
-        }
-    }
-
     @Transactional(readOnly = true)
     public User findUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_EMAIL));
-    }
-
-
-    public void authenticate(User user, String password) {
-        if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new ApiException(ErrorCode.LOGIN_PASSWORD_INCORRECT);
-        }
-        if (user.getIsDelete().bool()) {
-            throw new ApiException(ErrorCode.USER_ACCOUNT_DELETE);
-        }
     }
 
     @Transactional
@@ -87,19 +48,6 @@ public class UserService {
             throw new ApiException(ErrorCode.USER_ACCOUNT_DELETE_NAME_INCORRECT);
         }
         user.accountDelete(true);
-    }
-
-    @Transactional
-    public void updatePassword(UserId userId, String password, String newPassword) {
-        User user = userRepository.findByUserId_Value(userId.getValue())
-                .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
-        if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new ApiException(ErrorCode.USER_PASSWORD_INPUT_FAIL);
-        }
-        if (password.equals(newPassword)) {
-            throw new ApiException(ErrorCode.USER_NEW_PASSWORD_SAME_AS_OLD);
-        }
-        user.updatePassword(passwordEncoder.encode(newPassword));
     }
 
     @Transactional(readOnly = true)
