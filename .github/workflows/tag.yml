@@ -30,31 +30,8 @@ jobs:
         run: |
           echo "Event Name: ${{ github.event_name }}"
           
-          git log --oneline --all
-          
-          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
-            BASE_BRANCH="main"
-            echo "Base Branch for PR: $BASE_BRANCH"
-            
-            # Fetch the base branch and PR branch
-            git fetch origin main
-            git fetch origin action/tag
-            
-            # Get the current PR head commit
-            PR_HEAD=$(git rev-parse HEAD)
-            
-            # Get the commits excluding merge commits
-            git log --oneline "main..action/tag" --no-merges --pretty=format:"%s"
-          
-            COMMITS=$(git log --oneline "${BASE_BRANCH}..${PR_HEAD}" --no-merges --pretty=format:"%s")
-            echo "Commits from $BASE_BRANCH to PR head: $COMMITS"
-          else
-            BASE_BRANCH="refs/pull/107/merge"
-            echo "Base Branch for Push: $BASE_BRANCH"
-            git log --oneline "${BASE_BRANCH}~1..${GITHUB_SHA}" --no-merges --pretty=format:"%s"
-            COMMITS=$(git log --oneline "${BASE_BRANCH}~1..${GITHUB_SHA}" --no-merges --pretty=format:"%s")
-            echo "Commits from $BASE_BRANCH to current commit: $COMMITS"
-          fi
+          COMMITS=$(git log --no-merges --oneline origin/main..action/tag --pretty=format:"%s")
+          echo "Commits from $BASE_BRANCH to current commit: $COMMITS"
           
           echo "COMMITS=$COMMITS" >> $GITHUB_ENV
 
