@@ -5,7 +5,7 @@ on:
     types: [opened, edited, synchronize]
   push:
     branches:
-      - '**'
+      - '**'  # 모든 브랜치에 대해 푸시 이벤트를 트리거
 
 jobs:
   label-pr:
@@ -18,7 +18,12 @@ jobs:
       - name: Get commit messages
         id: commits
         run: |
-          COMMITS=$(git log --oneline ${{ github.event.before }}..${{ github.sha }} --pretty=format:"%s")
+          # 커밋 메시지 가져오기
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            COMMITS=$(git log --oneline ${{ github.event.before }}..${{ github.sha }} --pretty=format:"%s")
+          else
+            COMMITS=$(git log --oneline HEAD~10..HEAD --pretty=format:"%s")
+          fi
           echo "COMMITS=$COMMITS"
 
       - name: Determine labels
@@ -100,6 +105,17 @@ jobs:
 
       - name: Add labels to PR
         run: |
-          gh pr edit ${{ github.event.pull_request.number }} --add-label "${{ env.FINAL_LABELS }}"
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            gh pr edit ${{ github.event.pull_request.number }} --add-label "${{ env.FINAL_LABELS }}"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Add labels to commit push
+        run: |
+          if [ "${{ github.event_name }}" == "push" ]; then
+            # Push 이벤트에서는 별도로 작업을 정의할 수 있습니다.
+            echo "Labels added for push event"
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
