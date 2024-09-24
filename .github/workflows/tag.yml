@@ -37,14 +37,15 @@ jobs:
             echo "Base Branch for PR: $BASE_BRANCH"
             
             # Fetch the base branch and PR branch
-            git fetch origin $BASE_BRANCH
+            git fetch origin main
             git fetch origin action/tag
             
             # Get the current PR head commit
             PR_HEAD=$(git rev-parse HEAD)
             
             # Get the commits excluding merge commits
-            git log --oneline "${BASE_BRANCH}..${PR_HEAD}" --no-merges --pretty=format:"%s"
+            git log --oneline "main..action/tag" --no-merges --pretty=format:"%s"
+          
             COMMITS=$(git log --oneline "${BASE_BRANCH}..${PR_HEAD}" --no-merges --pretty=format:"%s")
             echo "Commits from $BASE_BRANCH to PR head: $COMMITS"
           else
