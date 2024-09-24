@@ -23,7 +23,7 @@ jobs:
       - name: Get commits
         id: get_commits
         run: |
-          f [[ "${{ github.event_name }}" == "pull_request" ]]; then
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
             # Pull the base branch's commits to the local repository
             git fetch origin $BASE_BRANCH
