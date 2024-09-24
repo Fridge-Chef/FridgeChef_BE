@@ -5,17 +5,10 @@ jasypt:
 
 spring:
   profiles:
-    include: oauth
     default: local
   output:
     ansi:
       enabled: always
-springdoc:
-  swagger-ui:
-    enabled: false
-    tags-sorter: method
-    operations-sorter: method
-  api-docs:
-    enabled: false
 
+# 테스트 중인 것
 recipeRequestUrl: ENC(RqCgrjm8BoLrSVLTLm+65PJNK0r+zK1XhUinUMvGZ+YXpJHOLn5z9kOQi1zYwv2YHNOg6ZYyiRnrlRE9apEvGHJ8CS5UHUVoxx1091dPGrwgLneL9l64atnPFejJEtEY)

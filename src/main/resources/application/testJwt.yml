@@ -1,0 +1,4 @@
+jwt:
+  secret:
+    private: private/fridgejwt.priv
+    public: private/fridgejwt.pub

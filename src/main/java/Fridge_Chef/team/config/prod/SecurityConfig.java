@@ -60,7 +60,7 @@ public class SecurityConfig {
 
     private void configureAuthorization(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry registry) {
         registry
-                .requestMatchers("/", "/css/**", "/img/**", "/js/**", "/login","/login/oauth2/login/**",
+                .requestMatchers("/", "/login","/login/oauth2/login/**","/static/**","/login/oauth2/code",
                         "/docs.html", "/favicon.ico", "/api/auth/**", "/api/cert/email/**",
                         "/api/email/**", "/api/user/signup", "/api/user/login",
                         "/api/ingredients/**", "/api/fridge/ingredients", "/api/recipes/", "/api/recipes/{id}",
