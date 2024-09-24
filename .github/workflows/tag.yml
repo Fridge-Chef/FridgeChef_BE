@@ -44,12 +44,13 @@ jobs:
             PR_HEAD=$(git rev-parse HEAD)
             
             # Get the commits excluding merge commits
+            git log --oneline "${BASE_BRANCH}..${PR_HEAD}" --no-merges --pretty=format:"%s"
             COMMITS=$(git log --oneline "${BASE_BRANCH}..${PR_HEAD}" --no-merges --pretty=format:"%s")
             echo "Commits from $BASE_BRANCH to PR head: $COMMITS"
           else
             BASE_BRANCH="refs/pull/107/merge"
             echo "Base Branch for Push: $BASE_BRANCH"
-            
+            git log --oneline "${BASE_BRANCH}~1..${GITHUB_SHA}" --no-merges --pretty=format:"%s"
             COMMITS=$(git log --oneline "${BASE_BRANCH}~1..${GITHUB_SHA}" --no-merges --pretty=format:"%s")
             echo "Commits from $BASE_BRANCH to current commit: $COMMITS"
           fi
