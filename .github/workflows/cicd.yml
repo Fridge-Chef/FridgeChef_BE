@@ -25,15 +25,6 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '16' # 원하는 Node.js 버전 설정
-
-      - name: Install Dependencies
-        run: |
-          npm install redoc-cli --save-dev # redoc-cli 설치
-
       - name: Cache Gradle packages
         uses: actions/cache@v2
         with:
@@ -44,14 +35,99 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x ./gradlew
-
-      - name: Set Jasypt Password
-        run: echo "JASYPT_PASSWORD=${{ secrets.JASYPT_PASSWORD }}" >> $GITHUB_ENV
-
       - name: Setup OpenSSL and Generate Keys
         run: |
           openssl genrsa -out fridgejwt.priv 1024
           openssl pkcs8 -in fridgejwt.priv -inform PEM -out private_key_pkcs8.pem -outform PEM -topk8 -nocrypt
-          openssl rsa -in private_key_pkcs8.pem -
+          openssl rsa -in private_key_pkcs8.pem -out fridgejwt.pub -pubout
+          
+          mv fridgejwt.priv src/main/resources/fridgejwt.priv
+          mv fridgejwt.pub src/main/resources/fridgejwt.pub
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16' # 원하는 Node.js 버전 설정
+
+      - name: Install Dependencies
+        run: |
+          npm install redoc-cli --save-dev 
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+      - name: Create and activate virtual environment
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          python -m pip install --upgrade pip
+          python -m pip install pyyaml
+
+      - name: Install redoc-cli
+        run: |
+          npm install -g redoc-cli
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+
+      - name: Set Jasypt Password
+        run: echo "JASYPT_PASSWORD=${{ secrets.JASYPT_PASSWORD }}" >> $GITHUB_ENV
+
+
+      - name: Test build
+        run: |
+            ./gradlew redocGenerationIntegration --info
+            ./gradlew bootjar
+
+      #------------------ssh 사용 권한 ---------------------------------
+      - name: Setup SSH Key
+        run: |
+          echo "${{ secrets.APP_SERVER_SSH_KEY }}" > ssh_key
+          chmod 600 ssh_key
+
+      - name: ssh key test
+        run: |
+          ssh-keygen -y -f ssh_key > public_key
+          cat public_key
+
+      - name: Add remote host key to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.APP_SERVER_IP }} >> ~/.ssh/known_hosts
+      #---------------------------------------------------
+
+      - name: Deploy
+        run: |
+          date=$(date +'%Y%m%d-%H%M%S')
+          TARGET_JAR=$(find build/libs -name "*.jar" -print -quit)
+
+          if [ -z "$TARGET_JAR" ]; then
+            echo "JAR file not found in build/libs directory"
+            exit 1
+          fi
+
+          echo "Backing up old JAR file on remote server..."
+          ssh -i $SSH_KEY $REMOTE_USER@$REMOTE_HOST "mkdir -p $BACKUP_DIR"
+          ssh -i $SSH_KEY $REMOTE_USER@$REMOTE_HOST "if [ -f /home/ubuntu/dev/server.jar ]; then mv /home/ubuntu/dev/server.jar $BACKUP_DIR/server-$date.jar; fi"
+
+          echo "Deploying new JAR file to remote server..."
+          scp -i $SSH_KEY $TARGET_JAR $REMOTE_USER@$REMOTE_HOST:/home/ubuntu/dev/server.jar
+          ssh -i $SSH_KEY $REMOTE_USER@$REMOTE_HOST "sudo systemctl restart boot_server.service"
+
+      - name: Notify Discord
+        if: ${{ success() }}
+        run: |
+          now=$(date +'%m/%d %H:%M:%S')
+          message="[prod] 서버: 성공 [${now}]"
+          payload="{\"content\": \"${message}\"}"
+          curl -X POST -H "Content-Type: application/json" -d "$payload" $DISCORD_WEBHOOK_URL
+
+      - name: Notify Discord on Failure
+        if: ${{ failure() }}
+        run: |
+          now=$(date +'%m/%d %H:%M:%S')
+          message="[prod] 서버: 실패 [${now}] - 빌드 또는 배포 실패"
+          payload="{\"content\": \"${message}\"}"
+          curl -X POST -H "Content-Type: application/json" -d "$payload" $DISCORD_WEBHOOK_URL
