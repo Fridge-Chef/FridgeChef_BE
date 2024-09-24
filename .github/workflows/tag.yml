@@ -20,6 +20,12 @@ jobs:
           echo "SETTING_TAGS=ci/cd,config,gradle,build,bug,action" >> $GITHUB_ENV
           echo "CODE_TAGS=refactor,update,style" >> $GITHUB_ENV
 
+      - name: Checkout the PR to ensure all references are available
+        run: |
+          git fetch origin $BASE_BRANCH --prune
+          git checkout $BASE_BRANCH
+
+
       - name: Get commits
         id: get_commits
         run: |
