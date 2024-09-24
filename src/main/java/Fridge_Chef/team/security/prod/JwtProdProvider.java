@@ -49,6 +49,8 @@ public class JwtProdProvider implements JwtProvider {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime expirationTime = now.plusMinutes(EXPIRATION_MINUTES);
 
+        log.info("Creating JWT for user: {}, role: {}", userId.getValue(), role);
+
         return Jwts.builder()
                 .signWith(rsaPrivateKey, Jwts.SIG.RS256)
                 .claim(TOKEN_USER_ID_PAYLOAD_PARAMETER, userId.getValue())
