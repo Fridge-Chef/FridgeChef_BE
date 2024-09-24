@@ -119,7 +119,7 @@ jobs:
             fi
           done
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub Actions에서 제공하는 토큰
+          GH_TOKEN: ${{ secrets.GIT_ACTION_LABEL_TOKEN }}  # GitHub Actions에서 제공하는 토큰
 
 
       - name: Add labels to PR
@@ -135,4 +135,4 @@ jobs:
             echo "Not a pull request event, no labels added."
           fi
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub Actions에서 제공하는 토큰
+          GH_TOKEN: ${{ secrets.GIT_ACTION_LABEL_TOKEN }}  # GitHub Actions에서 제공하는 토큰
