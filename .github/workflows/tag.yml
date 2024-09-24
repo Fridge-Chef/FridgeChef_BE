@@ -44,6 +44,13 @@ jobs:
             echo "Commits from $BASE_BRANCH to current commit: $COMMITS"
           fi
 
+          # Display individual commit messages for debugging
+          echo "Checking individual commits:"
+          IFS=$'\n' # Set the internal field separator to newline for proper looping
+          for COMMIT in $COMMITS; do
+            echo "Checking commit: $COMMIT"
+          done
+
           echo "COMMITS=$COMMITS" >> $GITHUB_ENV
 
       - name: Display commits
