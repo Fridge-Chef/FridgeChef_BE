@@ -111,9 +111,16 @@ jobs:
 
       - name: Add labels to PR
         run: |
-          if [ "${{ github.event_name }}" == "pull_request" ]; then
-            gh pr edit ${{ github.event.pull_request.number }} --add-label "${{ env.FINAL_LABELS }}"
-          fi
+            if [ "${{ github.event_name }}" == "pull_request" ]; then
+              echo "Adding labels: ${{ env.FINAL_LABELS }} to PR #${{ github.event.pull_request.number }}"
+              if gh pr edit ${{ github.event.pull_request.number }} --add-label "${{ env.FINAL_LABELS }}"; then
+                echo "Labels added successfully."
+              else
+                echo "Failed to add labels."
+              fi
+            else
+              echo "Not a pull request event, no labels added."
+            fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
