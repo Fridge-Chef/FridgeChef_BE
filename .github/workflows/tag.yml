@@ -1,4 +1,4 @@
-name: Add Labels on Push or PR
+name: 'Add Labels on Push or PR'
 
 on:
   push:
@@ -18,8 +18,8 @@ jobs:
       - name: Set up environment variables
         run: |
           # 우선 순위 태그 설정
-          echo "DOMAIN_TAGS=image,user,board,security,recipe,mail,ingredient" >> $GITHUB_ENV
-          echo "SETTING_TAGS=ci/cd,config,gradle,build,bug" >> $GITHUB_ENV
+          echo "DOMAIN_TAGS=image,user,board,security,recipe,mail,ingredient,tag" >> $GITHUB_ENV
+          echo "SETTING_TAGS=ci/cd,config,gradle,build,bug,action" >> $GITHUB_ENV
           echo "CODE_TAGS=refactor,update,style" >> $GITHUB_ENV
 
       - name: Get commits
