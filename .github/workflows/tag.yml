@@ -25,38 +25,33 @@ jobs:
           git fetch origin $BASE_BRANCH --prune
           git checkout $BASE_BRANCH
 
-
       - name: Get commits
         id: get_commits
         run: |
           echo "Event Name: ${{ github.event_name }}"
 
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
-            echo "Base Branch for PR: $BASE_BRANCH"
-
-            # Checkout the PR to ensure all references are available
-            git fetch origin $BASE_BRANCH
-            git checkout $BASE_BRANCH
-
-            # Now get the commits from the base branch to the current commit
-            COMMITS=$(git log --oneline "${BASE_BRANCH}..${{ github.sha }}" --pretty=format:"%s")
-            echo "Commits from $BASE_BRANCH to current commit: $COMMITS"
+          BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
+          echo "Base Branch for PR: $BASE_BRANCH"
+          
+          # Fetch the base branch and PR branch
+          git fetch origin $BASE_BRANCH
+          git fetch origin ${{ github.head_ref }}
+          
+          # Checkout the PR base branch
+          git checkout $BASE_BRANCH
+          
+          # Get the commits from the base branch to the current commit
+          COMMITS=$(git log --oneline "${BASE_BRANCH}..${{ github.sha }}" --pretty=format:"%s")
+          echo "Commits from $BASE_BRANCH to current commit: $COMMITS"
           else
-            BASE_BRANCH="${{ github.ref }}"
-            echo "Base Branch for Push: $BASE_BRANCH"
-
-            COMMITS=$(git log --oneline "${BASE_BRANCH}~1..${{ github.sha }}" --pretty=format:"%s")
-            echo "Commits from $BASE_BRANCH to current commit: $COMMITS"
+          BASE_BRANCH="${{ github.ref }}"
+          echo "Base Branch for Push: $BASE_BRANCH"
+          
+          COMMITS=$(git log --oneline "${BASE_BRANCH}~1..${{ github.sha }}" --pretty=format:"%s")
+          echo "Commits from $BASE_BRANCH to current commit: $COMMITS"
           fi
-
-          # Display individual commit messages for debugging
-          echo "Checking individual commits:"
-          IFS=$'\n' # Set the internal field separator to newline for proper looping
-          for COMMIT in $COMMITS; do
-            echo "Checking commit: $COMMIT"
-          done
-
+          
           echo "COMMITS=$COMMITS" >> $GITHUB_ENV
 
       - name: Display commits
