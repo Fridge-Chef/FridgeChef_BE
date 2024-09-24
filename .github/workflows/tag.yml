@@ -16,7 +16,7 @@ jobs:
 
       - name: Set up environment variables
         run: |
-          echo "DOMAIN_TAGS=image,user,board,security,recipe,mail,ingredient,tag" >> $GITHUB_ENV
+          echo "DOMAIN_TAGS=image,user,board,security,recipe,mail,ingredient,tag,feat" >> $GITHUB_ENV
           echo "SETTING_TAGS=ci/cd,config,gradle,build,bug,action" >> $GITHUB_ENV
           echo "CODE_TAGS=refactor,update,style" >> $GITHUB_ENV
 
@@ -54,40 +54,44 @@ jobs:
       - name: Determine labels based on commits
         id: determine_labels
         run: |
-          DOMAIN_TAGS=(${DOMAIN_TAGS//,/ })
-          SETTING_TAGS=(${SETTING_TAGS//,/ })
-          CODE_TAGS=(${CODE_TAGS//,/ })
-
-          LABELS=()
-          for COMMIT in $COMMITS; do
-            for TAG in "${DOMAIN_TAGS[@]}"; do
-              if [[ "$COMMIT" == *"$TAG"* ]]; then
-                LABELS+=("$TAG")
-                if [ ${#LABELS[@]} -ge 5 ]; then break 2; fi
-              fi
+            DOMAIN_TAGS=(${DOMAIN_TAGS//,/ })
+            SETTING_TAGS=(${SETTING_TAGS//,/ })
+            CODE_TAGS=(${CODE_TAGS//,/ })
+            
+            LABELS=()
+            for COMMIT in $COMMITS; do
+              echo "Checking commit: $COMMIT"
+              for TAG in "${DOMAIN_TAGS[@]}"; do
+                if [[ "$COMMIT" == *"$TAG"* ]]; then
+                  LABELS+=("$TAG")
+                  echo "Matched DOMAIN_TAG: $TAG"
+                  if [ ${#LABELS[@]} -ge 5 ]; then break 2; fi
+                fi
+              done
             done
-          done
-          
-          if [ ${#LABELS[@]} -lt 5 ]; then
-            for TAG in "${SETTING_TAGS[@]}"; do
-              if [[ "$COMMIT" == *"$TAG"* ]]; then
-                LABELS+=("$TAG")
-                if [ ${#LABELS[@]} -ge 5 ]; then break; fi
-              fi
-            done
-          fi
-
-          if [ ${#LABELS[@]} -lt 5 ]; then
-            for TAG in "${CODE_TAGS[@]}"; do
-              if [[ "$COMMIT" == *"$TAG"* ]]; then
-                LABELS+=("$TAG")
-                if [ ${#LABELS[@]} -ge 5 ]; then break; fi
-              fi
-            done
-          fi
-
-          FINAL_LABELS=$(IFS=,; echo "${LABELS[*]}")
-          echo "FINAL_LABELS=$FINAL_LABELS" >> $GITHUB_ENV
+            
+            if [ ${#LABELS[@]} -lt 5 ]; then
+              for TAG in "${SETTING_TAGS[@]}"; do
+                if [[ "$COMMIT" == *"$TAG"* ]]; then
+                  LABELS+=("$TAG")
+                  echo "Matched SETTING_TAG: $TAG"
+                  if [ ${#LABELS[@]} -ge 5 ]; then break; fi
+                fi
+              done
+            fi
+            
+            if [ ${#LABELS[@]} -lt 5 ]; then
+              for TAG in "${CODE_TAGS[@]}"; do
+                if [[ "$COMMIT" == *"$TAG"* ]]; then
+                  LABELS+=("$TAG")
+                  echo "Matched CODE_TAG: $TAG"
+                  if [ ${#LABELS[@]} -ge 5 ]; then break; fi
+                fi
+              done
+            fi
+            
+            FINAL_LABELS=$(IFS=,; echo "${LABELS[*]}")
+            echo "FINAL_LABELS=$FINAL_LABELS" >> $GITHUB_ENV
 
       - name: Create missing labels
         run: |
