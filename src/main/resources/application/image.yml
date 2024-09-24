@@ -1,0 +1,11 @@
+oci:
+  url:
+    path: ENC(2pcuIqhSfTFaPySuDQ6qOm/5O2JUZkDrwUV9yTsJoo0iGRMxoS1Y18kOSbpkGv33rO+x+gISlSGvujFme68B9Q==)
+  upload:
+    path: ENC(bucuJn2NWF9miBH6p7I/oKJbUGrtUY68D++M0d+qpalmUVZadNd7pt8cOOk+4BeMiRGh3S+h2QFc5KrKlgUveyZucA78iFOcG/9aSb2dOjX/POs3cu58GzW5LUpc4hgPB/AMc+SAfL8=)
+  remove:
+    path: ENC(gRoprGrDF7idSSJcDd4aZV3KfP4l5mCPoaGzC4m0jNQeTS8o0eorojgV1vjS3eaKW8FLESeSQb8EKQ0bqBF21LpXbHYFXA+2HaS/FsMNchuEkNdYNDai592BdgX30fI2hgo3Y3+hTrM=)
+  namespace:
+    name: ENC(kGP0sNBFaupZAk2hN8SY/ek+FWxQgAG9)
+  bucket:
+    name: ENC(lywUHWc4MZyhF3q0sB7zkg==)

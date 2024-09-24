@@ -1,0 +1,8 @@
+server:
+  port: 443
+  ssl:
+    enabled: true
+    key-store: classpath:fridgebe-site-local.p12
+    key-store-password: qwer1234
+    key-store-type: PKCS12
+    key-alias: localhost
