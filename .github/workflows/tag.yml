@@ -119,8 +119,4 @@ jobs:
             echo "Not a pull request event, no labels added."
           fi
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Display final labels
-        run: |
-          echo "FINAL_LABELS: ${{ env.FINAL_LABELS }}"
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub Actions에서 제공하는 토큰
