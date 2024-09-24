@@ -7,7 +7,7 @@ on:
   pull_request:
     branches:
       - '*'
-
+      -
 jobs:
   add-labels:
     runs-on: ubuntu-latest
@@ -17,7 +17,6 @@ jobs:
 
       - name: Set up environment variables
         run: |
-          # 우선 순위 태그 설정
           echo "DOMAIN_TAGS=image,user,board,security,recipe,mail,ingredient,tag" >> $GITHUB_ENV
           echo "SETTING_TAGS=ci/cd,config,gradle,build,bug,action" >> $GITHUB_ENV
           echo "CODE_TAGS=refactor,update,style" >> $GITHUB_ENV
@@ -39,7 +38,6 @@ jobs:
           SETTING_TAGS=(${SETTING_TAGS//,/ })
           CODE_TAGS=(${CODE_TAGS//,/ })
 
-          # 커밋 메시지에서 태그를 찾아서 추가
           LABELS=()
           for COMMIT in $COMMITS; do
             for TAG in "${DOMAIN_TAGS[@]}"; do
@@ -68,9 +66,18 @@ jobs:
             done
           fi
 
-          # 라벨 추가
           FINAL_LABELS=$(IFS=,; echo "${LABELS[*]}")
           echo "FINAL_LABELS=$FINAL_LABELS" >> $GITHUB_ENV
+
+      - name: Create missing labels
+        run: |
+          IFS=',' read -r -a LABEL_ARRAY <<< "${{ env.FINAL_LABELS }}"
+          for LABEL in "${LABEL_ARRAY[@]}"; do
+            if ! gh label list | grep -q "$LABEL"; then
+              echo "Creating label: $LABEL"
+              gh label create "$LABEL" --color "$(printf '#%06X\n' $((RANDOM%16777215)))"
+            fi
+          done
 
       - name: Add labels to PR
         run: |
