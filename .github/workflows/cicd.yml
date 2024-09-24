@@ -32,7 +32,18 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          npm install redoc-cli --save-dev # redoc-cli 설치
+          npm install redoc-cli --save-dev 
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+      - name: Create and activate virtual environment
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          python -m pip install --upgrade pip
+          python -m pip install pyyaml
 
       - name: Cache Gradle packages
         uses: actions/cache@v2
@@ -43,6 +54,7 @@ jobs:
             key: ${{ runner.os }}-gradle-${{ hashFiles('**/gradle-wrapper.properties') }}
             restore-keys: |
               ${{ runner.os }}-gradle-
+
 
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
@@ -60,12 +72,8 @@ jobs:
 
       - name: Test build
         run: |
-                python3 -m venv venv
-                source venv/bin/activate
-                python -m pip install pyyaml
-                ./gradlew redocGenerationIntegration --info
-                ./gradlew bootjar
-          
+            ./gradlew redocGenerationIntegration --info
+            ./gradlew bootjar
 
       #------------------ssh 사용 권한 ---------------------------------
       - name: Setup SSH Key
