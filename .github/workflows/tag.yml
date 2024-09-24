@@ -1,0 +1,105 @@
+name: Auto Tagging PR based on Commit Messages
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+  push:
+    branches:
+      - '**'
+
+jobs:
+  tag-pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Get commit messages
+        id: commits
+        run: |
+          COMMITS=$(git log --oneline ${{ github.event.before }}..${{ github.sha }} --pretty=format:"%s")
+          echo "COMMITS=$COMMITS"
+
+      - name: Determine tags
+        id: determine_tags
+        run: |
+          # 1순위: Domain Tags
+          DOMAIN_TAGS=("image" "user" "board" "security" "recipe" "mail" "ingredient" "test" "oauth")
+          # 2순위: Setting Tags
+          SETTING_TAGS=("ci/cd" "config" "gradle" "build" "bug")
+          # 3순위: Code Tags
+          CODE_TAGS=("refactor" "update" "style")
+
+          TAGS=()
+
+          # 1순위: Domain Tag 최대 5개
+          for TAG in "${DOMAIN_TAGS[@]}"; do
+            if [[ "$COMMITS" == *"$TAG"* ]]; then
+              TAGS+=("$TAG")
+              if [ "${#TAGS[@]}" -ge 5 ]; then
+                break
+              fi
+            fi
+          done
+
+          # 2순위: Setting Tag 최대 2개
+          if [ "${#TAGS[@]}" -lt 5 ]; then
+            for TAG in "${SETTING_TAGS[@]}"; do
+              if [[ "$COMMITS" == *"$TAG"* ]]; then
+                TAGS+=("$TAG")
+                if [ "${#TAGS[@]}" -ge 5 ]; then
+                  break
+                fi
+              fi
+            done
+          fi
+
+          # 3순위: Code Tag 최대 1개
+          if [ "${#TAGS[@]}" -lt 5 ]; then
+            for TAG in "${CODE_TAGS[@]}"; do
+              if [[ "$COMMITS" == *"$TAG"* ]]; then
+                TAGS+=("$TAG")
+                if [ "${#TAGS[@]}" -ge 5 ]; then
+                  break
+                fi
+              fi
+            done
+          fi
+
+          echo "FINAL_TAGS=${TAGS[@]}"
+          echo "FINAL_TAGS=${TAGS[@]}" >> $GITHUB_ENV
+
+      - name: Create missing tags
+        run: |
+          for TAG in ${{ env.FINAL_TAGS }}; do
+            TAG_EXISTS=$(gh api graphql -f query='
+            {
+              repository(owner: "${{ github.repository_owner }}", name: "${{ github.event.repository.name }}") {
+                labels(first: 100) {
+                  nodes {
+                    name
+                  }
+                }
+              }
+            }' | jq -r '.data.repository.labels.nodes[] | select(.name == "'$TAG'")')
+
+            if [ -z "$TAG_EXISTS" ]; then
+              COLOR=$(openssl rand -hex 3)  # 랜덤 색상 생성
+              gh api \
+                --method POST \
+                -H "Accept: application/vnd.github+json" \
+                /repos/${{ github.repository }}/labels \
+                -f name="$TAG" \
+                -f color="$COLOR"
+              echo "Created label: $TAG with color: $COLOR"
+            else
+              echo "Label $TAG already exists"
+            fi
+          done
+
+      - name: Add tags to PR
+        run: |
+          gh pr edit ${{ github.event.pull_request.number }} --add-label "${{ env.FINAL_TAGS }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
