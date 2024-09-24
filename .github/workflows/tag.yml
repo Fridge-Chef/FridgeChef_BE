@@ -25,7 +25,7 @@ jobs:
         id: determine_labels
         run: |
           # 1순위: Domain Labels
-          DOMAIN_LABELS=("image" "user" "board" "security" "recipe" "mail" "ingredient" ,"tag")
+          DOMAIN_LABELS=("image" "user" "board" "security" "recipe" "mail" "ingredient" "tag")
           # 2순위: Setting Labels
           SETTING_LABELS=("ci/cd" "config" "gradle" "build" "bug")
           # 3순위: Code Labels
