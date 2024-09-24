@@ -1,134 +1,88 @@
-name: Auto Labeling PR based on Commit Messages
+name: Add Labels on Push or PR
 
 on:
-  pull_request:
-    types: [opened, edited, synchronize]
   push:
     branches:
-      - '**'  # 모든 브랜치에 대해 푸시 이벤트를 트리거
+      - '*'
+  pull_request:
+    branches:
+      - '*'
 
 jobs:
-  label-pr:
+  add-labels:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
 
-      - name: Get commit messages
-        id: commits
+      - name: Set up environment variables
         run: |
-            # 커밋 메시지 가져오기
-            if [ "${{ github.event_name }}" == "pull_request" ]; then
-              COMMITS=$(git log --oneline ${{ github.event.before }}..${{ github.sha }} --pretty=format:"%s")
-            else
-              # HEAD의 커밋 수가 10보다 적을 경우, 모든 커밋을 가져옵니다.
-              COMMITS=$(git rev-list --count HEAD)
-              if [ "$COMMITS" -le 10 ]; then
-                COMMITS=$(git log --oneline --pretty=format:"%s")
-              else
-                COMMITS=$(git log --oneline HEAD~10..HEAD --pretty=format:"%s")
-              fi
-            fi
-            echo "COMMITS=$COMMITS"
+          # 우선 순위 태그 설정
+          echo "DOMAIN_TAGS=image,user,board,security,recipe,mail,ingredient" >> $GITHUB_ENV
+          echo "SETTING_TAGS=ci/cd,config,gradle,build,bug" >> $GITHUB_ENV
+          echo "CODE_TAGS=refactor,update,style" >> $GITHUB_ENV
 
-      - name: Determine labels
+      - name: Get commits
+        id: get_commits
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            COMMITS=$(git log --oneline "${{ github.event.before }}..${{ github.sha }}" --pretty=format:"%s")
+          else
+            COMMITS=$(git log --oneline HEAD~10..HEAD --pretty=format:"%s")
+          fi
+          echo "COMMITS=$COMMITS" >> $GITHUB_ENV
+
+      - name: Determine labels based on commits
         id: determine_labels
         run: |
-          # 1순위: Domain Labels
-          DOMAIN_LABELS=("image" "user" "board" "security" "recipe" "mail" "ingredient" "tag")
-          # 2순위: Setting Labels
-          SETTING_LABELS=("ci/cd" "config" "gradle" "build" "bug")
-          # 3순위: Code Labels
-          CODE_LABELS=("refactor" "update" "style")
+          DOMAIN_TAGS=(${DOMAIN_TAGS//,/ })
+          SETTING_TAGS=(${SETTING_TAGS//,/ })
+          CODE_TAGS=(${CODE_TAGS//,/ })
 
+          # 커밋 메시지에서 태그를 찾아서 추가
           LABELS=()
-
-          # 1순위: Domain Label 최대 5개
-          for LABEL in "${DOMAIN_LABELS[@]}"; do
-            if [[ "$COMMITS" == *"$LABEL"* ]]; then
-              LABELS+=("$LABEL")
-              if [ "${#LABELS[@]}" -ge 5 ]; then
-                break
+          for COMMIT in $COMMITS; do
+            for TAG in "${DOMAIN_TAGS[@]}"; do
+              if [[ "$COMMIT" == *"$TAG"* ]]; then
+                LABELS+=("$TAG")
+                if [ ${#LABELS[@]} -ge 5 ]; then break 2; fi
               fi
-            fi
+            done
           done
-
-          # 2순위: Setting Label 최대 2개
-          if [ "${#LABELS[@]}" -lt 5 ]; then
-            for LABEL in "${SETTING_LABELS[@]}"; do
-              if [[ "$COMMITS" == *"$LABEL"* ]]; then
-                LABELS+=("$LABEL")
-                if [ "${#LABELS[@]}" -ge 5 ]; then
-                  break
-                fi
+          
+          if [ ${#LABELS[@]} -lt 5 ]; then
+            for TAG in "${SETTING_TAGS[@]}"; do
+              if [[ "$COMMIT" == *"$TAG"* ]]; then
+                LABELS+=("$TAG")
+                if [ ${#LABELS[@]} -ge 5 ]; then break; fi
               fi
             done
           fi
 
-          # 3순위: Code Label 최대 1개
-          if [ "${#LABELS[@]}" -lt 5 ]; then
-            for LABEL in "${CODE_LABELS[@]}"; do
-              if [[ "$COMMITS" == *"$LABEL"* ]]; then
-                LABELS+=("$LABEL")
-                if [ "${#LABELS[@]}" -ge 5 ]; then
-                  break
-                fi
+          if [ ${#LABELS[@]} -lt 5 ]; then
+            for TAG in "${CODE_TAGS[@]}"; do
+              if [[ "$COMMIT" == *"$TAG"* ]]; then
+                LABELS+=("$TAG")
+                if [ ${#LABELS[@]} -ge 5 ]; then break; fi
               fi
             done
           fi
 
-          echo "FINAL_LABELS=${LABELS[@]}"
-          echo "FINAL_LABELS=${LABELS[@]}" >> $GITHUB_ENV
-
-      - name: Create missing labels
-        run: |
-          for LABEL in ${{ env.FINAL_LABELS }}; do
-            LABEL_EXISTS=$(gh api graphql -f query='
-            {
-              repository(owner: "${{ github.repository_owner }}", name: "${{ github.event.repository.name }}") {
-                labels(first: 100) {
-                  nodes {
-                    name
-                  }
-                }
-              }
-            }' | jq -r '.data.repository.labels.nodes[] | select(.name == "'$LABEL'")')
-
-            if [ -z "$LABEL_EXISTS" ]; then
-              COLOR=$(openssl rand -hex 3)  # 랜덤 색상 생성
-              gh api \
-                --method POST \
-                -H "Accept: application/vnd.github+json" \
-                /repos/${{ github.repository }}/labels \
-                -f name="$LABEL" \
-                -f color="$COLOR"
-              echo "Created label: $LABEL with color: $COLOR"
-            else
-              echo "Label $LABEL already exists"
-            fi
-          done
+          # 라벨 추가
+          FINAL_LABELS=$(IFS=,; echo "${LABELS[*]}")
+          echo "FINAL_LABELS=$FINAL_LABELS" >> $GITHUB_ENV
 
       - name: Add labels to PR
         run: |
-            if [ "${{ github.event_name }}" == "pull_request" ]; then
-              echo "Adding labels: ${{ env.FINAL_LABELS }} to PR #${{ github.event.pull_request.number }}"
-              if gh pr edit ${{ github.event.pull_request.number }} --add-label "${{ env.FINAL_LABELS }}"; then
-                echo "Labels added successfully."
-              else
-                echo "Failed to add labels."
-              fi
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            echo "Adding labels: ${{ env.FINAL_LABELS }} to PR #${{ github.event.pull_request.number }}"
+            if gh pr edit ${{ github.event.pull_request.number }} --add-label "${{ env.FINAL_LABELS }}"; then
+              echo "Labels added successfully."
             else
-              echo "Not a pull request event, no labels added."
+              echo "Failed to add labels."
             fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Add labels to commit push
-        run: |
-          if [ "${{ github.event_name }}" == "push" ]; then
-            # Push 이벤트에서는 별도로 작업을 정의할 수 있습니다.
-            echo "Labels added for push event"
+          else
+            echo "Not a pull request event, no labels added."
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
