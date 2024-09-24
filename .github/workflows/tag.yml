@@ -7,6 +7,7 @@ on:
   pull_request:
     branches:
       - '*'
+
 jobs:
   add-labels:
     runs-on: ubuntu-latest
@@ -27,6 +28,7 @@ jobs:
           echo "DOMAIN_TAGS=image,user,board,security,recipe,mail,ingredient,tag,feat" >> $GITHUB_ENV
           echo "SETTING_TAGS=ci/cd,config,gradle,build,bug,action" >> $GITHUB_ENV
           echo "CODE_TAGS=refactor,update,style" >> $GITHUB_ENV
+
       - name: Get commits between branches
         run: |
           BASE_BRANCH=${{ github.base_ref }}  # 예: main
@@ -37,10 +39,9 @@ jobs:
           
           echo "Commits from $BASE_BRANCH to $PR_BRANCH:"
           COMMITS=$(git log --no-merges --oneline origin/$BASE_BRANCH..origin/$PR_BRANCH --pretty=format:"%s")
-          # 이모지와 특수 문자를 안전하게 처리하기 위해 따옴표로 감쌈
           echo "Commits: \"$COMMITS\""
           
-          # $GITHUB_ENV에 저장할 때 이모지와 특수 문자를 포함한 문자열을 따옴표로 감싸서 처리
+          # 커밋 메시지를 $GITHUB_ENV에 저장
           echo "COMMITS=\"$COMMITS\"" >> $GITHUB_ENV
 
       - name: Checkout the PR to ensure all references are available
@@ -48,69 +49,51 @@ jobs:
           git fetch origin $BASE_BRANCH --prune
           git checkout $BASE_BRANCH
 
-      - name: Get commits
-        id: get_commits
-        run: |
-          echo "Event Name: ${{ github.event_name }}"
-          
-          COMMITS=$(git log --no-merges --oneline origin/main..action/tag --pretty=format:"%s")
-          echo "Commits from $BASE_BRANCH to current commit: $COMMITS"
-          
-          echo "COMMITS=$COMMITS" >> $GITHUB_ENV
-
-      - name: Display commits list print
-        run: |
-          echo "Commits: ${{ env.COMMITS }}"
-          echo "Split Commits:"
-          for commit in $COMMITS; do
-            echo "Commit: $commit"
-          done
       - name: Display commits
         run: |
-          # Use printf to handle multiline variables safely
           printf "Commits: %s\n" "${{ env.COMMITS }}"
 
       - name: Determine labels based on commits
         id: determine_labels
         run: |
-            DOMAIN_TAGS=(${DOMAIN_TAGS//,/ })
-            SETTING_TAGS=(${SETTING_TAGS//,/ })
-            CODE_TAGS=(${CODE_TAGS//,/ })
-            
-            LABELS=()
-            for COMMIT in $COMMITS; do
-              echo "Checking commit: $COMMIT"
-              for TAG in "${DOMAIN_TAGS[@]}"; do
-                if [[ "$COMMIT" == *"$TAG"* ]]; then
-                  LABELS+=("$TAG")
-                  echo "Matched DOMAIN_TAG: $TAG"
-                  if [ ${#LABELS[@]} -ge 5 ]; then break 2; fi
-                fi
-              done
+          DOMAIN_TAGS=(${DOMAIN_TAGS//,/ })
+          SETTING_TAGS=(${SETTING_TAGS//,/ })
+          CODE_TAGS=(${CODE_TAGS//,/ })
+          
+          LABELS=()
+          for COMMIT in $COMMITS; do
+            echo "Checking commit: $COMMIT"
+            for TAG in "${DOMAIN_TAGS[@]}"; do
+              if [[ "$COMMIT" == *"$TAG"* ]]; then
+                LABELS+=("$TAG")
+                echo "Matched DOMAIN_TAG: $TAG"
+                if [ ${#LABELS[@]} -ge 5 ]; then break 2; fi
+              fi
             done
-            
-            if [ ${#LABELS[@]} -lt 5 ]; then
-              for TAG in "${SETTING_TAGS[@]}"; do
-                if [[ "$COMMIT" == *"$TAG"* ]]; then
-                  LABELS+=("$TAG")
-                  echo "Matched SETTING_TAG: $TAG"
-                  if [ ${#LABELS[@]} -ge 5 ]; then break; fi
-                fi
-              done
-            fi
-            
-            if [ ${#LABELS[@]} -lt 5 ]; then
-              for TAG in "${CODE_TAGS[@]}"; do
-                if [[ "$COMMIT" == *"$TAG"* ]]; then
-                  LABELS+=("$TAG")
-                  echo "Matched CODE_TAG: $TAG"
-                  if [ ${#LABELS[@]} -ge 5 ]; then break; fi
-                fi
-              done
-            fi
-            
-            FINAL_LABELS=$(IFS=,; echo "${LABELS[*]}")
-            echo "FINAL_LABELS=$FINAL_LABELS" >> $GITHUB_ENV
+          done
+          
+          if [ ${#LABELS[@]} -lt 5 ]; then
+            for TAG in "${SETTING_TAGS[@]}"; do
+              if [[ "$COMMIT" == *"$TAG"* ]]; then
+                LABELS+=("$TAG")
+                echo "Matched SETTING_TAG: $TAG"
+                if [ ${#LABELS[@]} -ge 5 ]; then break; fi
+              fi
+            done
+          fi
+          
+          if [ ${#LABELS[@]} -lt 5 ]; then
+            for TAG in "${CODE_TAGS[@]}"; do
+              if [[ "$COMMIT" == *"$TAG"* ]]; then
+                LABELS+=("$TAG")
+                echo "Matched CODE_TAG: $TAG"
+                if [ ${#LABELS[@]} -ge 5 ]; then break; fi
+              fi
+            done
+          fi
+          
+          FINAL_LABELS=$(IFS=,; echo "${LABELS[*]}")
+          echo "FINAL_LABELS=$FINAL_LABELS" >> $GITHUB_ENV
 
       - name: Create missing labels
         run: |
