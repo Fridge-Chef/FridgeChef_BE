@@ -38,10 +38,11 @@ jobs:
           git checkout $BASE_BRANCH
           
           echo "Commits from $BASE_BRANCH to $PR_BRANCH:"
-          COMMITS=$(git log --no-merges --oneline origin/$BASE_BRANCH..origin/$PR_BRANCH --pretty=format:"%s")
+          # 커밋 메시지를 따옴표로 감싸서 특수 문자를 처리
+          COMMITS=$(git log --no-merges --oneline origin/$BASE_BRANCH..origin/$PR_BRANCH --pretty=format:"%s" | jq -R -s .)
           echo "Commits: \"$COMMITS\""
           
-          # 커밋 메시지를 $GITHUB_ENV에 저장
+          # 환경 변수에 커밋 메시지를 저장할 때 이모지와 특수 문자를 따옴표로 처리하여 저장
           echo "COMMITS=\"$COMMITS\"" >> $GITHUB_ENV
 
       - name: Checkout the PR to ensure all references are available
