@@ -8,7 +8,7 @@ import Fridge_Chef.team.user.domain.UserId;
 import Fridge_Chef.team.user.rest.model.AuthenticatedUser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -20,8 +20,9 @@ import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.UUID;
 
-@Profile({"prod", "dev"})
+@Slf4j
 @Component
+@Profile({"prod", "dev"})
 public class JwtProdProvider implements JwtProvider {
 
     private static final String TOKEN_USER_ID_PAYLOAD_PARAMETER = "userId";
@@ -38,11 +39,18 @@ public class JwtProdProvider implements JwtProvider {
             @Value("${jwt.secret.public}") RSAPublicKey rsaPublicKey) {
         this.rsaPrivateKey = rsaPrivateKey;
         this.rsaPublicKey = rsaPublicKey;
+
+        // 키 길이 로그 출력
+        log.info("Private Key Size: {}", rsaPrivateKey.getModulus().bitLength());
+        log.info("Public Key Size: {}", rsaPublicKey.getModulus().bitLength());
     }
 
     public String create(UserId userId, Role role) {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime expirationTime = now.plusMinutes(EXPIRATION_MINUTES);
+
+        log.info("Creating JWT for user: {}, role: {}", userId.getValue(), role);
+
         return Jwts.builder()
                 .signWith(rsaPrivateKey, Jwts.SIG.RS256)
                 .claim(TOKEN_USER_ID_PAYLOAD_PARAMETER, userId.getValue())
