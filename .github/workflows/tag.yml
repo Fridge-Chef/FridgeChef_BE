@@ -62,39 +62,52 @@ jobs:
           CODE_TAGS=(${CODE_TAGS//,/ })
           
           LABELS=()
-          for COMMIT in $COMMITS; do
-            echo "Checking commit: $COMMIT"
+          # 커밋 메시지 체크
+            for COMMIT in $COMMITS; do
+          echo "Checking commit: $COMMIT"
+          
+          # DOMAIN_TAGS에서 태그 매칭
             for TAG in "${DOMAIN_TAGS[@]}"; do
-              if [[ "$COMMIT" == *"$TAG"* ]]; then
-                LABELS+=("$TAG")
-                echo "Matched DOMAIN_TAG: $TAG"
-                if [ ${#LABELS[@]} -ge 5 ]; then break 2; fi
-              fi
+            if [[ "$COMMIT" == *"$TAG"* ]]; then
+            if [[ ! " ${LABELS[@]} " =~ " ${TAG} " ]]; then  # 중복 체크
+            LABELS+=("$TAG")
+          echo "Matched DOMAIN_TAG: $TAG"
+            if [ ${#LABELS[@]} -ge 5 ]; then break 2; fi
+            fi
+            fi
             done
-          done
-          
-          if [ ${#LABELS[@]} -lt 5 ]; then
+            done
+            
+            # SETTING_TAGS에서 태그 매칭
+            if [ ${#LABELS[@]} -lt 5 ]; then
             for TAG in "${SETTING_TAGS[@]}"; do
-              if [[ "$COMMIT" == *"$TAG"* ]]; then
-                LABELS+=("$TAG")
-                echo "Matched SETTING_TAG: $TAG"
-                if [ ${#LABELS[@]} -ge 5 ]; then break; fi
-              fi
+            if [[ "$COMMIT" == *"$TAG"* ]]; then
+            if [[ ! " ${LABELS[@]} " =~ " ${TAG} " ]]; then  # 중복 체크
+            LABELS+=("$TAG")
+          echo "Matched SETTING_TAG: $TAG"
+            if [ ${#LABELS[@]} -ge 5 ]; then break; fi
+            fi
+            fi
             done
-          fi
-          
-          if [ ${#LABELS[@]} -lt 5 ]; then
+            fi
+            
+            # CODE_TAGS에서 태그 매칭
+            if [ ${#LABELS[@]} -lt 5 ]; then
             for TAG in "${CODE_TAGS[@]}"; do
-              if [[ "$COMMIT" == *"$TAG"* ]]; then
-                LABELS+=("$TAG")
-                echo "Matched CODE_TAG: $TAG"
-                if [ ${#LABELS[@]} -ge 5 ]; then break; fi
-              fi
+            if [[ "$COMMIT" == *"$TAG"* ]]; then
+            if [[ ! " ${LABELS[@]} " =~ " ${TAG} " ]]; then  # 중복 체크
+            LABELS+=("$TAG")
+          echo "Matched CODE_TAG: $TAG"
+            if [ ${#LABELS[@]} -ge 5 ]; then break; fi
+            fi
+            fi
             done
-          fi
+            fi
+            
+            # 최종 레이블 설정
+            FINAL_LABELS=$(IFS=,; echo "${LABELS[*]}")
+            echo "FINAL_LABELS=$FINAL_LABELS" >> $GITHUB_ENV
           
-          FINAL_LABELS=$(IFS=,; echo "${LABELS[*]}")
-          echo "FINAL_LABELS=$FINAL_LABELS" >> $GITHUB_ENV
 
       - name: Create missing labels
         run: |
@@ -107,6 +120,7 @@ jobs:
           done
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub Actions에서 제공하는 토큰
+
 
       - name: Add labels to PR
         run: |
