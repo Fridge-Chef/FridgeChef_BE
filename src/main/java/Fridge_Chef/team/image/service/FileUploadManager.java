@@ -9,7 +9,10 @@ import com.oracle.bmc.objectstorage.transfer.UploadManager;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+
 
 public class FileUploadManager {
 
@@ -18,9 +21,9 @@ public class FileUploadManager {
     private final UploadManager.UploadRequest request;
 
     public FileUploadManager(UploadManager uploadManager, ImageConfigMeta imageConfigMeta, MultipartFile file, String fileName) {
+        this.imageConfigMeta = imageConfigMeta;
         this.uploadManager = uploadManager;
         this.request = fileReadWith(fileName, file.getContentType(), multiToFile(file));
-        this.imageConfigMeta = imageConfigMeta;
     }
 
     public void upload() {
@@ -31,9 +34,20 @@ public class FileUploadManager {
         }
     }
 
-    private File multiToFile(MultipartFile file) {
+    private File multiToFile(MultipartFile multipartFile) {
         try {
-            return file.getResource().getFile();
+            File tempFile = File.createTempFile("tempFile", multipartFile.getOriginalFilename());
+            tempFile.deleteOnExit();
+            try (InputStream inputStream = multipartFile.getInputStream();
+                    FileOutputStream outputStream = new FileOutputStream(tempFile)) {
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead);
+                }
+            }
+
+            return tempFile;
         } catch (IOException e) {
             throw new ApiException(ErrorCode.IMAGE_FILE_ANALYIS);
         }
