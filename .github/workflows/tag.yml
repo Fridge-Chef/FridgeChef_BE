@@ -16,10 +16,11 @@ jobs:
         with:
           fetch-depth: 0  # 모든 히스토리를 가져옵니다.
 
-      - name: Print PR branch name
+      - name: Fetch all branches
         run: |
-          echo "The PR source branch is: ${{ github.head_ref }}"
-          echo "The base branch is: ${{ github.base_ref }}"
+          # PR 소스 브랜치와 타겟 브랜치를 가져옵니다.
+          git fetch origin ${{ github.base_ref }} --prune
+          git fetch origin ${{ github.head_ref }} --prune
 
       - name: Set up environment variables
         run: |
@@ -28,8 +29,17 @@ jobs:
           echo "CODE_TAGS=refactor,update,style" >> $GITHUB_ENV
       - name: Get commits between branches
         run: |
-          BRANCH=${{ github.head_ref }}  # PR에서 사용한 브랜치
-          BASE_BRANCH=${{ github.base_ref }}  # 기본 브랜치 (예: main)
+          BASE_BRANCH=${{ github.base_ref }}  # 예: main
+          PR_BRANCH=${{ github.head_ref }}    # PR 브랜치 (예: action/tag)
+          
+          echo "Checking out $BASE_BRANCH"
+          git checkout $BASE_BRANCH
+          
+          echo "Commits from $BASE_BRANCH to $PR_BRANCH:"
+          COMMITS=$(git log --no-merges --oneline origin/$BASE_BRANCH..origin/$PR_BRANCH --pretty=format:"%s")
+          echo "Commits: $COMMITS"
+          echo "COMMITS=$COMMITS" >> $GITHUB_ENV
+
       - name: Checkout the PR to ensure all references are available
         run: |
           git fetch origin $BASE_BRANCH --prune
