@@ -105,6 +105,8 @@ jobs:
               gh label create "$LABEL" --color "$(printf '#%06X\n' $((RANDOM%16777215)))"
             fi
           done
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub Actions에서 제공하는 토큰
 
       - name: Add labels to PR
         run: |
