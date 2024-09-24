@@ -44,7 +44,7 @@ jobs:
             echo "Commits from $BASE_BRANCH to current commit: $COMMITS"
           fi
 
-          echo "COMMITS=$COMMITS" >> $GITHUB_ENV
+          echo "COMMITS=$COMMITS" >> $GITHUB_ENV"
 
       - name: Display commits
         run: |
