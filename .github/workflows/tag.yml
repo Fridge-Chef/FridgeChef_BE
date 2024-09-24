@@ -7,7 +7,6 @@ on:
   pull_request:
     branches:
       - '*'
-      -
 jobs:
   add-labels:
     runs-on: ubuntu-latest
@@ -24,10 +23,14 @@ jobs:
       - name: Get commits
         id: get_commits
         run: |
-            BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
-            COMMITS=$(git log --oneline "${BASE_BRANCH}..${{ github.sha }}" --pretty=format:"%s")
-            echo "COMMITS=$COMMITS" >> $GITHUB_ENV
-
+          if [ "${{ github.event_name }}" == "push" ]; then
+              BASE_BRANCH="main"  # 기본 브랜치를 여기서 지정
+              COMMITS=$(git log --oneline "${BASE_BRANCH}..${{ github.sha }}" --pretty=format:"%s")
+          elif [ "${{ github.event_name }}" == "pull_request" ]; then
+              BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
+              COMMITS=$(git log --oneline "${BASE_BRANCH}..${{ github.sha }}" --pretty=format:"%s")
+          fi
+          echo "COMMITS=$COMMITS" >> $GITHUB_ENV
 
       - name: Determine labels based on commits
         id: determine_labels
