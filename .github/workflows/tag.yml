@@ -53,7 +53,13 @@ jobs:
           fi
           
           echo "COMMITS=$COMMITS" >> $GITHUB_ENV
-
+      - name: Display commits list print
+        run: |
+          echo "Commits: ${{ env.COMMITS }}"
+          echo "Split Commits:"
+          for commit in $COMMITS; do
+            echo "Commit: $commit"
+          done
       - name: Display commits
         run: |
           # Use printf to handle multiline variables safely
