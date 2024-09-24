@@ -18,13 +18,19 @@ jobs:
       - name: Get commit messages
         id: commits
         run: |
-          # 커밋 메시지 가져오기
-          if [ "${{ github.event_name }}" == "pull_request" ]; then
-            COMMITS=$(git log --oneline ${{ github.event.before }}..${{ github.sha }} --pretty=format:"%s")
-          else
-            COMMITS=$(git log --oneline HEAD~10..HEAD --pretty=format:"%s")
-          fi
-          echo "COMMITS=$COMMITS"
+            # 커밋 메시지 가져오기
+            if [ "${{ github.event_name }}" == "pull_request" ]; then
+              COMMITS=$(git log --oneline ${{ github.event.before }}..${{ github.sha }} --pretty=format:"%s")
+            else
+              # HEAD의 커밋 수가 10보다 적을 경우, 모든 커밋을 가져옵니다.
+              COMMITS=$(git rev-list --count HEAD)
+              if [ "$COMMITS" -le 10 ]; then
+                COMMITS=$(git log --oneline --pretty=format:"%s")
+              else
+                COMMITS=$(git log --oneline HEAD~10..HEAD --pretty=format:"%s")
+              fi
+            fi
+            echo "COMMITS=$COMMITS"
 
       - name: Determine labels
         id: determine_labels
