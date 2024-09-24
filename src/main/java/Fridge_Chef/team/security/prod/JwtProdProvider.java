@@ -8,6 +8,7 @@ import Fridge_Chef.team.user.domain.UserId;
 import Fridge_Chef.team.user.rest.model.AuthenticatedUser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -42,9 +43,8 @@ public class JwtProdProvider implements JwtProvider {
     public String create(UserId userId, Role role) {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime expirationTime = now.plusMinutes(EXPIRATION_MINUTES);
-
         return Jwts.builder()
-                .signWith(rsaPrivateKey)
+                .signWith(rsaPrivateKey, Jwts.SIG.RS256)
                 .claim(TOKEN_USER_ID_PAYLOAD_PARAMETER, userId.getValue())
                 .claim(TOKEN_USER_ROLE_PAYLOAD_PARAMETER, role)
                 .issuedAt(Date.from(now.toInstant(ZoneOffset.UTC)))
@@ -58,7 +58,7 @@ public class JwtProdProvider implements JwtProvider {
         LocalDateTime expirationTime = now.plusDays(refreshTime);
 
         return Jwts.builder()
-                .signWith(rsaPrivateKey)
+                .signWith(rsaPrivateKey, Jwts.SIG.RS256)
                 .claim(TOKEN_USER_ID_PAYLOAD_PARAMETER, userId.getValue())
                 .claim(TOKEN_USER_ROLE_PAYLOAD_PARAMETER, role.name())
                 .issuedAt(Date.from(now.toInstant(ZoneOffset.UTC)))

@@ -25,7 +25,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import java.security.interfaces.RSAPublicKey;
 
-@Profile({"prod", "dev"})
+@Profile({"prod"})
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -72,9 +72,6 @@ public class SecurityConfig {
                         "/api/categorys/{category_id}/boards/{board_id}/comment"
                 )
                 .hasAnyAuthority(Role.USER.getAuthority(), Role.ADMIN.getAuthority())
-                .requestMatchers("/api/manager/busines/ingredient")
-                .hasAnyAuthority(Role.ADMIN.getAuthority())
-//                .requestMatchers(PathRequest.toH2Console()).permitAll()
                 .anyRequest().authenticated();
     }
 
