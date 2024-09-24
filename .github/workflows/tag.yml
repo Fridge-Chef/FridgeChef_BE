@@ -113,3 +113,7 @@ jobs:
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Display final labels
+        run: |
+          echo "FINAL_LABELS: ${{ env.FINAL_LABELS }}"
