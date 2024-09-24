@@ -24,6 +24,16 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16' # 원하는 Node.js 버전 설정
+
+      - name: Install Dependencies
+        run: |
+          npm install redoc-cli --save-dev # redoc-cli 설치
+
       - name: Cache Gradle packages
         uses: actions/cache@v2
         with:
@@ -33,12 +43,12 @@ jobs:
             key: ${{ runner.os }}-gradle-${{ hashFiles('**/gradle-wrapper.properties') }}
             restore-keys: |
               ${{ runner.os }}-gradle-
+
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
       - name: Set Jasypt Password
         run: echo "JASYPT_PASSWORD=${{ secrets.JASYPT_PASSWORD }}" >> $GITHUB_ENV
-
 
       - name: Setup OpenSSL and Generate Keys
         run: |
@@ -55,6 +65,8 @@ jobs:
                 python -m pip install pyyaml
                 ./gradlew redocGenerationIntegration --info
                 ./gradlew bootjar
+          
+
       #------------------ssh 사용 권한 ---------------------------------
       - name: Setup SSH Key
         run: |
