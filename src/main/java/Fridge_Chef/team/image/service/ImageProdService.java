@@ -10,7 +10,6 @@ import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.domain.UserId;
 import com.oracle.bmc.objectstorage.ObjectStorage;
 import com.oracle.bmc.objectstorage.transfer.UploadManager;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,13 +23,19 @@ import java.util.stream.Collectors;
 
 @Service
 @Profile({"prod","dev"})
-@RequiredArgsConstructor
 public class ImageProdService implements ImageService {
     private final static Pattern mimePattern = Pattern.compile("image/(png|jpeg|jpg)");
     private final UploadManager uploadManager;
     private final ObjectStorage objectStorageClient;
     private final ImageRepository imageRepository;
     private final ImageConfigMeta imageConfigMeta;
+
+    public ImageProdService(UploadManager uploadManager, ObjectStorage objectStorageClient, ImageRepository imageRepository, ImageConfigMeta imageConfigMeta) {
+        this.uploadManager = uploadManager;
+        this.objectStorageClient = objectStorageClient;
+        this.imageRepository = imageRepository;
+        this.imageConfigMeta = imageConfigMeta;
+    }
 
     @Transactional
     public Image imageUpload(UserId userId, MultipartFile file) {
@@ -39,6 +44,7 @@ public class ImageProdService implements ImageService {
         Image image = new Image(imageConfigMeta.getUrl(), imageConfigMeta.getUploadPath(), fileName, ImageType.ORACLE_CLOUD, userId);
         return imageRepository.save(image);
     }
+
     @Transactional
     public Image imageUploadUserPicture(User user, MultipartFile file) {
         String fileName = onlyNameChange(file.getName());
@@ -51,7 +57,7 @@ public class ImageProdService implements ImageService {
 
     @Transactional
     public Image openApiUriImageSave(String path) {
-        return imageRepository.save(new Image(path, ImageType.DATA_GO));
+        return imageRepository.save(new Image(path, ImageType.OUT_URI));
     }
 
     @Transactional
@@ -59,7 +65,11 @@ public class ImageProdService implements ImageService {
         Image image = imageRepository.findById(imageId)
                 .orElseThrow(() -> new ApiException(ErrorCode.IMAGE_NOT_ID));
 
-        if (image.getUserId() != null && !image.getUserId().equals(userId.getValue())) {
+        if(image.getType().equals(ImageType.OUT_URI)){
+            return ;
+        }
+
+        if (!image.getUserId().equals(userId.getValue())) {
             throw new ApiException(ErrorCode.IMAGE_AUTHOR_MISMATCH);
         }
 

@@ -61,14 +61,14 @@ public class Image extends BaseEntity {
     }
 
     public static Image outUri(String imageUrl) {
-        return new Image(imageUrl, ImageType.DATA_GO);
+        return new Image(imageUrl, ImageType.OUT_URI);
     }
     public static Image outUri(String imageUrl,UUID userId) {
-        return new Image(imageUrl, ImageType.DATA_GO,userId);
+        return new Image(imageUrl, ImageType.OUT_URI,userId);
     }
 
     public void updateOutUri(String path) {
-        this.type=ImageType.DATA_GO;
+        this.type=ImageType.OUT_URI;
         this.path = path;
         String[] parts = path.split("/");
         this.name = parts[parts.length - 1];
