@@ -74,7 +74,7 @@ public class SecurityConfig {
                 .hasAnyAuthority(Role.USER.getAuthority(), Role.ADMIN.getAuthority())
                 .requestMatchers("/api/manager/busines/ingredient")
                 .hasAnyAuthority(Role.ADMIN.getAuthority())
-                .requestMatchers(PathRequest.toH2Console()).permitAll()
+//                .requestMatchers(PathRequest.toH2Console()).permitAll()
                 .anyRequest().authenticated();
     }
 
