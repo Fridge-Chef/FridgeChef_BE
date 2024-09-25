@@ -8,8 +8,8 @@ server:
     key-alias: fridgebe-site
 jwt:
   secret:
-    private: /home/ubuntu/dev/fridgejwt.priv
-    public: /home/ubuntu/dev/fridgejwt.pub
+    private: fridgejwt.priv
+    public: fridgejwt.pub
 
 spring:
   config:
