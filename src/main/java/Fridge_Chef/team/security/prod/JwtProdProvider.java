@@ -40,7 +40,6 @@ public class JwtProdProvider implements JwtProvider {
         this.rsaPrivateKey = rsaPrivateKey;
         this.rsaPublicKey = rsaPublicKey;
 
-        // 키 길이 로그 출력
         log.info("Private Key Size: {}", rsaPrivateKey.getModulus().bitLength());
         log.info("Public Key Size: {}", rsaPublicKey.getModulus().bitLength());
     }
