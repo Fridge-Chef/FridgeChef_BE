@@ -6,6 +6,10 @@ server:
     key-store-password: ENC(hszW13G6NdoeC8AcwJ/qenix8O6jiGXL)
     key-store-type: PKCS12
     key-alias: fridgebe-site
+jwt:
+  secret:
+    private: fridgejwt.priv
+    public: fridgejwt.pub
 
 spring:
   config:
@@ -20,8 +24,3 @@ spring:
     username: ADMIN
     password: ENC(mE7S46BWUTZS1ES17svBz72u6sA6c0No)
     driver-class-name: oracle.jdbc.OracleDriver
-
-jwt:
-  secret:
-    private: fridgejwt.priv
-    public: fridgejwt.pub
