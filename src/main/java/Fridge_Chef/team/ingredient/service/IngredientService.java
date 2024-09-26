@@ -1,6 +1,8 @@
 package Fridge_Chef.team.ingredient.service;
 
 import Fridge_Chef.team.common.entity.OracleBoolean;
+import Fridge_Chef.team.exception.ApiException;
+import Fridge_Chef.team.exception.ErrorCode;
 import Fridge_Chef.team.ingredient.domain.Ingredient;
 import Fridge_Chef.team.ingredient.repository.IngredientRepository;
 import Fridge_Chef.team.recipe.domain.RecipeIngredient;
@@ -54,6 +56,15 @@ public class IngredientService {
         }
 
         return recipeIngredients;
+    }
+
+    public Ingredient findIngredientByName(String ingredientName) {
+        return ingredientRepository.findByName(ingredientName)
+                .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    public boolean exist(String ingredientName) {
+        return ingredientRepository.findByName(ingredientName).isPresent();
     }
 
     public void insertIngredient(Ingredient ingredient) {
