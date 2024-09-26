@@ -1,6 +1,7 @@
 package Fridge_Chef.team.user.domain;
 
 import Fridge_Chef.team.common.entity.BaseEntity;
+import Fridge_Chef.team.fridge.domain.Fridge;
 import Fridge_Chef.team.image.domain.Image;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -25,6 +26,9 @@ public class User extends BaseEntity {
     private Role role;
     @Enumerated(EnumType.STRING)
     private Social social;
+
+    @OneToOne(mappedBy = "users")
+    private Fridge fridge;
 
     public User(UserId userId, Profile profile, String email, Role role, Social social) {
         this.userId = userId;

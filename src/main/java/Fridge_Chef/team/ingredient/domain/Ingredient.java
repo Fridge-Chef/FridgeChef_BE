@@ -25,4 +25,5 @@ public class Ingredient {
     private String name;
 
     private OracleBoolean isSeasoning;
+
 }
