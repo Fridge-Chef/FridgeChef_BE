@@ -61,7 +61,13 @@ public enum ErrorCode {
     BOARD_NOT_USER_CREATE(406,"내가 생성하지 않는 게시판" ),
     BOARD_NOT_FOUND(407,"찾을 수 없는 게시물 입니다." ),
     STAR_RATING_IS_1_0_OR_HIGHER_AND_5_0_OR_LOWER(407,"별점은 1~ 5점 사이만 가능" ),
-    RATING_IS_0_5_UNITS(408, "별점은 0.5단위만 가능");
+    RATING_IS_0_5_UNITS(408, "별점은 0.5단위만 가능"),
+
+    //ingredient
+    INGREDIENT_NOT_FOUND(404, "재료 정보 없음"),
+
+    //fridge
+    FRIDGE_NOT_FOUND(404, "냉장고 정보 없음");
 
     private final int status;
     private final String message;
