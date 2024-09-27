@@ -52,7 +52,7 @@ public class FridgeService {
 
     public Fridge getFridge(UserId userId) {
         return fridgeRepository.findByUserId(userId)
-                .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new ApiException(ErrorCode.FRIDGE_NOT_FOUND));
     }
 
     //냉장고 조회
@@ -120,6 +120,6 @@ public class FridgeService {
         return fridge.getFridgeIngredients().stream()
                 .filter(fridgeIngredient -> fridgeIngredient.getIngredient().getName().equals(IngredientName))
                 .findFirst()
-                .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new ApiException(ErrorCode.INGREDIENT_NOT_FOUND));
     }
 }

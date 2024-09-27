@@ -52,6 +52,12 @@ public enum ErrorCode {
     PASSWORD_VALID_FAIL(413, "비밀번호는 6자 이상 38자 이하의 숫자 또는 영문자로 입력해주세요."),
     SIGNUP_CERT_NON_REQUEST(414, "회원가입 인증과정을 무시했습니다."),
 
+    //fridge
+    FRIDGE_NOT_FOUND(404, "냉장고 정보 없음"),
+
+    //ingredient
+    INGREDIENT_NOT_FOUND(404, "재료 정보 없음"),
+
     IMAGE_FILE_ANALYIS(405, "이미지 파일 읽기 오류"),
     IMAGE_CONTENT_TYPE_FAIL(406, "지원하지 않는 이미지 타입(허용타입: png,jpeg,jpg"),
     IMAGE_FILE_DELETE_FAIL(407, "이미지 삭제 실패"),
