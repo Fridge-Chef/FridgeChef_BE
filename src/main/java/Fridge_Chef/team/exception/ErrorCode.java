@@ -57,7 +57,11 @@ public enum ErrorCode {
     IMAGE_FILE_DELETE_FAIL(407, "이미지 삭제 실패"),
     IMAGE_REMOVE_NOT_USER(408, "이미지 제거 유저 불일치"),
     CATEGORY_NOT_FOUND(405, "카테고리를 찾지 못했습니다."),
-    CATEGORY_ALREADY(405, "카테고리가 이미 있습니다.");
+    CATEGORY_ALREADY(405, "카테고리가 이미 있습니다."),
+    BOARD_NOT_USER_CREATE(406,"내가 생성하지 않는 게시판" ),
+    BOARD_NOT_FOUND(407,"찾을 수 없는 게시물 입니다." ),
+    STAR_RATING_IS_1_0_OR_HIGHER_AND_5_0_OR_LOWER(407,"별점은 1~ 5점 사이만 가능" ),
+    RATING_IS_0_5_UNITS(408, "별점은 0.5단위만 가능");
 
     private final int status;
     private final String message;
