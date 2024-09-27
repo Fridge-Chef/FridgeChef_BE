@@ -3,10 +3,10 @@ name: 'Add Labels on Push or PR'
 on:
   push:
     branches:
-      - '*'
+      - *
   pull_request:
     branches:
-      - '*'
+      - *
 
 jobs:
   add-labels:
@@ -25,8 +25,8 @@ jobs:
 
       - name: Set up environment variables
         run: |
-          echo "DOMAIN_TAGS=image,user,board,security,recipe,mail,ingredient,tag,feat" >> $GITHUB_ENV
-          echo "SETTING_TAGS=ci/cd,config,gradle,build,bug,action" >> $GITHUB_ENV
+          echo "DOMAIN_TAGS=image,user,board,security,recipe,mail,ingredient,tag,feat,ingredients,board,api,comment,검색,냉장고,레시피,재료" >> $GITHUB_ENV
+          echo "SETTING_TAGS=ci/cd,config,gradle,build,bug,action,리팩토링,서비스" >> $GITHUB_ENV
           echo "CODE_TAGS=refactor,update,style" >> $GITHUB_ENV
 
       - name: Get commits between branches
