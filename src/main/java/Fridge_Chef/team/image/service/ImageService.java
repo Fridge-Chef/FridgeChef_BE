@@ -8,7 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface ImageService {
-
+    Image uploadImageWithId(UserId userId, boolean isImage,Long imageId, MultipartFile file);
     Image imageUpload(UserId userId, MultipartFile file);
     Image imageUploadUserPicture(User user, MultipartFile file);
 

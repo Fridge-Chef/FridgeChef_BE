@@ -18,6 +18,11 @@ import java.util.UUID;
 public class ImageLocalService implements ImageService {
 
     @Override
+    public Image uploadImageWithId(UserId userId, boolean isImage, Long imageId, MultipartFile file) {
+        return null;
+    }
+
+    @Override
     public Image imageUpload(UserId userId, MultipartFile file) {
         return null;
     }
