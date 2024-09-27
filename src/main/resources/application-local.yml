@@ -4,6 +4,11 @@ spring:
     import:
       - "classpath:/application/h2.yml"
       - "classpath:/application/testSll.yml"
+      - "classpath:/application/testSll.yml"
+      - "classpath:/application/image.yml"
+      - "classpath:/application/mail.yml"
+      - "classpath:/application/oauth.yml"
+      - "classpath:/application/testJwt.yml"
   jpa:
     open-in-view: false
     hibernate:
