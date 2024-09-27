@@ -47,14 +47,14 @@ public class ImageServiceTest extends FridgeChefApplicationApiTest {
     private String upload;
     @Value("${oci.url.path}")
     private String url;
-    private Path path = Paths.get("src/outApiTest/resources/fridge_chef.png");
+    private Path path = Paths.get("src/externalApiTest/resources/notfound.png");
     private File file = path.toFile();
 
 
     @Test
     @DisplayName("서비스에서 이미지 추가")
     void upload() throws IOException {
-        String name = "test_"+file.getName();
+        String name = file.getName();
         MultipartFile body = new MockMultipartFile(
                 name,
                 name,
@@ -63,6 +63,7 @@ public class ImageServiceTest extends FridgeChefApplicationApiTest {
         );
         String path = url + upload + name;
 
+        System.out.println(path);
         imageService.upload(body, body.getName());
 
         assertThat(isUrlConnect(path)).isTrue();
