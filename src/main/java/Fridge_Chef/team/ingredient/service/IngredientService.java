@@ -20,7 +20,7 @@ public class IngredientService {
 
     private final IngredientRepository ingredientRepository;
 
-    private static final List<String> SEASONINGS = List.of("소금", "후추", "설탕", "식초", "간장", "고추장", "기름", "식용유", "가루", "올리고당");
+    public static final List<String> SEASONINGS = List.of("소금", "후추", "설탕", "식초", "간장", "고추장", "기름", "식용유", "가루", "올리고당");
     private static final Pattern PREFIX_PATTERN = Pattern.compile("^[\\s●]*[재료|주재료|]*\\s*");
     private static final Pattern PATTERN_WITH_PARENTHESES = Pattern.compile("([^(]+)\\(([^)]+)\\)");
     private static final Pattern PATTERN_WITHOUT_PARENTHESES = Pattern.compile("([^,\\n]+?)\\s*(\\d+\\s*[gml]*)?");

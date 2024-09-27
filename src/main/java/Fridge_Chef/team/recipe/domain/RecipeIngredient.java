@@ -1,5 +1,6 @@
 package Fridge_Chef.team.recipe.domain;
 
+import Fridge_Chef.team.board.domain.Context;
 import Fridge_Chef.team.ingredient.domain.Ingredient;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -19,19 +20,33 @@ public class RecipeIngredient {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne
+    @JoinColumn(name = "context_id")
+    private Context context;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "recipe_id")
     private Recipe recipe;
-
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "ingredient_id")
     private Ingredient ingredient;
-
     private String quantity;
-    private String detail;
-
 
     public void setRecipe(Recipe recipe) {
         this.recipe = recipe;
+    }
+
+    private RecipeIngredient(Ingredient ingredient, String detail) {
+        this.ingredient = ingredient;
+        this.quantity = detail;
+    }
+
+    public static RecipeIngredient ofMyRecipe(Ingredient ingredient,  String detail){
+        return new RecipeIngredient(ingredient, detail);
+    }
+
+    public RecipeIngredient update(Ingredient ingredient, String details) {
+        this.ingredient=ingredient;
+        this.quantity=details;
+        return this;
     }
 }
