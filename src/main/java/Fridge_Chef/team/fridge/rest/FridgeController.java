@@ -4,8 +4,8 @@ import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.fridge.domain.FridgeIngredient;
 import Fridge_Chef.team.fridge.rest.request.FridgeIngredientRequest;
 import Fridge_Chef.team.fridge.rest.response.FridgeIngredientResponse;
-import Fridge_Chef.team.fridge.rest.response.FridgeResponse;
 import Fridge_Chef.team.fridge.service.FridgeService;
+import Fridge_Chef.team.user.domain.UserId;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -13,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/fridges")
@@ -30,7 +29,7 @@ public class FridgeController {
             //request에서 access token 추출
             //access token에서 user id 클레임 추출
 
-            UUID userId = UUID.randomUUID();
+            UserId userId = null;
             fridgeService.createFridge(userId);
             return ResponseEntity.status(HttpStatus.CREATED).build();
         } catch (ApiException e) {
@@ -46,7 +45,7 @@ public class FridgeController {
             //request에서 access token 추출
             //access token에서 user id 클레임 추출
 
-            UUID userId = UUID.randomUUID();
+            UserId userId = null;
             List<FridgeIngredientResponse> response = fridgeService.getFridge(userId);
             return ResponseEntity.ok().body(response);
         } catch (ApiException e) {
@@ -60,7 +59,7 @@ public class FridgeController {
 
         try {
             //access token에서 user id 클레임 추출
-            UUID userId = UUID.randomUUID();
+            UserId userId = null;
             fridgeService.addIngredients(userId, ingredientsRequest);
             return ResponseEntity.status(HttpStatus.CREATED).build();
         } catch (ApiException e) {
@@ -74,7 +73,7 @@ public class FridgeController {
 
         try {
             //access token에서 user id 클레임 추출
-            Long userId = 1L;
+            UserId userId = null;
             fridgeService.deleteIngredients(userId, ingredientRequest);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } catch (ApiException e) {
