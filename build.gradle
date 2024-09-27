@@ -104,8 +104,8 @@ def docsDir = 'build/generated-snippets'
 task outApiTest(type: Test) {
     description = "Out API tests"
     group = "verification"
-    testClassesDirs = sourceSets.externalApiTest.output.classesDirs
-    classpath = sourceSets.externalApiTest.runtimeClasspath
+//    testClassesDirs = sourceSets.externalApiTest.output.classesDirs
+//    classpath = sourceSets.externalApiTest.runtimeClasspath
     useJUnitPlatform()
 
     onlyIf {

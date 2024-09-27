@@ -5,6 +5,3 @@ spring:
       - "classpath:/application/h2.yml"
       - "classpath:/application/jpa.yml"
       - "classpath:/application/testSll.yml"
-      - "classpath:/application/testJwt.yml"
-      # 환경 분리
-      - "classpath:/application/oauth.yml"
