@@ -1,11 +1,17 @@
 package fixture;
 
-import Fridge_Chef.team.user.domain.Role;
-import Fridge_Chef.team.user.domain.Social;
-import Fridge_Chef.team.user.domain.User;
+import Fridge_Chef.team.user.domain.*;
+
+import java.util.UUID;
 
 public class UserFixture {
     public static User create(String email) {
-        return User.createSocialUser(email, "user_name_test_1", Role.USER,Social.KAKAO);
+        String uuid =  UUID.randomUUID().toString();
+        return User.createSocialUser(uuid+email, uuid, Role.USER,Social.KAKAO);
+    }
+
+    public static User createId(String email) {
+        String uuid =  UUID.randomUUID().toString();
+        return new User(UserId.create(),new Profile(null,uuid),uuid+email,Role.USER,Social.KAKAO);
     }
 }

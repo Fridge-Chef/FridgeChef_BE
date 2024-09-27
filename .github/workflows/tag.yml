@@ -3,10 +3,10 @@ name: 'Add Labels on Push or PR'
 on:
   push:
     branches:
-      - *
+      - "**" # 모든 브랜치에서 푸쉬 시 실행
   pull_request:
     branches:
-      - *
+      - "**" # 모든 브랜치에서 PR 시 실행
 
 jobs:
   add-labels:
