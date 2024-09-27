@@ -1,13 +1,13 @@
 package Fridge_Chef.team.board.domain;
 
-import Fridge_Chef.team.category.domain.Category;
 import Fridge_Chef.team.common.entity.BaseEntity;
-import Fridge_Chef.team.common.entity.Star;
 import Fridge_Chef.team.image.domain.Image;
-import Fridge_Chef.team.recipe.domain.Recipe;
+import Fridge_Chef.team.user.domain.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 import static lombok.AccessLevel.PROTECTED;
 
@@ -20,46 +20,62 @@ public class Board extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
-    private String title;
+
+    @OneToMany(mappedBy = "board", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    private List<BoardUserEvent> boardUserEvent;
     @ManyToOne(fetch = FetchType.LAZY)
-    private Category category;
+    private User user;
+    private String title;
     @ManyToOne(fetch = FetchType.LAZY)
     private Context context;
     @Enumerated(EnumType.STRING)
     private BoardType type;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Image mainImage;
-    private Star star;
+    private double totalStar;
     private int hit;
     private int count;
 
-    public Board(String title, Category category, Context context, Image mainImage, BoardType type) {
+    public Board(User user, String title, Context context, Image mainImage, BoardType type) {
+        this.user = user;
         this.title = title;
-        this.category = category;
         this.context = context;
         this.mainImage = mainImage;
         this.type = type;
-        this.star = Star.ONE;
+        this.totalStar = 0L;
         this.hit = 0;
         this.count = 0;
     }
 
-    private Board(String title, Category category, Context context, Image mainImage) {
+    public void updateStar(double totalStar) {
+        this.totalStar = totalStar;
+    }
+
+    public void updateHit(int hit) {
+        this.hit = hit;
+    }
+
+    public void updateCount(int count) {
+        this.count = count;
+    }
+
+    public boolean isMainImageEmpty() {
+        return mainImage == null;
+    }
+
+
+    public void updateTitle(String title) {
         this.title = title;
-        this.category = category;
-        this.context = context;
-        this.mainImage = mainImage;
-        this.type = BoardType.OPEN_API;
-        this.star = Star.ONE;
-        this.hit = 0;
-        this.count = 0;
     }
 
-    public static Board fromRecipe(Recipe recipe) {
-        return new Board(recipe.getName(),
-                new Category(1L),
-                Context.fromRecipe(recipe),
-                Image.outUri(recipe.getImageUrl())
-        );
+    public void updateMainImage(Image mainImage) {
+        this.mainImage = mainImage;
+    }
+
+    public String getMainImageLink() {
+        if (mainImage != null) {
+            return mainImage.getLink();
+        }
+        return "notfound.png";
     }
 }
