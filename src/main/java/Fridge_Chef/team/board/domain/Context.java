@@ -19,23 +19,26 @@ public class Context {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+
+    @OneToMany(fetch = FetchType.LAZY)
     private List<RecipeIngredient> boardIngredients;
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY)
     private List<Description> descriptions;
 
-    private Context(List<RecipeIngredient> boardIngredients, List<Description> descriptions) {
+    public Context(List<RecipeIngredient> boardIngredients, List<Description> descriptions) {
         this.boardIngredients = boardIngredients;
         this.descriptions = descriptions;
     }
 
-    public static Context toMyUserRecipe(List<RecipeIngredient> boardIngredients, List<Description> descriptions) {
+    public static Context formMyUserRecipe(List<RecipeIngredient> boardIngredients, List<Description> descriptions) {
         return new Context(boardIngredients, descriptions);
     }
 
-    public static Context fromRecipe(Recipe recipe) {
-        List<RecipeIngredient> boardIngredients = recipe.getRecipeIngredients();
-        List<Description> descriptions1 = Description.fromRecipe(recipe);
-        return new Context(boardIngredients, descriptions1);
+    public void updateIngredients(List<RecipeIngredient> ingredients) {
+        this.boardIngredients=ingredients;
+    }
+
+    public void updateDescriptions(List<Description> descriptions) {
+        this.descriptions=descriptions;
     }
 }

@@ -2,14 +2,11 @@ name: 'CI/CD Pipeline'
 
 
 on:
-  push:
-    branches:
-      - main
-      - "!action/**"
   pull_request:
     branches:
       - main
-      - "!action/**"
+    branches-ignore:
+      - action/**
 
 jobs:
   deploy:

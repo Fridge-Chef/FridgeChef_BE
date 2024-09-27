@@ -26,4 +26,8 @@ public class Ingredient {
 
     private OracleBoolean isSeasoning;
 
+    public Ingredient(String name, boolean isSeasoning) {
+        this.name = name;
+        this.isSeasoning = OracleBoolean.of(isSeasoning);
+    }
 }

@@ -5,6 +5,7 @@ import Fridge_Chef.team.common.auth.WithMockCustomUser;
 import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.exception.ErrorCode;
 import Fridge_Chef.team.image.domain.Image;
+import Fridge_Chef.team.image.service.ImageLocalService;
 import Fridge_Chef.team.security.JwtProvider;
 import Fridge_Chef.team.user.domain.Role;
 import Fridge_Chef.team.user.domain.Social;
@@ -41,6 +42,8 @@ public class UserControllerTest extends RestDocControllerTests {
 
     @MockBean
     private UserRepository userRepository;
+    @MockBean
+    private ImageLocalService imageLocalService;
     @MockBean
     private PasswordEncoder passwordEncoder;
     private User user;

@@ -9,6 +9,8 @@ import Fridge_Chef.team.security.service.factory.OAuthAttributesAdapterFactory;
 import Fridge_Chef.team.user.domain.Role;
 import Fridge_Chef.team.user.domain.Social;
 import Fridge_Chef.team.user.domain.User;
+import Fridge_Chef.team.user.domain.UserHistory;
+import Fridge_Chef.team.user.repository.UserHistoryRepository;
 import Fridge_Chef.team.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +32,8 @@ import java.util.List;
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
     private final UserRepository userRepository;
     private final ImageRepository imageRepository;
+    private final UserHistoryRepository userHistoryRepository;
+
 
     private final OAuthAttributesAdapterFactory oAuthAttributesAdapterFactory;
     private final DefaultOAuth2UserService defaultOAuth2UserService = new DefaultOAuth2UserService();
@@ -59,9 +63,13 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     private User saveOrUpdate(OAuthAttributes attributes) {
         userLog(attributes, " 로그인 시도 ");
 
-        return userRepository.findByEmail(attributes.email())
-                .map(entity -> entity.update(attributes.name(), attributes.picture()))
+        User user =  userRepository.findByEmail(attributes.email())
                 .orElseGet(() -> registerNewUser(attributes));
+        userPolicy(user);
+        return user;
+    }
+    private void userPolicy(User user){
+        user.updateTime();
     }
 
     private User signup(OAuthAttributes attributes) {
@@ -74,6 +82,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
         Image image = imageRepository.save(Image.outUri(attributes.picture()));
         user.updatePicture(image);
+
         return userRepository.save(user);
     }
 
@@ -81,7 +90,9 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         if (userRepository.existsByEmail(attributes.email())) {
             throw new ApiException(ErrorCode.USER_EMAIL_UNIQUE);
         }
-        return signup(attributes);
+        User user =  signup(attributes);
+        userHistoryRepository.save(new UserHistory(user));
+        return user;
     }
 
     private void userLog(OAuthAttributes attributes, String message) {

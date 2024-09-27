@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 
 @Service
-@Profile({"prod","dev"})
+@Profile({"prod", "dev"})
 public class ImageProdService implements ImageService {
     private final static Pattern mimePattern = Pattern.compile("image/(png|jpeg|jpg)");
     private final UploadManager uploadManager;
@@ -35,6 +35,16 @@ public class ImageProdService implements ImageService {
         this.objectStorageClient = objectStorageClient;
         this.imageRepository = imageRepository;
         this.imageConfigMeta = imageConfigMeta;
+    }
+
+    @Override
+    @Transactional
+    public Image uploadImageWithId(UserId userId, boolean isImage, Long imageId, MultipartFile file) {
+        if (isImage) {
+            return imageUpload(userId,file);
+        }
+        return imageRepository.findById(imageId)
+                .orElse(imageUpload(userId,file));
     }
 
     @Transactional
@@ -65,8 +75,8 @@ public class ImageProdService implements ImageService {
         Image image = imageRepository.findById(imageId)
                 .orElseThrow(() -> new ApiException(ErrorCode.IMAGE_NOT_ID));
 
-        if(image.getType().equals(ImageType.OUT_URI)){
-            return ;
+        if (image.getType().equals(ImageType.OUT_URI)) {
+            return;
         }
 
         if (!image.getUserId().equals(userId.getValue())) {

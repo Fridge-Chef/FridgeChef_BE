@@ -3,18 +3,8 @@ spring:
   config:
     import:
       - "classpath:/application/h2.yml"
+      - "classpath:/application/jpa.yml"
       - "classpath:/application/testSll.yml"
-  jpa:
-    open-in-view: false
-    hibernate:
-      ddl-auto: create
-    properties:
-      hibernate:
-        order_inserts: true
-        order_updates: true
-        connection:
-          pool_size: 70
-        jdbc:
-          batch_size: 1000
-        show_sql:
-        format_sql:
+      - "classpath:/application/testJwt.yml"
+      # 환경 분리
+      - "classpath:/application/oauth.yml"
