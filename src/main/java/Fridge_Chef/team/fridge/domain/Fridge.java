@@ -1,6 +1,5 @@
 package Fridge_Chef.team.fridge.domain;
 
-import Fridge_Chef.team.ingredient.domain.Ingredient;
 import Fridge_Chef.team.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
