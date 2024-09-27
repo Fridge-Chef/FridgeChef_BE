@@ -1,20 +1,16 @@
 package Fridge_chef.team;
 
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
 
-
 @SpringBootTest
-@ActiveProfiles({"dev","oauth","h2","fakeSll","image","mail"})
+@ActiveProfiles({"dev", "oauth", "h2", "fakeSll", "image", "mail"})
 @DisplayName("외부 API 통합테스트")
 public class FridgeChefApplicationApiTest {
 
