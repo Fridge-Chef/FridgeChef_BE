@@ -58,3 +58,5 @@ out/
 /src/main/resources/config
 /src/main/resources/oci_private.pem
 /src/main/resources/private/
+/batch/src/main/resources/private/
+/batch/
