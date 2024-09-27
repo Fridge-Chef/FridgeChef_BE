@@ -2,13 +2,9 @@ package Fridge_Chef.team.board.domain;
 
 
 import Fridge_Chef.team.image.domain.Image;
-import Fridge_Chef.team.recipe.domain.Recipe;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static lombok.AccessLevel.PROTECTED;
 
@@ -19,6 +15,10 @@ public class Description {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "context_id")
+    private Context context;
     private String description;
     @ManyToOne(fetch = FetchType.LAZY)
     private Image image;
@@ -28,14 +28,20 @@ public class Description {
         this.image = image;
     }
 
-    public static List<Description> fromRecipe(Recipe recipe) {
-        List<Description> descriptions = new ArrayList<>();
-//        for(var recipeDescription :recipe.getRecipeIngredients()){
-//            descriptions.add(fromRecipe(recipe));
-//        }
-        return descriptions;
+    public boolean isImageEmpty() {
+        return this.image == null;
     }
-//    public Description fromRecipe(RecipeDescription recipeDescription){
-//        return new Description(recipeDescription.getDescription(),recipeDescription.getImage());
-//    }
+
+    public Description update(String description, Image image) {
+        this.description = description;
+        this.image = image;
+        return this;
+    }
+
+    public String getLink() {
+        if (image != null) {
+            return image.getLink();
+        }
+        return "notfound.png";
+    }
 }
