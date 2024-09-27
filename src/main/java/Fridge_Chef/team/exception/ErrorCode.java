@@ -59,12 +59,6 @@ public enum ErrorCode {
     CATEGORY_NOT_FOUND(405, "카테고리를 찾지 못했습니다."),
     CATEGORY_ALREADY(405, "카테고리가 이미 있습니다."),
 
-    //ingredient
-    INGREDIENT_NOT_FOUND(404, "재료 정보 없음"),
-
-    //fridge
-    FRIDGE_NOT_FOUND(404, "냉장고 정보 없음"),
-
     //board
     BOARD_NOT_USER_CREATE(406,"내가 생성하지 않는 게시판" ),
     BOARD_NOT_FOUND(407,"찾을 수 없는 게시물 입니다." ),
