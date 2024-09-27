@@ -1,14 +1,17 @@
 name: 'CI/CD Pipeline'
 
 
+
 on:
-  pull_request:
-    types:
+  push:
       - closed
+      -  main
     branches:
       - main
-    branches-ignore:
-      - action/**
+  pull_request:
+    branches:
+      - "**"
+
 
 jobs:
   pr_merge_job:
