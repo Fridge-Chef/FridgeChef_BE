@@ -26,6 +26,8 @@ public class User extends BaseEntity {
     private Role role;
     @Enumerated(EnumType.STRING)
     private Social social;
+    @OneToOne(fetch = FetchType.LAZY)
+    private UserHistory history;
 
     @OneToOne(mappedBy = "user")
     private Fridge fridge;
@@ -46,7 +48,6 @@ public class User extends BaseEntity {
     public static User createSocialUser(String email, String name, Role role, Social social) {
         return new User(UserId.create(), new Profile(null, name), email, role, social);
     }
-
 
     public void accountDelete(boolean isDelete) {
         updateIsDelete(isDelete);
@@ -80,4 +81,7 @@ public class User extends BaseEntity {
         return this;
     }
 
+    public void updateTime() {
+        history.update();
+    }
 }
