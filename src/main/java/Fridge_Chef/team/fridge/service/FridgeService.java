@@ -8,16 +8,14 @@ import Fridge_Chef.team.fridge.repository.FridgeRepository;
 import Fridge_Chef.team.fridge.rest.request.FridgeIngredientRequest;
 import Fridge_Chef.team.fridge.rest.response.FridgeIngredientResponse;
 import Fridge_Chef.team.ingredient.domain.Ingredient;
-import Fridge_Chef.team.ingredient.repository.IngredientRepository;
 import Fridge_Chef.team.ingredient.service.IngredientService;
 import Fridge_Chef.team.user.domain.User;
+import Fridge_Chef.team.user.domain.UserId;
 import Fridge_Chef.team.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,8 +27,10 @@ public class FridgeService {
     private final IngredientService ingredientService;
 
     //냉장고 생성
-    public void createFridge(UUID userId) {
-        User user = userRepository.findByUserId_Value(userId)
+    public void createFridge(UserId userId) {
+
+        //UserId를 통해서 user찾기 해야됨
+        User user = userRepository.findByUserId_Value(userId.getValue())
                 .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
 
         Fridge fridge = Fridge.builder()
@@ -41,7 +41,7 @@ public class FridgeService {
     }
 
     //냉장고 조회
-    public List<FridgeIngredientResponse> getFridge(UUID userId) {
+    public List<FridgeIngredientResponse> getFridge(UserId userId) {
 
         Fridge fridge = fridgeRepository.findByUserId(userId)
                 .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
@@ -58,7 +58,7 @@ public class FridgeService {
     }
 
     //냉장고 재료 등록
-    public void addIngredients(UUID userId, List<FridgeIngredientRequest> ingredientsRequest) {
+    public void addIngredients(UserId userId, List<FridgeIngredientRequest> ingredientsRequest) {
 
         Fridge fridge = fridgeRepository.findByUserId(userId)
                 .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
@@ -81,7 +81,7 @@ public class FridgeService {
     }
 
     //냉장고 재료 삭제
-    public void deleteIngredients(Long userId, FridgeIngredient ingredientRequest) {
+    public void deleteIngredients(UserId userId, FridgeIngredient ingredientRequest) {
     }
 
     //냉장고 재료 수정

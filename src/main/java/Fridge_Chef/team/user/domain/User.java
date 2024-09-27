@@ -27,7 +27,7 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Social social;
 
-    @OneToOne(mappedBy = "users")
+    @OneToOne(mappedBy = "user")
     private Fridge fridge;
 
     public User(UserId userId, Profile profile, String email, Role role, Social social) {
