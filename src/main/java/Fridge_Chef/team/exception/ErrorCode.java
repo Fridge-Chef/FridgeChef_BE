@@ -59,7 +59,6 @@ public enum ErrorCode {
     CATEGORY_NOT_FOUND(405, "카테고리를 찾지 못했습니다."),
     CATEGORY_ALREADY(405, "카테고리가 이미 있습니다."),
 
-    //board
     BOARD_NOT_USER_CREATE(406,"내가 생성하지 않는 게시판" ),
     BOARD_NOT_FOUND(407,"찾을 수 없는 게시물 입니다." ),
     STAR_RATING_IS_1_0_OR_HIGHER_AND_5_0_OR_LOWER(407,"별점은 1~ 5점 사이만 가능" ),
