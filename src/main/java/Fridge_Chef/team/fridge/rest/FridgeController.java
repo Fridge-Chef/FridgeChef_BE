@@ -1,7 +1,9 @@
 package Fridge_Chef.team.fridge.rest;
 
 import Fridge_Chef.team.exception.ApiException;
+import Fridge_Chef.team.fridge.domain.Fridge;
 import Fridge_Chef.team.fridge.domain.FridgeIngredient;
+import Fridge_Chef.team.fridge.rest.request.FridgeIngredientDeleteRequest;
 import Fridge_Chef.team.fridge.rest.request.FridgeIngredientRequest;
 import Fridge_Chef.team.fridge.rest.response.FridgeIngredientResponse;
 import Fridge_Chef.team.fridge.service.FridgeService;
@@ -46,7 +48,7 @@ public class FridgeController {
             //access token에서 user id 클레임 추출
 
             UserId userId = null;
-            List<FridgeIngredientResponse> response = fridgeService.getFridge(userId);
+            List<FridgeIngredientResponse> response = fridgeService.getFridgeIngredientResponse(userId);
             return ResponseEntity.ok().body(response);
         } catch (ApiException e) {
             throw e;
@@ -60,7 +62,7 @@ public class FridgeController {
         try {
             //access token에서 user id 클레임 추출
             UserId userId = null;
-            fridgeService.addIngredients(userId, ingredientsRequest);
+            fridgeService.addIngredientsToFridge(userId, ingredientsRequest);
             return ResponseEntity.status(HttpStatus.CREATED).build();
         } catch (ApiException e) {
             throw e;
@@ -69,12 +71,25 @@ public class FridgeController {
 
     //냉장고 재료 삭제
     @DeleteMapping("/ingredients")
-    public ResponseEntity<?> delete(HttpServletRequest request, @RequestBody FridgeIngredient ingredientRequest) throws ApiException {
+    public ResponseEntity<?> delete(HttpServletRequest request, @RequestBody FridgeIngredientDeleteRequest ingredientRequest) throws ApiException {
 
         try {
             //access token에서 user id 클레임 추출
             UserId userId = null;
             fridgeService.deleteIngredients(userId, ingredientRequest);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        } catch (ApiException e) {
+            throw e;
+        }
+    }
+
+    @PutMapping("/ingredients")
+    public ResponseEntity<?> update(HttpServletRequest request, @RequestBody FridgeIngredientRequest fridgeIngredientRequest) throws ApiException {
+
+        try {
+            //access token에서 user id 클레임 추출
+            UserId userId = null;
+            fridgeService.updateIngredientExpirationDate(userId, fridgeIngredientRequest);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } catch (ApiException e) {
             throw e;

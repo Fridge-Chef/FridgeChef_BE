@@ -57,7 +57,13 @@ public enum ErrorCode {
     IMAGE_FILE_DELETE_FAIL(407, "이미지 삭제 실패"),
     IMAGE_REMOVE_NOT_USER(408, "이미지 제거 유저 불일치"),
     CATEGORY_NOT_FOUND(405, "카테고리를 찾지 못했습니다."),
-    CATEGORY_ALREADY(405, "카테고리가 이미 있습니다.");
+    CATEGORY_ALREADY(405, "카테고리가 이미 있습니다."),
+
+    //ingredient
+    INGREDIENT_NOT_FOUND(404, "재료 정보 없음"),
+
+    //fridge
+    FRIDGE_NOT_FOUND(404, "냉장고 정보 없음");
 
     private final int status;
     private final String message;
