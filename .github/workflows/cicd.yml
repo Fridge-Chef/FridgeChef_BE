@@ -1,14 +1,15 @@
 name: 'CI/CD Pipeline'
 
+
 on:
   push:
+      -  main
     branches:
       - main
   pull_request:
     branches:
-      - main
-    branches-ignore:
-      - action/**
+      - "**"
+
 
 jobs:
   pr_merge_job:
