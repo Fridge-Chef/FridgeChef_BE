@@ -67,7 +67,7 @@ public class IngredientService {
 
     public Ingredient getIngredient(String ingredientName) {
         return ingredientRepository.findByName(ingredientName)
-                .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new ApiException(ErrorCode.INGREDIENT_NOT_FOUND));
     }
 
     public boolean exist(String ingredientName) {
