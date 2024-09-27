@@ -30,4 +30,8 @@ public class FridgeIngredient {
     private Ingredient ingredient;
 
     private LocalDate expirationDate;
+
+    public void updateExpirationDate(LocalDate exp) {
+        this.expirationDate = exp;
+    }
 }

@@ -11,7 +11,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class FridgeAddIngredientsRequest {
+public class FridgeIngredientsAddRequest {
 
     private List<FridgeIngredientRequest> ingredients;
 }

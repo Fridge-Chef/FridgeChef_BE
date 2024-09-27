@@ -58,7 +58,14 @@ public class IngredientService {
         return recipeIngredients;
     }
 
-    public Ingredient findIngredientByName(String ingredientName) {
+    public Ingredient createIngredient(String ingredientName) {
+        return Ingredient.builder()
+                .name(ingredientName)
+                .isSeasoning(OracleBoolean.of(isSeasoning(ingredientName)))
+                .build();
+    }
+
+    public Ingredient getIngredient(String ingredientName) {
         return ingredientRepository.findByName(ingredientName)
                 .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
     }
