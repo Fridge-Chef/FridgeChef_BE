@@ -2,12 +2,13 @@ name: 'CI/CD Pipeline'
 
 
 on:
+  push:
+    branches:
+      - main
   pull_request:
     branches:
       - main
-    branches-ignore:
-      - action/**
-
+      - '**'
 jobs:
   deploy:
     runs-on: ubuntu-latest
