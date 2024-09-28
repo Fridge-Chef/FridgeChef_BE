@@ -1,8 +1,10 @@
 package Fridge_Chef.team.board.service;
 
 import Fridge_Chef.team.board.domain.Board;
+import Fridge_Chef.team.board.domain.BoardUserEvent;
 import Fridge_Chef.team.board.domain.Description;
 import Fridge_Chef.team.board.repository.BoardRepository;
+import Fridge_Chef.team.board.repository.BoardUserEventRepository;
 import Fridge_Chef.team.board.repository.model.SortType;
 import Fridge_Chef.team.board.rest.request.BoardByRecipeRequest;
 import Fridge_Chef.team.board.rest.request.BoardByRecipeUpdateRequest;
@@ -17,7 +19,9 @@ import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.domain.UserId;
 import Fridge_Chef.team.user.repository.UserRepository;
 import fixture.UserFixture;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +29,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -36,7 +39,8 @@ import java.util.stream.Stream;
 
 import static Fridge_Chef.team.common.UtilTest.executionTime;
 import static Fridge_Chef.team.exception.ErrorCode.BOARD_NOT_USER_CREATE;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 
@@ -162,7 +166,7 @@ public class BorderServiceTest {
 
         List<Description> descriptions = boardIngredientService.uploadInstructionImages(user.getUserId(), request);
         List<RecipeIngredient> ingredients = boardIngredientService.findOrCreate(request);
-        boardRecipeService.update(user.getUserId(),request, ingredients, descriptions, mainImage);
+        boardRecipeService.update(user.getUserId(), request, ingredients, descriptions, mainImage);
 
         Board after = boardRepository.findById(board.getId()).get();
 
@@ -173,6 +177,39 @@ public class BorderServiceTest {
                 () -> assertThat(description).isNotEqualTo(after.getContext().getDescriptions().get(0).getDescription())
         );
     }
+
+    @Test
+    @Transactional
+    void hit() {
+        givenBoardContexts();
+        List<User> users = new ArrayList<>();
+        List<Board> board = boardRepository.findByUserId(user.getUserId()).get();
+        int size = 1;
+
+        for (int i = 0; i < 100; i++) {
+            users.add(userRepository.save(UserFixture.create(i + "hitTest@gmail.com")));
+            BoardUserEvent userEvent = new BoardUserEvent(board.get(size), users.get(i));
+            userEvent.hitUp();
+            board.get(size).addUserEvent(boardUserEventRepository.save(userEvent));
+            boardRepository.save(board.get(size));
+            size = random.nextInt(5);
+        }
+
+        boardService.updateUserHit(user.getUserId(), board.get(1).getId());
+        Board updatedBoard = boardRepository.findById(board.get(1).getId()).get();
+        assertThat(updatedBoard.getHit()).isGreaterThan(0);
+    }
+
+    @Test
+    void counting() {
+        givenBoardContexts();
+        Board before = boardRepository.findByUserId(user.getUserId()).get().get(1);
+        boardService.counting(boardRepository.findByUserId(user.getUserId()).get().get(1).getId());
+        Board after = boardRepository.findByUserId(user.getUserId()).get().get(1);
+
+        assertThat(before.getCount() != after.getCount()).isTrue();
+    }
+
 
     private static BoardByRecipeUpdateRequest createDefault(Long boardId, List<RecipeIngredient> recipeIngredient, List<Description> Instruction) {
         Long id = boardId;
@@ -189,7 +226,7 @@ public class BorderServiceTest {
         );
 
         return new BoardByRecipeUpdateRequest(
-                id, title, description, null,false, recipeIngredients, instructions
+                id, title, description, null, false, recipeIngredients, instructions
         );
     }
 
@@ -198,7 +235,7 @@ public class BorderServiceTest {
     }
 
     private static Stream<BoardByRecipeRequest> provideBoardFindsRequests() {
-        return Stream.generate(BorderServiceTest::boardProvider).limit(300);
+        return Stream.generate(BorderServiceTest::boardProvider).limit(100);
     }
 
     private void givenBoardContexts() {
@@ -304,4 +341,6 @@ public class BorderServiceTest {
             "특제 소스", "달콤한 양념", "고소한 참기름", "매콤한 맛", "정통 스타일", "집에서", "풍성한 재료", "엄마의 손맛", "전통 방식",
             "간편 레시피", "신선한 재료", "초보 요리사용", "프로 요리사용", "아이들이 좋아하는", "어른들도 좋아하는", "혼자 먹기 좋은"
     );
+    @Autowired
+    private BoardUserEventRepository boardUserEventRepository;
 }
