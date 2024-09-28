@@ -313,27 +313,29 @@ public class RestDocControllerTests {
         );
     }
 
-    protected ResultActions jwtJsonGetPathWhen(String uri, Object... path) throws Exception {
+    protected ResultActions jwtJsonGetPathWhen(String uri,String json, Object... path) throws Exception {
         return mockMvc.perform(get(uri, path)
                 .characterEncoding("UTF-8")
                 .header(AUTHORIZATION, "Bearer ")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
+                .content(json)
                 .with(csrf())
         );
     }
 
-    protected ResultActions jwtJsonPostPathWhen(String uri, Object... path) throws Exception {
+    protected ResultActions jwtJsonPostPathWhen(String uri, String json,Object... path) throws Exception {
         return mockMvc.perform(post(uri, path)
                 .characterEncoding("UTF-8")
                 .header(AUTHORIZATION, "Bearer ")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
+                .content(json)
                 .with(csrf())
         );
     }
 
-    protected ResultActions jwtJsonDeletePathWhen(String uri, Object... path) throws Exception {
+    protected ResultActions jwtDeletePathWhen(String uri,Object... path) throws Exception {
         return mockMvc.perform(delete(uri, path)
                 .characterEncoding("UTF-8")
                 .header(AUTHORIZATION, "Bearer ")
@@ -343,12 +345,23 @@ public class RestDocControllerTests {
         );
     }
 
-    protected ResultActions jwtJsonUpdatePathWhen(String uri, Object... path) throws Exception {
-        return mockMvc.perform(patch(uri, path)
+    protected ResultActions jwtGetPathWhen(String uri, Object... path) throws Exception {
+        return mockMvc.perform(get(uri, path)
                 .characterEncoding("UTF-8")
                 .header(AUTHORIZATION, "Bearer ")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
+        );
+    }
+
+
+    protected ResultActions jwtJsonPutPathWhen(String uri,String json, Object... path) throws Exception {
+        return mockMvc.perform(put(uri, path)
+                .characterEncoding("UTF-8")
+                .header(AUTHORIZATION, "Bearer ")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(json)
         );
     }
 }
