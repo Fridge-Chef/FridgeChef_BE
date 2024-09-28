@@ -49,6 +49,10 @@ public class User extends BaseEntity {
         return new User(UserId.create(), new Profile(null, name), email, role, social);
     }
 
+    public User(UserId userId) {
+        this.userId=userId;
+    }
+
     public void accountDelete(boolean isDelete) {
         updateIsDelete(isDelete);
     }
