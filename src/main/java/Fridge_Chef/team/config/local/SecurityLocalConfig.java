@@ -60,7 +60,8 @@ public class SecurityLocalConfig {
                 .requestMatchers(
                         "/", "/css/**", "/img/**", "/js/**", "/h2-console/**",
                         "/docs.html", "/favicon.ico", "/api/auth/**", "/api/cert/email/**","/static/**",
-                        "/api/email/**", "/api/user/signup", "/api/user/login", "/**"
+                        "/api/email/**", "/api/user/signup", "/api/user/login", "/**",
+                        "/api/boards","/api/boards/**"
                 ).permitAll()
                 .requestMatchers(PathRequest.toH2Console()).permitAll()
                 .anyRequest().authenticated();

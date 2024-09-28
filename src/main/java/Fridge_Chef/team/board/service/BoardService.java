@@ -1,6 +1,7 @@
 package Fridge_Chef.team.board.service;
 
 import Fridge_Chef.team.board.domain.Board;
+import Fridge_Chef.team.board.domain.BoardUserEvent;
 import Fridge_Chef.team.board.domain.Context;
 import Fridge_Chef.team.board.domain.Description;
 import Fridge_Chef.team.board.repository.BoardDslRepository;
@@ -12,7 +13,9 @@ import Fridge_Chef.team.board.service.response.BoardMyRecipeResponse;
 import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.exception.ErrorCode;
 import Fridge_Chef.team.image.service.ImageService;
+import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.domain.UserId;
+import Fridge_Chef.team.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -28,6 +31,7 @@ public class BoardService {
     private final BoardRepository boardRepository;
     private final ContextRepository contextRepository;
     private final ImageService imageService;
+    private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
     public BoardMyRecipeResponse findMyRecipeId(Long boardId) {
@@ -62,6 +66,27 @@ public class BoardService {
     }
 
 
+    @Transactional
+    public void counting(Long boardId) {
+        Board board = findById(boardId);
+        board.updateCount();
+    }
+
+    @Transactional
+    public void updateUserHit(UserId userId, Long boardId) {
+        Board board = findById(boardId);
+        User user = userRepository.findByUserId_Value(userId.getValue())
+                .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
+        getUserEvent(user, board).hitUp();
+
+        int hit = board.getBoardUserEvent()
+                .stream()
+                .mapToInt(BoardUserEvent::getHit)
+                .sum();
+
+        board.updateHit(hit);
+    }
+
     private Board findByUserIdAndBoardId(UserId userId, Long boardId) {
         Board board = findById(boardId);
         if (!board.getUser().getUserId().equals(userId)) {
@@ -73,5 +98,12 @@ public class BoardService {
     public Board findById(Long id) {
         return boardRepository.findById(id)
                 .orElseThrow(() -> new ApiException(ErrorCode.BOARD_NOT_FOUND));
+    }
+
+    private BoardUserEvent getUserEvent(User user, Board board) {
+        return board.getBoardUserEvent().stream()
+                .filter(events -> events.getUser() != null && events.getUser().getUserId().equals(user.getUserId()))
+                .findAny()
+                .orElse(new BoardUserEvent(board, user));
     }
 }

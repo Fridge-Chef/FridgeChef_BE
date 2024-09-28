@@ -34,10 +34,11 @@ public class BoardUserEvent extends BaseEntity {
     }
 
     public void hitUp(){
-        this.hit=1;
-    }
-    public void hitDown(){
-        this.hit=0;
+        if(hit == 1){
+            hit =0;
+        }else{
+            hit = 1;
+        }
     }
 
     public void updateStar(double star) {

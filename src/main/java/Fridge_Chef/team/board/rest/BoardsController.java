@@ -18,8 +18,9 @@ public class BoardsController {
     private final BoardService boardService;
 
     @GetMapping("/{board_id}")
-    public BoardMyRecipeResponse targetFind(@PathVariable Long board_id) {
-        return boardService.findMyRecipeId(board_id);
+    public BoardMyRecipeResponse targetFind(@PathVariable("board_id") Long boardId) {
+        boardService.counting(boardId);
+        return boardService.findMyRecipeId(boardId);
     }
 
     @GetMapping
@@ -28,12 +29,7 @@ public class BoardsController {
     }
 
     @PostMapping("/{board_id}/hit")
-    public void hit(@AuthenticationPrincipal AuthenticatedUser user) {
-
-    }
-
-    @PostMapping("/{board_id}/star")
-    public void star(@AuthenticationPrincipal AuthenticatedUser user) {
-
+    public void hit(@AuthenticationPrincipal AuthenticatedUser user,@PathVariable("board_id") Long boardId) {
+        boardService.updateUserHit(user.userId(),boardId);
     }
 }

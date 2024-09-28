@@ -313,4 +313,42 @@ public class RestDocControllerTests {
         );
     }
 
+    protected ResultActions jwtJsonGetPathWhen(String uri, Object... path) throws Exception {
+        return mockMvc.perform(get(uri, path)
+                .characterEncoding("UTF-8")
+                .header(AUTHORIZATION, "Bearer ")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(csrf())
+        );
+    }
+
+    protected ResultActions jwtJsonPostPathWhen(String uri, Object... path) throws Exception {
+        return mockMvc.perform(post(uri, path)
+                .characterEncoding("UTF-8")
+                .header(AUTHORIZATION, "Bearer ")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(csrf())
+        );
+    }
+
+    protected ResultActions jwtJsonDeletePathWhen(String uri, Object... path) throws Exception {
+        return mockMvc.perform(delete(uri, path)
+                .characterEncoding("UTF-8")
+                .header(AUTHORIZATION, "Bearer ")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(csrf())
+        );
+    }
+
+    protected ResultActions jwtJsonUpdatePathWhen(String uri, Object... path) throws Exception {
+        return mockMvc.perform(patch(uri, path)
+                .characterEncoding("UTF-8")
+                .header(AUTHORIZATION, "Bearer ")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+        );
+    }
 }

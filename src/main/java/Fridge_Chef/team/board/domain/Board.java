@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static lombok.AccessLevel.PROTECTED;
@@ -45,6 +46,7 @@ public class Board extends BaseEntity {
         this.totalStar = 0L;
         this.hit = 0;
         this.count = 0;
+        this.boardUserEvent = new ArrayList<>();
     }
 
     public void updateStar(double totalStar) {
@@ -53,6 +55,10 @@ public class Board extends BaseEntity {
 
     public void updateHit(int hit) {
         this.hit = hit;
+    }
+
+    public void updateCount() {
+        this.count++;
     }
 
     public void updateCount(int count) {
@@ -78,4 +84,9 @@ public class Board extends BaseEntity {
         }
         return "notfound.png";
     }
+
+    public void addUserEvent(BoardUserEvent boardUserEvent) {
+        this.boardUserEvent.add(boardUserEvent);
+    }
+
 }
