@@ -48,11 +48,11 @@ public class CommentControllerTest extends RestDocControllerTests {
         String requestJson = objectMapper.writeValueAsString(commentRequest);
 
         // When
-        ResultActions result = jwtJsonPostWhen("/api/boards/1/comments", requestJson);
+        ResultActions result = jwtJsonPostPathWhen("/api/boards/{board_id}/comments", requestJson,1);
 
         // Then
         result.andExpect(status().isOk())
-                .andDo(document("add-comment",
+                .andDo(document("댓글 달기",
                         jwtTokenRequest(),
                         requestFields(
                                 fieldWithPath("comment").description("The content of the comment"),
@@ -70,11 +70,11 @@ public class CommentControllerTest extends RestDocControllerTests {
         String requestJson = objectMapper.writeValueAsString(commentRequest);
 
         // When
-        ResultActions result = jwtJsonPutWhen("/api/boards/1/comments/1", requestJson);
+        ResultActions result = jwtJsonPutPathWhen("/api/boards/{board_id}/comments/{comment_id}", requestJson,1,1);
 
         // Then
         result.andExpect(status().isOk())
-                .andDo(document("update-comment",
+                .andDo(document("댓글 수정",
                         jwtTokenRequest(),
                         requestFields(
                                 fieldWithPath("comment").description("수정된 댓글 내용"),
@@ -87,10 +87,10 @@ public class CommentControllerTest extends RestDocControllerTests {
     @WithMockCustomUser
     @DisplayName("삭제")
     void testDeleteComment() throws Exception {
-        ResultActions result = jwtJsonDeleteWhen("/api/boards/1/comments/1", "");
+        ResultActions result = jwtDeletePathWhen("/api/boards/{board_id}/comments/{comment_id}", 1,1);
 
         result.andExpect(status().isOk())
-                .andDo(document("delete-comment",
+                .andDo(document("댓글 삭제",
                         jwtTokenRequest()));
     }
 
@@ -100,10 +100,10 @@ public class CommentControllerTest extends RestDocControllerTests {
         when(commentService.getCommentsByBoard(anyLong())).thenReturn(getAllCommentsProvider());
 
 
-        ResultActions result = jwtJsonGetPathWhen("/api/boards/{board_id}/comments", "1");
+        ResultActions result = jwtGetPathWhen("/api/boards/{board_id}/comments", 1);
 
         result.andExpect(status().isOk())
-                .andDo(document("get-all-comments",
+                .andDo(document("댓글조회",
                         responseFields(
                                 fieldWithPath("[].id").description("댓글 ID"),
                                 fieldWithPath("[].comment").description("댓글 내용"),
