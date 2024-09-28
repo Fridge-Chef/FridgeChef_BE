@@ -64,12 +64,10 @@ public class SecurityConfig {
                         "/docs.html", "/favicon.ico", "/api/auth/**", "/api/cert/email/**",
                         "/api/email/**", "/api/user/signup", "/api/user/login",
                         "/api/ingredients/**", "/api/fridge/ingredients", "/api/recipes/", "/api/recipes/{id}",
-                        "/api/categorys", "/api/categorys/boards/**", "/api/recipes/{recipe_id}/comments",
-                        "/api/categorys/{category_id}/boards/{board_id}/comments"
+                        "/api/boards","/api/boards/**"
                 ).permitAll()
                 .requestMatchers("/api/user", "/api/user/account", "/api/user/password",
-                        "/api/recipes/book", "/api/categorys/{category_id}/board", "/api/recipes/{recipe_id}/comment",
-                        "/api/categorys/{category_id}/boards/{board_id}/comment"
+                        "/api/recipes/book", "/api/categorys/{category_id}/board", "/api/recipes/{recipe_id}/comment"
                 )
                 .hasAnyAuthority(Role.USER.getAuthority(), Role.ADMIN.getAuthority())
                 .anyRequest().authenticated();
