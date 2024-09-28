@@ -89,4 +89,7 @@ public class Board extends BaseEntity {
         this.boardUserEvent.add(boardUserEvent);
     }
 
+    public void updateId(long id) {
+        this.id=id;
+    }
 }
