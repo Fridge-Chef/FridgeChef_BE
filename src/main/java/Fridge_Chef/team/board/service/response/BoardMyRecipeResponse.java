@@ -22,28 +22,6 @@ public class BoardMyRecipeResponse {
     private List<StepResponse> instructions;
     private Long boardId;
 
-    public static BoardMyRecipeResponse of(Board board) {
-
-        var ownedIngredients = board.getContext().getBoardIngredients().stream()
-                .map(ingredient -> new OwnedIngredientResponse(ingredient.getId(),ingredient.getIngredient().getName()))
-                .collect(Collectors.toList());
-
-        var recipeIngredients = board.getContext().getBoardIngredients().stream()
-                .map(ingredient -> new RecipeIngredientResponse(ingredient.getIngredient().getId(), ingredient.getIngredient().getName(), ingredient.getQuantity()))
-                .collect(Collectors.toList());
-
-        var instructions = board.getContext().getDescriptions().stream()
-                .map(step -> new StepResponse(step.getDescription(), step.getLink()))
-                .collect(Collectors.toList());
-
-        return new BoardMyRecipeResponse(board.getTitle(),
-                board.getTotalStar(),
-                board.getMainImageLink(),
-                ownedIngredients,
-                recipeIngredients,
-                instructions,
-                board.getId());
-    }
 
     @Getter
     @AllArgsConstructor
@@ -65,5 +43,27 @@ public class BoardMyRecipeResponse {
     public static class StepResponse {
         private String content;
         private String imageLink;
+    }
+    public static BoardMyRecipeResponse of(Board board) {
+
+        var ownedIngredients = board.getContext().getBoardIngredients().stream()
+                .map(ingredient -> new OwnedIngredientResponse(ingredient.getId(),ingredient.getIngredient().getName()))
+                .collect(Collectors.toList());
+
+        var recipeIngredients = board.getContext().getBoardIngredients().stream()
+                .map(ingredient -> new RecipeIngredientResponse(ingredient.getIngredient().getId(), ingredient.getIngredient().getName(), ingredient.getQuantity()))
+                .collect(Collectors.toList());
+
+        var instructions = board.getContext().getDescriptions().stream()
+                .map(step -> new StepResponse(step.getDescription(), step.getLink()))
+                .collect(Collectors.toList());
+
+        return new BoardMyRecipeResponse(board.getTitle(),
+                board.getTotalStar(),
+                board.getMainImageLink(),
+                ownedIngredients,
+                recipeIngredients,
+                instructions,
+                board.getId());
     }
 }
