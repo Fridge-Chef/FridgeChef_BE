@@ -38,7 +38,7 @@ public class BoardController {
         boardRecipeService.create(user.userId(), request, ingredients, descriptions, mainImage);
     }
 
-    @PutMapping
+    @PatchMapping
     void update(@AuthenticationPrincipal AuthenticatedUser user,
                 @RequestBody BoardByRecipeUpdateRequest request) {
 
