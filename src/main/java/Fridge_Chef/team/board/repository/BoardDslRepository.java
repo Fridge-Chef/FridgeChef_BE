@@ -22,7 +22,6 @@ import static Fridge_Chef.team.board.domain.QBoard.board;
 
 @Repository
 @RequiredArgsConstructor
-
 public class BoardDslRepository {
     private final JPAQueryFactory factory;
 
