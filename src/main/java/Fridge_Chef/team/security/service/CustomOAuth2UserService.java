@@ -68,8 +68,11 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         userPolicy(user);
         return user;
     }
+
     private void userPolicy(User user){
-        user.updateTime();
+        if(user.getHistory()== null){
+            userHistoryRepository.save(new UserHistory(user)).update();
+        }
     }
 
     private User signup(OAuthAttributes attributes) {
