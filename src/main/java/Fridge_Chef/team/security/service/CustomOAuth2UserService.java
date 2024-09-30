@@ -14,6 +14,7 @@ import Fridge_Chef.team.user.repository.UserHistoryRepository;
 import Fridge_Chef.team.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -24,7 +25,9 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -46,54 +49,63 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         var registrationId = userRequest.getClientRegistration().getRegistrationId();
         var attributes = oAuthAttributes(registrationId, oAuth2User);
         var user = saveOrUpdate(attributes);
-        attributes.attributes().put("userId",user.getUserId().getValue().toString());
+
+        Map<String, Object> modifiableAttributes = new HashMap<>(attributes.attributes());
+        modifiableAttributes.put("userId", user.getUserId().getValue().toString());
 
         return new DefaultOAuth2User(
                 List.of(new SimpleGrantedAuthority(user.getRoleKey())),
-                attributes.attributes(),
+                modifiableAttributes,
                 attributes.nameAttributeKey()
         );
     }
 
-    private OAuthAttributes oAuthAttributes(String registrationId, OAuth2User oAuth2User) {
+    public OAuthAttributes oAuthAttributes(String registrationId, OAuth2User oAuth2User) {
         return oAuthAttributesAdapterFactory.factory(registrationId)
                 .toOAuthAttributes(oAuth2User.getAttributes());
     }
 
-    private User saveOrUpdate(OAuthAttributes attributes) {
+    public User saveOrUpdate(OAuthAttributes attributes) {
         userLog(attributes, " 로그인 시도 ");
+        Social loginType = Social.valueOf(attributes.registrationId().toUpperCase());
 
-        User user =  userRepository.findByEmail(attributes.email())
-                .orElseGet(() -> registerNewUser(attributes));
+        User user = userRepository.findByProfileEmailAndProfileSocial(attributes.email(), loginType)
+                .orElseGet(() -> registerNewUser(attributes, loginType));
+
         userPolicy(user);
         return user;
     }
 
-    private void userPolicy(User user){
-        if(user.getHistory()== null){
+    private void userPolicy(User user) {
+        if (user.getHistory() == null) {
             userHistoryRepository.save(new UserHistory(user)).update();
         }
     }
 
     private User signup(OAuthAttributes attributes) {
         userLog(attributes, " 회원가입 ");
-
-        User user = User.createSocialUser(attributes.email(),
+        Social social = Social.valueOf(attributes.registrationId().toUpperCase());
+        User user = User.createSocialUser(
+                attributes.email(),
                 attributes.name(),
                 Role.USER,
-                Social.valueOf(attributes.registrationId().toUpperCase()));
+                social);
 
         Image image = imageRepository.save(Image.outUri(attributes.picture()));
         user.updatePicture(image);
 
-        return userRepository.save(user);
+        try {
+            return userRepository.save(user);
+        } catch (DataIntegrityViolationException e) {
+            throw new ApiException(ErrorCode.SIGNUP_USER_FAIL_SNS_EMAIL_UNIQUE);
+        }
     }
 
-    private User registerNewUser(OAuthAttributes attributes) {
-        if (userRepository.existsByEmail(attributes.email())) {
-            throw new ApiException(ErrorCode.USER_EMAIL_UNIQUE);
+    private User registerNewUser(OAuthAttributes attributes, Social social) {
+        if (userRepository.existsByProfileEmailAndProfileSocial(attributes.email(), social)) {
+            throw new ApiException(ErrorCode.SIGNUP_USER_FAIL_SNS_EMAIL_UNIQUE);
         }
-        User user =  signup(attributes);
+        User user = signup(attributes);
         userHistoryRepository.save(new UserHistory(user));
         return user;
     }
