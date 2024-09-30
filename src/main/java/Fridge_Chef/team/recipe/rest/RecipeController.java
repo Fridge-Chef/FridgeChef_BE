@@ -1,11 +1,11 @@
 package Fridge_Chef.team.recipe.rest;
 
-import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.recipe.rest.request.RecipeRequest;
 import Fridge_Chef.team.recipe.rest.response.RecipeDetailsResponse;
 import Fridge_Chef.team.recipe.rest.response.RecipeNamesResponse;
 import Fridge_Chef.team.recipe.service.RecipeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,18 +24,14 @@ public class RecipeController {
 
     //레시피 이름 조회 api
     @GetMapping("/")
-    public ResponseEntity<?> recipesFromIngredients(@RequestParam("ingredients") List<String> ingredients) throws ApiException {
+    public ResponseEntity<RecipeNamesResponse> recipesFromIngredients(@RequestParam("ingredients") List<String> ingredients) {
 
-        try {
-            RecipeRequest recipeRequest = new RecipeRequest(ingredients);
-            List<String> recipeTitles = recipeService.getRecipeTitles(recipeRequest);
+        RecipeRequest recipeRequest = new RecipeRequest(ingredients);
+        List<String> recipeTitles = recipeService.getRecipeTitles(recipeRequest);
 
-            RecipeNamesResponse response = new RecipeNamesResponse(recipeTitles);
+        RecipeNamesResponse response = new RecipeNamesResponse(recipeTitles);
 
-            return ResponseEntity.ok().body(response);
-        } catch (ApiException e) {
-            throw e;
-        }
+        return ResponseEntity.ok().body(response);
     }
 
     //레시피 이름 조회 api
@@ -43,15 +39,9 @@ public class RecipeController {
 
     //특정 레시피 상세 조회 api
     @GetMapping("/details")
-    public ResponseEntity<?> recipeInfo(@RequestParam("recipe_name") String recipeName) throws ApiException {
+    public ResponseEntity<?> recipeInfo(@RequestParam("recipe_name") String recipeName) {
 
-        try {
-            RecipeDetailsResponse response = recipeService.getRecipeDetails(recipeName);
-            return ResponseEntity.ok().body(response);
-        } catch (ApiException e) {
-            throw e;
-        } catch (Exception e) {
-            throw e;
-        }
+        RecipeDetailsResponse response = recipeService.getRecipeDetails(recipeName);
+        return ResponseEntity.ok().body(response);
     }
 }
