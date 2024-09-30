@@ -1,6 +1,6 @@
 package Fridge_Chef.team.fridge.rest;
 
-import Fridge_Chef.team.fridge.rest.request.FridgeIngredientDeleteRequest;
+import Fridge_Chef.team.fridge.rest.request.FridgeIngredientNameRequest;
 import Fridge_Chef.team.fridge.rest.request.FridgeIngredientRequest;
 import Fridge_Chef.team.fridge.rest.response.FridgeIngredientResponse;
 import Fridge_Chef.team.fridge.service.FridgeService;
@@ -35,23 +35,23 @@ public class FridgeController {
     }
 
     @PostMapping("/ingredients")
-    public ResponseEntity add(@AuthenticationPrincipal AuthenticatedUser user, @RequestBody List<FridgeIngredientRequest> ingredientsRequest) {
+    public ResponseEntity add(@AuthenticationPrincipal AuthenticatedUser user, @RequestBody List<String> ingredientNames) {
 
-        fridgeService.addIngredientsToFridge(user.userId(), ingredientsRequest);
+        fridgeService.addIngredientsToFridge(user.userId(), ingredientNames);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @DeleteMapping("/ingredients")
-    public ResponseEntity delete(@AuthenticationPrincipal AuthenticatedUser user, @RequestBody FridgeIngredientDeleteRequest ingredientRequest) {
+    public ResponseEntity delete(@AuthenticationPrincipal AuthenticatedUser user, @RequestBody FridgeIngredientNameRequest request) {
 
-        fridgeService.deleteIngredients(user.userId(), ingredientRequest);
+        fridgeService.deleteIngredients(user.userId(), request.getIngredientName());
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PutMapping("/ingredients")
-    public ResponseEntity update(@AuthenticationPrincipal AuthenticatedUser user, @RequestBody FridgeIngredientRequest fridgeIngredientRequest) {
+    public ResponseEntity update(@AuthenticationPrincipal AuthenticatedUser user, @RequestBody FridgeIngredientRequest request) {
 
-        fridgeService.updateIngredientExpirationDate(user.userId(), fridgeIngredientRequest);
+        fridgeService.updateIngredient(user.userId(), request);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

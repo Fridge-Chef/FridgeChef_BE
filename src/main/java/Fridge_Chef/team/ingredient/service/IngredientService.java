@@ -20,10 +20,10 @@ public class IngredientService {
 
     private final IngredientRepository ingredientRepository;
 
-    public static final List<String> SEASONINGS = List.of("소금", "후추", "설탕", "식초", "간장", "고추장", "기름", "식용유", "가루", "올리고당", "참깨", "액젓", "통깨", "매실액");
-    private static final Pattern PREFIX_PATTERN = Pattern.compile("^[\\s●]*(?:재료|주재료)?\\s*"); // 재료 앞 불필요한 텍스트 제거
-    private static final Pattern PATTERN_WITH_PARENTHESES = Pattern.compile("([^()]+)\\(([^)]+)\\)"); // 괄호 안에 수량이 있는 경우
-    private static final Pattern PATTERN_WITHOUT_PARENTHESES = Pattern.compile("([^,\\n]+)"); // 괄호가 없는 경우
+//    public static final List<String> SEASONINGS = List.of("소금", "후추", "설탕", "식초", "간장", "고추장", "기름", "식용유", "가루", "올리고당", "참깨", "액젓", "통깨", "매실액");
+    private static final Pattern PREFIX_PATTERN = Pattern.compile("^[\\s●]*(?:재료|주재료)?\\s*");
+    private static final Pattern PATTERN_WITH_PARENTHESES = Pattern.compile("([^()]+)\\(([^)]+)\\)");
+    private static final Pattern PATTERN_WITHOUT_PARENTHESES = Pattern.compile("([^,\\n]+)");
 
     public List<RecipeIngredient> extractIngredients(String ingredients) {
 
@@ -79,7 +79,6 @@ public class IngredientService {
     public Ingredient createIngredient(String ingredientName) {
         return Ingredient.builder()
                 .name(ingredientName)
-                .isSeasoning(OracleBoolean.of(isSeasoning(ingredientName)))
                 .build();
     }
 
@@ -100,10 +99,8 @@ public class IngredientService {
 
     private RecipeIngredient createRecipeIngredient(String ingredientName, String quantity) {
 
-        OracleBoolean isSeasoning = OracleBoolean.of(isSeasoning(ingredientName));
-
         Ingredient ingredient = ingredientRepository.findByName(ingredientName)
-                .orElse(Ingredient.builder().name(ingredientName).isSeasoning(isSeasoning).build());
+                .orElse(Ingredient.builder().name(ingredientName).build());
 
         return RecipeIngredient.builder()
                 .ingredient(ingredient)
@@ -111,21 +108,17 @@ public class IngredientService {
                 .build();
     }
 
-    private boolean isSeasoning(String ingredientName) {
-        return SEASONINGS.stream().anyMatch(seasoning -> ingredientName.contains(seasoning));
-    }
-
     private String[] splitByCommaNotInParentheses(String input) {
         List<String> parts = new ArrayList<>();
-        int parenthesesLevel = 0;
+        int parenthesisLevel = 0;
         StringBuilder currentPart = new StringBuilder();
 
         for (char c : input.toCharArray()) {
             if (c == '(') {
-                parenthesesLevel++;
+                parenthesisLevel++;
             } else if (c == ')') {
-                parenthesesLevel--;
-            } else if (c == ',' && parenthesesLevel == 0) {
+                parenthesisLevel--;
+            } else if (c == ',' && parenthesisLevel == 0) {
                 parts.add(currentPart.toString().trim());
                 currentPart.setLength(0);
                 continue;
