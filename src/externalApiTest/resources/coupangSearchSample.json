@@ -1,0 +1,20 @@
+{
+  "rCode": "0",
+  "rMessage": "",
+  "data": {
+    "landingUrl": "https://link.coupang.com/re/AFFSRP?lptag=AF1234567&pageKey=fashion&traceid=V0-153-5243b8cd44933da5",
+    "productData": [
+      {
+        "keyword": "Water",
+        "rank": 12,
+        "isRocket": false,
+        "isFreeShipping": false,
+        "productId": 27664441,
+        "productImage": "https://ads-partners.coupang.com/image1/mGVkZG3M0yixutAImCvHtQrgcjH0xPEaBYzlmOyWTuZd1KWBjpJK19dOf4S9HZ_h-SXudkWLWXUMXvyvYKqkBbHrTuiZPf_V5TvegSbo3AQGtZzN5307l5XehqmA9GmvJtl9jh8_R2iUhctR1-yhGdQte7ZGYxh_mfrGCERtdK83P4vDXivwrau5aPTWuHt6jwryAmOJwisfsH2mQfBOsqy0wAX1dPPSieiUPxtDa1PFmhzR88bPQ4ccNzmo8sgSab8NQAhf4pKy1Li0zb3h-M8LUs8ACg==",
+        "productName": "탐사 소프트 100% 천연펄프 3겹 롤화장지 30m, 30롤, 1팩",
+        "productPrice": 15600,
+        "productUrl": "https://link.coupang.com/re/AFFSDP?lptag=AF1234567&pageKey=319834306&itemId=1023216541&vendorItemId=70064597513&traceid=V0-163-5fddb21eaffbb2ef"
+      }
+    ]
+  }
+}
