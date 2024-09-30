@@ -25,7 +25,7 @@ public class FridgeController {
 
     //냉장고 생성하기?
     @PostMapping("/")
-    public ResponseEntity<?> create(HttpServletRequest request) {
+    public ResponseEntity create(HttpServletRequest request) {
 
         //request에서 access token 추출
         //access token에서 user id 클레임 추출
@@ -36,7 +36,7 @@ public class FridgeController {
 
     //냉장고 조회
     @GetMapping("/")
-    public ResponseEntity<?> search(HttpServletRequest request) throws ApiException {
+    public ResponseEntity<List<FridgeIngredientResponse>> search(HttpServletRequest request) throws ApiException {
 
         //request에서 access token 추출
         //access token에서 user id 클레임 추출
@@ -47,7 +47,7 @@ public class FridgeController {
 
     //냉장고 재료 등록
     @PostMapping("/ingredients")
-    public ResponseEntity<?> add(HttpServletRequest request, @RequestBody List<FridgeIngredientRequest> ingredientsRequest) {
+    public ResponseEntity add(HttpServletRequest request, @RequestBody List<FridgeIngredientRequest> ingredientsRequest) {
 
         //access token에서 user id 클레임 추출
         UserId userId = null;
@@ -57,7 +57,7 @@ public class FridgeController {
 
     //냉장고 재료 삭제
     @DeleteMapping("/ingredients")
-    public ResponseEntity<?> delete(HttpServletRequest request, @RequestBody FridgeIngredientDeleteRequest ingredientRequest) {
+    public ResponseEntity delete(HttpServletRequest request, @RequestBody FridgeIngredientDeleteRequest ingredientRequest) {
 
         //access token에서 user id 클레임 추출
         UserId userId = null;
@@ -66,7 +66,7 @@ public class FridgeController {
     }
 
     @PutMapping("/ingredients")
-    public ResponseEntity<?> update(HttpServletRequest request, @RequestBody FridgeIngredientRequest fridgeIngredientRequest) {
+    public ResponseEntity update(HttpServletRequest request, @RequestBody FridgeIngredientRequest fridgeIngredientRequest) {
 
         //access token에서 user id 클레임 추출
         UserId userId = null;

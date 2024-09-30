@@ -5,6 +5,7 @@ import Fridge_Chef.team.recipe.rest.response.RecipeDetailsResponse;
 import Fridge_Chef.team.recipe.rest.response.RecipeNamesResponse;
 import Fridge_Chef.team.recipe.service.RecipeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,7 +24,7 @@ public class RecipeController {
 
     //레시피 이름 조회 api
     @GetMapping("/")
-    public ResponseEntity<?> recipesFromIngredients(@RequestParam("ingredients") List<String> ingredients) {
+    public ResponseEntity<RecipeNamesResponse> recipesFromIngredients(@RequestParam("ingredients") List<String> ingredients) {
 
         RecipeRequest recipeRequest = new RecipeRequest(ingredients);
         List<String> recipeTitles = recipeService.getRecipeTitles(recipeRequest);
