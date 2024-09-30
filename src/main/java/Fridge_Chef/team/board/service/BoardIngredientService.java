@@ -87,11 +87,10 @@ public class BoardIngredientService {
     }
 
     private Ingredient saveNewIngredient(String ingredientName) {
-        boolean isSeasoning = isSeasoning(ingredientName);
-        return ingredientRepository.save(new Ingredient(ingredientName, isSeasoning));
+        return ingredientRepository.save(new Ingredient(ingredientName));
     }
 
-    private boolean isSeasoning(String ingredientName) {
-        return IngredientService.SEASONINGS.stream().anyMatch(ingredientName::contains);
-    }
+//    private boolean isSeasoning(String ingredientName) {
+//        return IngredientService.SEASONINGS.stream().anyMatch(ingredientName::contains);
+//    }
 }

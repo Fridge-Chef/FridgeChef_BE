@@ -13,5 +13,5 @@ import java.util.List;
 @AllArgsConstructor
 public class FridgeIngredientsAddRequest {
 
-    private List<FridgeIngredientRequest> ingredients;
+    private List<FridgeIngredientNameRequest> ingredients;
 }

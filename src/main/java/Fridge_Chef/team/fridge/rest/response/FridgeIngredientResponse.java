@@ -1,6 +1,6 @@
 package Fridge_Chef.team.fridge.rest.response;
 
-import Fridge_Chef.team.common.entity.OracleBoolean;
+import Fridge_Chef.team.fridge.domain.Storage;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,6 +15,6 @@ import java.time.LocalDate;
 public class FridgeIngredientResponse {
 
     private String ingredientName;
-    private OracleBoolean isSeasoning;
     private LocalDate expirationDate;
+    private Storage storage;
 }

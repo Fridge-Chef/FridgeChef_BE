@@ -1,6 +1,5 @@
 package Fridge_Chef.team.ingredient.domain;
 
-import Fridge_Chef.team.common.entity.OracleBoolean;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,10 +23,7 @@ public class Ingredient {
     @Column(nullable = false, unique = true)
     private String name;
 
-    private OracleBoolean isSeasoning;
-
-    public Ingredient(String name, boolean isSeasoning) {
+    public Ingredient(String name) {
         this.name = name;
-        this.isSeasoning = OracleBoolean.of(isSeasoning);
     }
 }

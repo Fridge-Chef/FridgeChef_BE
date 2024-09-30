@@ -30,8 +30,13 @@ public class FridgeIngredient {
     private Ingredient ingredient;
 
     private LocalDate expirationDate;
+    private Storage storage;
 
     public void updateExpirationDate(LocalDate exp) {
         this.expirationDate = exp;
+    }
+
+    public void updateStorage(Storage storage) {
+        this.storage = storage;
     }
 }

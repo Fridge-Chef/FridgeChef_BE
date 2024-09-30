@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class FridgeIngredientDeleteRequest {
+public class FridgeIngredientNameRequest {
 
     private String ingredientName;
 }
