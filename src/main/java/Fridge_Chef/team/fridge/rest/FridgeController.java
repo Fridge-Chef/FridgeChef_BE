@@ -4,10 +4,10 @@ import Fridge_Chef.team.fridge.rest.request.FridgeIngredientNameRequest;
 import Fridge_Chef.team.fridge.rest.request.FridgeIngredientRequest;
 import Fridge_Chef.team.fridge.rest.response.FridgeIngredientResponse;
 import Fridge_Chef.team.fridge.service.FridgeService;
+import Fridge_Chef.team.user.domain.UserId;
 import Fridge_Chef.team.user.rest.model.AuthenticatedUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,37 +21,48 @@ public class FridgeController {
     private final FridgeService fridgeService;
 
     @PostMapping("/")
-    public ResponseEntity create(@AuthenticationPrincipal AuthenticatedUser user) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public void create(@AuthenticationPrincipal AuthenticatedUser user) {
 
-        fridgeService.createFridge(user.userId());
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        UserId userId = user.userId();
+
+        fridgeService.createFridge(userId);
     }
 
     @GetMapping("/")
-    public ResponseEntity<List<FridgeIngredientResponse>> search(@AuthenticationPrincipal AuthenticatedUser user) {
+    public List<FridgeIngredientResponse> search(@AuthenticationPrincipal AuthenticatedUser user) {
 
-        List<FridgeIngredientResponse> response = fridgeService.getFridgeIngredientResponse(user.userId());
-        return ResponseEntity.ok().body(response);
+        UserId userId = user.userId();
+
+        List<FridgeIngredientResponse> response = fridgeService.getFridgeIngredientResponse(userId);
+        return response;
     }
 
     @PostMapping("/ingredients")
-    public ResponseEntity add(@AuthenticationPrincipal AuthenticatedUser user, @RequestBody List<String> ingredientNames) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public void add(@AuthenticationPrincipal AuthenticatedUser user, @RequestBody List<String> ingredientNames) {
 
-        fridgeService.addIngredientsToFridge(user.userId(), ingredientNames);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        UserId userId = user.userId();
+
+        fridgeService.addIngredientsToFridge(userId, ingredientNames);
     }
 
     @DeleteMapping("/ingredients")
-    public ResponseEntity delete(@AuthenticationPrincipal AuthenticatedUser user, @RequestBody FridgeIngredientNameRequest request) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@AuthenticationPrincipal AuthenticatedUser user, @RequestBody FridgeIngredientNameRequest request) {
 
-        fridgeService.deleteIngredients(user.userId(), request.getIngredientName());
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        UserId userId = user.userId();
+        String ingredientName = request.getIngredientName();
+
+        fridgeService.deleteIngredients(userId, ingredientName);
     }
 
     @PutMapping("/ingredients")
-    public ResponseEntity update(@AuthenticationPrincipal AuthenticatedUser user, @RequestBody FridgeIngredientRequest request) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void update(@AuthenticationPrincipal AuthenticatedUser user, @RequestBody FridgeIngredientRequest request) {
 
-        fridgeService.updateIngredient(user.userId(), request);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        UserId userId = user.userId();
+
+        fridgeService.updateIngredient(userId, request);
     }
 }
