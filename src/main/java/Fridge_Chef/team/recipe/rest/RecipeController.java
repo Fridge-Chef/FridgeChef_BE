@@ -5,8 +5,6 @@ import Fridge_Chef.team.recipe.rest.response.RecipeDetailsResponse;
 import Fridge_Chef.team.recipe.rest.response.RecipeNamesResponse;
 import Fridge_Chef.team.recipe.service.RecipeService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,14 +22,14 @@ public class RecipeController {
 
     //레시피 이름 조회 api
     @GetMapping("/")
-    public ResponseEntity<RecipeNamesResponse> recipesFromIngredients(@RequestParam("ingredients") List<String> ingredients) {
+    public RecipeNamesResponse recipesFromIngredients(@RequestParam("ingredients") List<String> ingredients) {
 
         RecipeRequest recipeRequest = new RecipeRequest(ingredients);
         List<String> recipeTitles = recipeService.getRecipeTitles(recipeRequest);
 
         RecipeNamesResponse response = new RecipeNamesResponse(recipeTitles);
 
-        return ResponseEntity.ok().body(response);
+        return response;
     }
 
     //레시피 이름 조회 api
@@ -39,9 +37,10 @@ public class RecipeController {
 
     //특정 레시피 상세 조회 api
     @GetMapping("/details")
-    public ResponseEntity<?> recipeInfo(@RequestParam("recipe_name") String recipeName) {
+    public RecipeDetailsResponse recipeInfo(@RequestParam("recipe_name") String recipeName) {
 
         RecipeDetailsResponse response = recipeService.getRecipeDetails(recipeName);
-        return ResponseEntity.ok().body(response);
+
+        return response;
     }
 }
