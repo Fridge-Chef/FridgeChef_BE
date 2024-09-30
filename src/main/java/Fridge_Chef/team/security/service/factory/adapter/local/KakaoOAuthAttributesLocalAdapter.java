@@ -1,43 +1,20 @@
-package Fridge_Chef.team.security.service.factory.adapter;
+package Fridge_Chef.team.security.service.factory.adapter.local;
 
 import Fridge_Chef.team.security.service.dto.OAuthAttributes;
 import Fridge_Chef.team.security.service.factory.OAuthAttributesAdapter;
-import org.springframework.beans.factory.annotation.Value;
+import Fridge_Chef.team.security.service.factory.adapter.KakaoOauthAttribute;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Map;
 
 @Component
-@Profile({"dev","prod"})
-public class KakaoOAuthAttributesAdapter implements OAuthAttributesAdapter ,KakaoOauthAttribute{
+@Profile({"local"})
+public class KakaoOAuthAttributesLocalAdapter implements OAuthAttributesAdapter, KakaoOauthAttribute {
     private static final String REGISTRATION_ID = "kakao";
-
-    @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
-    protected String clientId;
-
-    @Value("${spring.security.oauth2.client.registration.kakao.client-secret}")
-    protected String clientSecret;
-
-    @Value("${spring.security.oauth2.client.registration.kakao.redirect-uri}")
-    protected String redirectUri;
-
-    @Value("${spring.security.oauth2.client.provider.kakao.authorization-uri}")
-    protected String authorizationUri;
-
-    @Value("${spring.security.oauth2.client.provider.kakao.token-uri}")
-    protected String tokenUri;
-
-    @Value("${spring.security.oauth2.client.provider.kakao.user-info-uri}")
-    protected String userInfoUri;
-
-    @Value("${spring.security.oauth2.client.provider.kakao.user-name-attribute}")
-    protected String userNameAttribute;
-    private List<String> scopes= List.of("profile_nickname","account_email","profile_image");
 
     @Override
     public OAuthAttributes toOAuthAttributes(Map<String, Object> attributes) {
@@ -61,14 +38,6 @@ public class KakaoOAuthAttributesAdapter implements OAuthAttributesAdapter ,Kaka
 
     public ClientRegistration getKakaoClientRegistration() {
         return ClientRegistration.withRegistrationId(REGISTRATION_ID)
-                .clientId(clientId)
-                .clientSecret(clientSecret)
-                .redirectUri(redirectUri)
-                .scope(scopes)
-                .authorizationUri(authorizationUri)
-                .tokenUri(tokenUri)
-                .userInfoUri(userInfoUri)
-                .userNameAttributeName(userNameAttribute)
                 .clientName("Kakao")
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)

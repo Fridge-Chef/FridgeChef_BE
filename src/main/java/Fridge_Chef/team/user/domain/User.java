@@ -13,44 +13,47 @@ import static lombok.AccessLevel.PROTECTED;
 
 @Entity
 @Getter
-@Table(name = "users")
+@Table(name = "users",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"profile_social", "profile_email"})
+        })
 @NoArgsConstructor(access = PROTECTED)
 public class User extends BaseEntity {
     @EmbeddedId
     private UserId userId;
     @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "email", column = @Column(name = "profile_email")),
+            @AttributeOverride(name = "social", column = @Column(name = "profile_social"))
+    })
     private Profile profile;
-    @Column(unique = true)
-    private String email;
     @Enumerated(EnumType.STRING)
     private Role role;
-    @Enumerated(EnumType.STRING)
-    private Social social;
+
     @OneToOne(fetch = FetchType.LAZY)
     private UserHistory history;
-
     @OneToOne(mappedBy = "user")
     private Fridge fridge;
 
-    public User(UserId userId, Profile profile, String email, Role role, Social social) {
+
+    public User(UserId userId, Profile profile, Role role) {
         this.userId = userId;
         this.profile = profile;
-        this.email = email;
         this.role = role;
-        this.social = social;
         super.updateIsDelete(false);
     }
 
     public static User createSocialUser(String email, String name, Image picture, Role role, Social social) {
-        return new User(UserId.create(), new Profile(picture, name), email, role, social);
+        return new User(UserId.create(), new Profile(picture,email, name,social), role);
     }
 
     public static User createSocialUser(String email, String name, Role role, Social social) {
-        return new User(UserId.create(), new Profile(null, name), email, role, social);
+        return new User(UserId.create(), new Profile(null, email,name,social), role);
     }
 
+
     public User(UserId userId) {
-        this.userId=userId;
+        this.userId = userId;
     }
 
     public void accountDelete(boolean isDelete) {
@@ -87,5 +90,14 @@ public class User extends BaseEntity {
 
     public void updateTime() {
         history.update();
+    }
+
+
+    public Social getSocial() {
+        return profile.getSocial();
+    }
+
+    public String getEmail() {
+        return profile.getEmail();
     }
 }

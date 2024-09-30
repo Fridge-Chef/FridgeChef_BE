@@ -30,12 +30,6 @@ public class UserService {
         return userRepository.findByUserId_Value(UUID.fromString(uudid));
     }
 
-    @Transactional(readOnly = true)
-    public User findUserByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_EMAIL));
-    }
-
     @Transactional
     public void accountDelete(UserId userId, String username) {
         User user = findByUserId(userId);

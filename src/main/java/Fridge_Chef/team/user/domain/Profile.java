@@ -14,8 +14,14 @@ public class Profile {
 
     @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     private Image picture;
-    @Column(unique = true)
+
+    @Column
+    private String email;
+    @Column
     private String username;
+
+    @Enumerated(EnumType.STRING)
+    private Social social;
 
     protected void updateName(String name){
         this.username=name;

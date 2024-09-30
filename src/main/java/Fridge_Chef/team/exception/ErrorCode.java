@@ -31,7 +31,6 @@ public enum ErrorCode {
     USER_EMAIL_UNIQUE(406, "이메일 중복 에러"),
     USER_NOT_FOUND(405, "유저 정보 없음"),
     USER_NOT_EMAIL(407, "이메일 정보 없음"),
-    LOGIN_PASSWORD_INCORRECT(408, "로그인 패스워드 불일치"),
 
     //email
     EMAIL_SEND_PARSE(405, "메시지 구문 분석에 실패"),
@@ -40,17 +39,8 @@ public enum ErrorCode {
 
 
     //signup
-    SIGNUP_EMAIL_VERIFY_CODE_FAILED(405, "이메일 인증 실패"),
-    SIGNUP_EMAIL_DUPLICATE(406, "회원가입 이메일 중복"),
-    SIGNUP_CERT_CODE_UNVERIFIED(407, "회원가입 인증코드 미인증"),
     USER_ACCOUNT_DELETE(408, "탈퇴 요청한 사용자 입니다. "),
     USER_ACCOUNT_DELETE_NAME_INCORRECT(409, "회원탈퇴 요청중 이름을 다르게 입력"),
-    USER_PASSWORD_INPUT_FAIL(410, "기존 비밀번호 틀림"),
-    USER_NEW_PASSWORD_SAME_AS_OLD(411, "사용자 새 비밀번호가 이전 비밀번호와 동일"),
-
-    PASSWORD_IS_REQUIRED(412, "비밀번호를 입력해주세요."),
-    PASSWORD_VALID_FAIL(413, "비밀번호는 6자 이상 38자 이하의 숫자 또는 영문자로 입력해주세요."),
-    SIGNUP_CERT_NON_REQUEST(414, "회원가입 인증과정을 무시했습니다."),
 
     //fridge
     FRIDGE_NOT_FOUND(404, "냉장고 정보 없음"),
@@ -70,7 +60,9 @@ public enum ErrorCode {
     RATING_IS_0_5_UNITS(408, "별점은 0.5단위만 가능"),
     COMMENT_NOT_FOUND(404, "댓글을 찾을 수 없음"),
     COMMENT_NOT_USER_AUTHOR(406, "댓글 작성자가 아님"),
-    COMMENT_NOT_BOARD(407, "댓글의 게시글이 아님");
+    COMMENT_NOT_BOARD(407, "댓글의 게시글이 아님"),
+    SIGNUP_USER_FAIL_SNS_EMAIL_UNIQUE(405,"회원가입 SNS 가입 중복 " ),
+    SIGNUP_SNS_NOT_SUPPORT(411, "지원하지 않는 SNS 인증 타입");
 
     private final int status;
     private final String message;

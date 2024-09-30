@@ -59,8 +59,7 @@ public class UserControllerTest extends RestDocControllerTests {
     @Test
     void login_success() {
         String email = "kakao@gmail.com";
-        Social social = Social.KAKAO;
-        User.createSocialUser(email, "Kakao", Image.outUri("png"), Role.USER, social);
+        UserFixture.create(email);
     }
 
     @Test

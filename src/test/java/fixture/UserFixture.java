@@ -12,6 +12,6 @@ public class UserFixture {
 
     public static User createId(String email) {
         String uuid =  UUID.randomUUID().toString();
-        return new User(UserId.create(),new Profile(null,uuid),uuid+email,Role.USER,Social.KAKAO);
+        return new User(UserId.create(),new Profile(null,email, uuid,Social.KAKAO),Role.USER);
     }
 }
