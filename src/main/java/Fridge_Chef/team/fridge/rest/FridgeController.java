@@ -25,74 +25,52 @@ public class FridgeController {
 
     //냉장고 생성하기?
     @PostMapping("/")
-    public ResponseEntity<?> create(HttpServletRequest request) throws ApiException {
+    public ResponseEntity<?> create(HttpServletRequest request) {
 
-        try {
-            //request에서 access token 추출
-            //access token에서 user id 클레임 추출
-
-            UserId userId = null;
-            fridgeService.createFridge(userId);
-            return ResponseEntity.status(HttpStatus.CREATED).build();
-        } catch (ApiException e) {
-            throw e;
-        }
+        //request에서 access token 추출
+        //access token에서 user id 클레임 추출
+        UserId userId = null;
+        fridgeService.createFridge(userId);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     //냉장고 조회
     @GetMapping("/")
     public ResponseEntity<?> search(HttpServletRequest request) throws ApiException {
 
-        try {
-            //request에서 access token 추출
-            //access token에서 user id 클레임 추출
-
-            UserId userId = null;
-            List<FridgeIngredientResponse> response = fridgeService.getFridgeIngredientResponse(userId);
-            return ResponseEntity.ok().body(response);
-        } catch (ApiException e) {
-            throw e;
-        }
+        //request에서 access token 추출
+        //access token에서 user id 클레임 추출
+        UserId userId = null;
+        List<FridgeIngredientResponse> response = fridgeService.getFridgeIngredientResponse(userId);
+        return ResponseEntity.ok().body(response);
     }
 
     //냉장고 재료 등록
     @PostMapping("/ingredients")
-    public ResponseEntity<?> add(HttpServletRequest request, @RequestBody List<FridgeIngredientRequest> ingredientsRequest) throws ApiException {
+    public ResponseEntity<?> add(HttpServletRequest request, @RequestBody List<FridgeIngredientRequest> ingredientsRequest) {
 
-        try {
-            //access token에서 user id 클레임 추출
-            UserId userId = null;
-            fridgeService.addIngredientsToFridge(userId, ingredientsRequest);
-            return ResponseEntity.status(HttpStatus.CREATED).build();
-        } catch (ApiException e) {
-            throw e;
-        }
+        //access token에서 user id 클레임 추출
+        UserId userId = null;
+        fridgeService.addIngredientsToFridge(userId, ingredientsRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     //냉장고 재료 삭제
     @DeleteMapping("/ingredients")
-    public ResponseEntity<?> delete(HttpServletRequest request, @RequestBody FridgeIngredientDeleteRequest ingredientRequest) throws ApiException {
+    public ResponseEntity<?> delete(HttpServletRequest request, @RequestBody FridgeIngredientDeleteRequest ingredientRequest) {
 
-        try {
-            //access token에서 user id 클레임 추출
-            UserId userId = null;
-            fridgeService.deleteIngredients(userId, ingredientRequest);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        } catch (ApiException e) {
-            throw e;
-        }
+        //access token에서 user id 클레임 추출
+        UserId userId = null;
+        fridgeService.deleteIngredients(userId, ingredientRequest);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PutMapping("/ingredients")
-    public ResponseEntity<?> update(HttpServletRequest request, @RequestBody FridgeIngredientRequest fridgeIngredientRequest) throws ApiException {
+    public ResponseEntity<?> update(HttpServletRequest request, @RequestBody FridgeIngredientRequest fridgeIngredientRequest) {
 
-        try {
-            //access token에서 user id 클레임 추출
-            UserId userId = null;
-            fridgeService.updateIngredientExpirationDate(userId, fridgeIngredientRequest);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        } catch (ApiException e) {
-            throw e;
-        }
+        //access token에서 user id 클레임 추출
+        UserId userId = null;
+        fridgeService.updateIngredientExpirationDate(userId, fridgeIngredientRequest);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
