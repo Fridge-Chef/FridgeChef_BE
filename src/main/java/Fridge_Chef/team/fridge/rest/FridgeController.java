@@ -1,17 +1,14 @@
 package Fridge_Chef.team.fridge.rest;
 
-import Fridge_Chef.team.exception.ApiException;
-import Fridge_Chef.team.fridge.domain.Fridge;
-import Fridge_Chef.team.fridge.domain.FridgeIngredient;
 import Fridge_Chef.team.fridge.rest.request.FridgeIngredientDeleteRequest;
 import Fridge_Chef.team.fridge.rest.request.FridgeIngredientRequest;
 import Fridge_Chef.team.fridge.rest.response.FridgeIngredientResponse;
 import Fridge_Chef.team.fridge.service.FridgeService;
-import Fridge_Chef.team.user.domain.UserId;
-import jakarta.servlet.http.HttpServletRequest;
+import Fridge_Chef.team.user.rest.model.AuthenticatedUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,54 +20,38 @@ public class FridgeController {
 
     private final FridgeService fridgeService;
 
-    //냉장고 생성하기?
     @PostMapping("/")
-    public ResponseEntity create(HttpServletRequest request) {
+    public ResponseEntity create(@AuthenticationPrincipal AuthenticatedUser user) {
 
-        //request에서 access token 추출
-        //access token에서 user id 클레임 추출
-        UserId userId = null;
-        fridgeService.createFridge(userId);
+        fridgeService.createFridge(user.userId());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    //냉장고 조회
     @GetMapping("/")
-    public ResponseEntity<List<FridgeIngredientResponse>> search(HttpServletRequest request) throws ApiException {
+    public ResponseEntity<List<FridgeIngredientResponse>> search(@AuthenticationPrincipal AuthenticatedUser user) {
 
-        //request에서 access token 추출
-        //access token에서 user id 클레임 추출
-        UserId userId = null;
-        List<FridgeIngredientResponse> response = fridgeService.getFridgeIngredientResponse(userId);
+        List<FridgeIngredientResponse> response = fridgeService.getFridgeIngredientResponse(user.userId());
         return ResponseEntity.ok().body(response);
     }
 
-    //냉장고 재료 등록
     @PostMapping("/ingredients")
-    public ResponseEntity add(HttpServletRequest request, @RequestBody List<FridgeIngredientRequest> ingredientsRequest) {
+    public ResponseEntity add(@AuthenticationPrincipal AuthenticatedUser user, @RequestBody List<FridgeIngredientRequest> ingredientsRequest) {
 
-        //access token에서 user id 클레임 추출
-        UserId userId = null;
-        fridgeService.addIngredientsToFridge(userId, ingredientsRequest);
+        fridgeService.addIngredientsToFridge(user.userId(), ingredientsRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    //냉장고 재료 삭제
     @DeleteMapping("/ingredients")
-    public ResponseEntity delete(HttpServletRequest request, @RequestBody FridgeIngredientDeleteRequest ingredientRequest) {
+    public ResponseEntity delete(@AuthenticationPrincipal AuthenticatedUser user, @RequestBody FridgeIngredientDeleteRequest ingredientRequest) {
 
-        //access token에서 user id 클레임 추출
-        UserId userId = null;
-        fridgeService.deleteIngredients(userId, ingredientRequest);
+        fridgeService.deleteIngredients(user.userId(), ingredientRequest);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PutMapping("/ingredients")
-    public ResponseEntity update(HttpServletRequest request, @RequestBody FridgeIngredientRequest fridgeIngredientRequest) {
+    public ResponseEntity update(@AuthenticationPrincipal AuthenticatedUser user, @RequestBody FridgeIngredientRequest fridgeIngredientRequest) {
 
-        //access token에서 user id 클레임 추출
-        UserId userId = null;
-        fridgeService.updateIngredientExpirationDate(userId, fridgeIngredientRequest);
+        fridgeService.updateIngredientExpirationDate(user.userId(), fridgeIngredientRequest);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
