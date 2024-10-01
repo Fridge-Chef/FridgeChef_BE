@@ -12,11 +12,11 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CommentResponse {
-
     private Long id;
     private String comment;
     private double star;
     private String userName;
+    private String imageLink;
     private Long boardId;
     private LocalDateTime createdAt;
 
@@ -26,6 +26,7 @@ public class CommentResponse {
                 comment.getComment(),
                 comment.getStar(),
                 comment.getUser().getUsername(),
+                comment.getCommentImage().getLink(),
                 comment.getBoard().getId(),
                 comment.getCreateTime()
         );
