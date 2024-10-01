@@ -14,11 +14,13 @@ import Fridge_Chef.team.image.service.ImageService;
 import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.domain.UserId;
 import Fridge_Chef.team.user.repository.UserRepository;
+import Fridge_Chef.team.user.rest.model.AuthenticatedUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +37,7 @@ public class CommentService {
         User user = findByUser(userId);
         Image image = imageService.imageUpload(userId, request.image());
 
+//        commentRepository.findById()
         Comment comment = new Comment(board, user, image, request.comment(), request.star());
         board.updateStar(calculateNewTotalStar(board, request.star()));
 
@@ -77,6 +80,35 @@ public class CommentService {
                 .stream()
                 .map(CommentResponse::fromEntity)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<CommentResponse> getCommentsByBoard(Long boardId, Optional<AuthenticatedUser> user) {
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new ApiException(ErrorCode.BOARD_NOT_FOUND));
+
+        List<Comment> comments = commentRepository.findAllByBoard(board);
+
+        user.map(AuthenticatedUser::userId).flatMap(userId -> comments.stream()
+                .filter(comment -> comment.getUser().getUserId().equals(userId))
+                .findFirst()).ifPresent(userComment -> {
+            comments.remove(userComment);
+            comments.add(0, userComment);
+        });
+
+        return comments.stream()
+                .map(CommentResponse::fromEntity)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public CommentResponse getCommentsByBoard(Long boardId, Long commentId) {
+        Comment comment =  commentRepository.findById(commentId)
+                .orElseThrow(() -> new ApiException(ErrorCode.COMMENT_NOT_FOUND));
+        if(!comment.getBoard().getId().equals(boardId)){
+            throw new ApiException(ErrorCode.COMMENT_NOT_BOARD);
+        }
+        return CommentResponse.fromEntity(comment);
     }
 
     private double calculateNewTotalStar(Board board, double newStar) {

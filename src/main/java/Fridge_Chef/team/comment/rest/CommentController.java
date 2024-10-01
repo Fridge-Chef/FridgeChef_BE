@@ -10,6 +10,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/boards/{board_id}/comments")
@@ -19,30 +20,40 @@ public class CommentController {
     private final CommentService commentService;
 
     @PostMapping
-    public void addComment(@AuthenticationPrincipal AuthenticatedUser user,
-                           @PathVariable("board_id") Long boardId,
-                           @RequestBody CommentCreateRequest commentRequest) {
+    public void addComment(
+            @AuthenticationPrincipal AuthenticatedUser user,
+            @PathVariable("board_id") Long boardId,
+            @RequestBody CommentCreateRequest commentRequest) {
         commentService.addComment(boardId, user.userId(), commentRequest);
     }
 
     @PutMapping("/{comment_id}")
-    public void updateComment(@AuthenticationPrincipal AuthenticatedUser user,
+    public void updateComment(
+            @AuthenticationPrincipal AuthenticatedUser user,
             @PathVariable("board_id") Long boardId,
             @PathVariable("comment_id") Long commentId,
             @RequestBody CommentUpdateRequest commentRequest) {
-        commentService.updateComment(boardId,commentId,user.userId(), commentRequest);
+        commentService.updateComment(boardId, commentId, user.userId(), commentRequest);
     }
 
     @DeleteMapping("/{comment_id}")
-    public void deleteComment(@AuthenticationPrincipal AuthenticatedUser user,
+    public void deleteComment(
+            @AuthenticationPrincipal AuthenticatedUser user,
             @PathVariable("board_id") Long boardId,
             @PathVariable("comment_id") Long commentId) {
-        commentService.deleteComment(boardId, commentId,user.userId());
+        commentService.deleteComment(boardId, commentId, user.userId());
     }
-
 
     @GetMapping
-    public List<CommentResponse> getAllComments(@PathVariable("board_id") Long boardId) {
-        return commentService.getCommentsByBoard(boardId);
+    public List<CommentResponse> getAllComments(
+            @AuthenticationPrincipal AuthenticatedUser user,
+            @PathVariable("board_id") Long boardId) {
+        return commentService.getCommentsByBoard(boardId, Optional.ofNullable(user));
     }
+
+    @GetMapping("/{comment_id}")
+    public CommentResponse getComments(@PathVariable("board_id") Long boardId, @PathVariable("comment_id") Long commentId) {
+        return commentService.getCommentsByBoard(boardId, commentId);
+    }
+
 }
