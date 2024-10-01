@@ -109,6 +109,7 @@ public class CommentControllerTest extends RestDocControllerTests {
                                 fieldWithPath("[].comment").description("댓글 내용"),
                                 fieldWithPath("[].star").description("별점"),
                                 fieldWithPath("[].userName").description("사용자 이름"),
+                                fieldWithPath("[].imageLink").description("이미지 주소"),
                                 fieldWithPath("[].boardId").description("게시판 ID"),
                                 fieldWithPath("[].createdAt").description("작성일")
                         )));
@@ -116,8 +117,8 @@ public class CommentControllerTest extends RestDocControllerTests {
 
     private static List<CommentResponse> getAllCommentsProvider() {
         return List.of(
-                new CommentResponse(1L, "댓글 내용", 4.5, "User1", 1L, LocalDateTime.now()),
-                new CommentResponse(2L, "또 다른 댓글", 5.0, "User2", 1L, LocalDateTime.now())
+                new CommentResponse(1L, "댓글 내용", 4.5, "User1","test.png", 1L, LocalDateTime.now()),
+                new CommentResponse(2L, "또 다른 댓글", 5.0, "User2","test.png", 1L, LocalDateTime.now())
         );
     }
 }
