@@ -26,7 +26,7 @@ public class CommentResponse {
                 comment.getComment(),
                 comment.getStar(),
                 comment.getUser().getUsername(),
-                comment.getCommentImage().getLink(),
+                comment.getImageLink(),
                 comment.getBoard().getId(),
                 comment.getCreateTime()
         );

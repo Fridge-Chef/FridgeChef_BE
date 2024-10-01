@@ -51,4 +51,11 @@ public class Comment extends BaseEntity {
         }
         this.star = star;
     }
+
+    public String getImageLink(){
+        if(commentImage != null){
+            return commentImage.getLink();
+        }
+        return "";
+    }
 }
