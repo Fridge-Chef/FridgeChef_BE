@@ -2,7 +2,7 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: kjh22522252@gmail.com
+    username: ENC(ZPUocTafr9B2xnWmL37RyeLPzzku6qbap9oXpQ5F8JE=)
     password: ENC(KJTTvFWL10rABIoKBDvGX/GCFZ837cc55s6y58DFQxw=)
     transport:
       protocol: smtp
