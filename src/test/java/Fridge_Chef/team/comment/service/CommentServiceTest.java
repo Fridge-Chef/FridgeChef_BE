@@ -10,9 +10,11 @@ import Fridge_Chef.team.comment.rest.response.CommentResponse;
 import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.exception.ErrorCode;
 import Fridge_Chef.team.image.service.ImageService;
+import Fridge_Chef.team.user.domain.Role;
 import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.domain.UserId;
 import Fridge_Chef.team.user.repository.UserRepository;
+import Fridge_Chef.team.user.rest.model.AuthenticatedUser;
 import fixture.BoardFixture;
 import fixture.UserFixture;
 import org.junit.jupiter.api.BeforeEach;
@@ -111,7 +113,7 @@ public class CommentServiceTest {
         when(boardRepository.findById(anyLong())).thenReturn(Optional.of(board));
         when(commentRepository.findAllByBoard(any(Board.class))).thenReturn(List.of(comment));
 
-        List<CommentResponse> comments = commentService.getCommentsByBoard(1L);
+        List<CommentResponse> comments = commentService.getCommentsByBoard(1L, Optional.of(new  AuthenticatedUser(UserId.create(), Role.USER)));
 
         assertNotNull(comments);
         assertEquals(1, comments.size());

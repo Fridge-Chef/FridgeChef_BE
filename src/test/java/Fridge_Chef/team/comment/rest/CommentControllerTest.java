@@ -18,8 +18,10 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
@@ -48,7 +50,7 @@ public class CommentControllerTest extends RestDocControllerTests {
         String requestJson = objectMapper.writeValueAsString(commentRequest);
 
         // When
-        ResultActions result = jwtJsonPostPathWhen("/api/boards/{board_id}/comments", requestJson,1);
+        ResultActions result = jwtJsonPostPathWhen("/api/boards/{board_id}/comments", requestJson, 1);
 
         // Then
         result.andExpect(status().isOk())
@@ -70,7 +72,7 @@ public class CommentControllerTest extends RestDocControllerTests {
         String requestJson = objectMapper.writeValueAsString(commentRequest);
 
         // When
-        ResultActions result = jwtJsonPutPathWhen("/api/boards/{board_id}/comments/{comment_id}", requestJson,1,1);
+        ResultActions result = jwtJsonPutPathWhen("/api/boards/{board_id}/comments/{comment_id}", requestJson, 1, 1);
 
         // Then
         result.andExpect(status().isOk())
@@ -87,7 +89,7 @@ public class CommentControllerTest extends RestDocControllerTests {
     @WithMockCustomUser
     @DisplayName("삭제")
     void testDeleteComment() throws Exception {
-        ResultActions result = jwtDeletePathWhen("/api/boards/{board_id}/comments/{comment_id}", 1,1);
+        ResultActions result = jwtDeletePathWhen("/api/boards/{board_id}/comments/{comment_id}", 1, 1);
 
         result.andExpect(status().isOk())
                 .andDo(document("댓글 삭제",
@@ -97,7 +99,7 @@ public class CommentControllerTest extends RestDocControllerTests {
     @Test
     @DisplayName("전체조회")
     void testGetAllComments() throws Exception {
-        when(commentService.getCommentsByBoard(anyLong())).thenReturn(getAllCommentsProvider());
+        when(commentService.getCommentsByBoard(anyLong(), any(Optional.class))).thenReturn(getAllCommentsProvider());
 
 
         ResultActions result = jwtGetPathWhen("/api/boards/{board_id}/comments", 1);
@@ -117,8 +119,8 @@ public class CommentControllerTest extends RestDocControllerTests {
 
     private static List<CommentResponse> getAllCommentsProvider() {
         return List.of(
-                new CommentResponse(1L, "댓글 내용", 4.5, "User1","test.png", 1L, LocalDateTime.now()),
-                new CommentResponse(2L, "또 다른 댓글", 5.0, "User2","test.png", 1L, LocalDateTime.now())
+                new CommentResponse(1L, "댓글 내용", 4.5, "User1", "test.png", 1L, LocalDateTime.now()),
+                new CommentResponse(2L, "또 다른 댓글", 5.0, "User2", "test.png", 1L, LocalDateTime.now())
         );
     }
 }
