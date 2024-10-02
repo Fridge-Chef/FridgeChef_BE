@@ -1,6 +1,7 @@
 package Fridge_Chef.team.board.rest;
 
 import Fridge_Chef.team.board.rest.request.BoardPageRequest;
+import Fridge_Chef.team.board.rest.request.BoardStarRequest;
 import Fridge_Chef.team.board.service.BoardService;
 import Fridge_Chef.team.board.service.response.BoardMyRecipePageResponse;
 import Fridge_Chef.team.board.service.response.BoardMyRecipeResponse;
@@ -31,5 +32,9 @@ public class BoardsController {
     @PostMapping("/{board_id}/hit")
     public void hit(@AuthenticationPrincipal AuthenticatedUser user,@PathVariable("board_id") Long boardId) {
         boardService.updateUserHit(user.userId(),boardId);
+    }
+    @PostMapping("/{board_id}/star")
+    public void star(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable("board_id") Long boardId, BoardStarRequest request) {
+        boardService.updateUserStar(user.userId(),boardId,request);
     }
 }

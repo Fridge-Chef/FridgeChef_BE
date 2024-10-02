@@ -66,8 +66,9 @@ public class SecurityConfig {
                         "/api/ingredients/**", "/api/fridge/ingredients", "/api/recipes/", "/api/recipes/{id}",
                         "/api/boards","/api/boards/**","/api/mobile/auth/**"
                 ).permitAll()
-                .requestMatchers("/api/user", "/api/user/account", "/api/user/password",
-                        "/api/recipes/book", "/api/categorys/{category_id}/board", "/api/recipes/{recipe_id}/comment"
+                .requestMatchers("/api/user", "/api/user/account",
+                        "/api/categorys/{category_id}/board", "/api/recipes/{recipe_id}/comment","/api/books"
+
                 )
                 .hasAnyAuthority(Role.USER.getAuthority(), Role.ADMIN.getAuthority())
                 .anyRequest().authenticated();
