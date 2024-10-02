@@ -6,8 +6,10 @@ import Fridge_Chef.team.board.domain.Context;
 import Fridge_Chef.team.board.domain.Description;
 import Fridge_Chef.team.board.repository.BoardDslRepository;
 import Fridge_Chef.team.board.repository.BoardRepository;
+import Fridge_Chef.team.board.repository.BoardUserEventRepository;
 import Fridge_Chef.team.board.repository.ContextRepository;
 import Fridge_Chef.team.board.rest.request.BoardPageRequest;
+import Fridge_Chef.team.board.rest.request.BoardStarRequest;
 import Fridge_Chef.team.board.service.response.BoardMyRecipePageResponse;
 import Fridge_Chef.team.board.service.response.BoardMyRecipeResponse;
 import Fridge_Chef.team.exception.ApiException;
@@ -23,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.OptionalDouble;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +35,7 @@ public class BoardService {
     private final ContextRepository contextRepository;
     private final ImageService imageService;
     private final UserRepository userRepository;
+    private final BoardUserEventRepository boardUserEventRepository;
 
     @Transactional(readOnly = true)
     public BoardMyRecipeResponse findMyRecipeId(Long boardId) {
@@ -77,7 +81,13 @@ public class BoardService {
         Board board = findById(boardId);
         User user = userRepository.findByUserId_Value(userId.getValue())
                 .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
-        getUserEvent(user, board).hitUp();
+
+        BoardUserEvent evnet = getUserEvent(user, board);
+
+        evnet.hitUp();
+        if(evnet.getHit() == 0 && evnet.getStar() == 0){
+            boardUserEventRepository.deleteById(evnet.getId());
+        }
 
         int hit = board.getBoardUserEvent()
                 .stream()
@@ -85,6 +95,37 @@ public class BoardService {
                 .sum();
 
         board.updateHit(hit);
+    }
+
+    @Transactional
+    public void updateUserStar(UserId userId, Long boardId, BoardStarRequest request) {
+        Board board = findById(boardId);
+        User user = userRepository.findByUserId_Value(userId.getValue())
+                .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
+
+        BoardUserEvent evnet = getUserEvent(user, board);
+
+        evnet.updateStar(request.star());
+
+        if(evnet.getHit() == 0 && evnet.getStar() == 0){
+            boardUserEventRepository.deleteById(evnet.getId());
+        }
+
+        double star = board.getBoardUserEvent()
+                .stream()
+                .mapToDouble(BoardUserEvent::getStar)
+                .average().orElse(0L);
+
+        board.updateStar(roundToHalf(star));
+    }
+
+    public Board findById(Long id) {
+        return boardRepository.findById(id)
+                .orElseThrow(() -> new ApiException(ErrorCode.BOARD_NOT_FOUND));
+    }
+
+    private static double roundToHalf(double star) {
+        return Math.round(star * 2) / 2.0;
     }
 
     private Board findByUserIdAndBoardId(UserId userId, Long boardId) {
@@ -95,10 +136,6 @@ public class BoardService {
         return board;
     }
 
-    public Board findById(Long id) {
-        return boardRepository.findById(id)
-                .orElseThrow(() -> new ApiException(ErrorCode.BOARD_NOT_FOUND));
-    }
 
     private BoardUserEvent getUserEvent(User user, Board board) {
         return board.getBoardUserEvent().stream()
