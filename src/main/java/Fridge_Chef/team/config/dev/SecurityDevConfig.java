@@ -66,10 +66,9 @@ public class SecurityDevConfig {
                         "/api/ingredients/**", "/api/fridge/ingredients", "/api/recipes/", "/api/recipes/{id}",
                         "/api/categorys", "/api/categorys/boards/**", "/api/recipes/{recipe_id}/comments",
                         "/api/categorys/{category_id}/boards/{board_id}/comments",
-                        "/api/boards","/api/boards/**","/api/mobile/auth/**"
+                        "/api/boards","/api/mobile/auth/**"
                 ).permitAll()
-                .requestMatchers("/api/user", "/api/user/account", "/api/user/password",
-                        "/api/recipes/book"
+                .requestMatchers("/api/user", "/api/user/account", "/api/books"
                 )
                 .hasAnyAuthority(Role.USER.getAuthority(), Role.ADMIN.getAuthority())
                 .requestMatchers("/api/manager/busines/ingredient")
