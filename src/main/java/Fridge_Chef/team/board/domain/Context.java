@@ -1,11 +1,12 @@
 package Fridge_Chef.team.board.domain;
 
-import Fridge_Chef.team.recipe.domain.Recipe;
+import Fridge_Chef.team.recipe.domain.RecipeDescription;
 import Fridge_Chef.team.recipe.domain.RecipeIngredient;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static lombok.AccessLevel.PROTECTED;
@@ -40,5 +41,11 @@ public class Context {
 
     public void updateDescriptions(List<Description> descriptions) {
         this.descriptions=descriptions;
+    }
+
+    public List<RecipeDescription> toRecipeDescription(){
+        List<RecipeDescription> list = new ArrayList<>();
+        descriptions.forEach(description -> list.add(new RecipeDescription(description.getDescription(),description.getLink())));
+        return list;
     }
 }

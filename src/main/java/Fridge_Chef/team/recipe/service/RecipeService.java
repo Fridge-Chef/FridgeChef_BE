@@ -1,10 +1,18 @@
 package Fridge_Chef.team.recipe.service;
 
+import Fridge_Chef.team.board.domain.Board;
+import Fridge_Chef.team.board.domain.Description;
+import Fridge_Chef.team.board.repository.BoardRepository;
+import Fridge_Chef.team.board.repository.DescriptionRepository;
 import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.exception.ErrorCode;
+import Fridge_Chef.team.image.domain.Image;
+import Fridge_Chef.team.image.repository.ImageRepository;
+import Fridge_Chef.team.image.service.ImageService;
 import Fridge_Chef.team.ingredient.rest.response.IngredientResponse;
 import Fridge_Chef.team.ingredient.service.IngredientService;
 import Fridge_Chef.team.recipe.domain.Recipe;
+import Fridge_Chef.team.recipe.domain.RecipeDescription;
 import Fridge_Chef.team.recipe.domain.RecipeIngredient;
 import Fridge_Chef.team.recipe.repository.RecipeRepository;
 import Fridge_Chef.team.recipe.rest.request.RecipeRequest;
@@ -30,9 +38,14 @@ import java.util.Optional;
 public class RecipeService {
 
     private final RecipeRepository recipeRepository;
+    private final DescriptionRepository descriptionRepository;
+    private final BoardRepository boardRepository;
+    private final ImageRepository imageRepository;
     private final IngredientService ingredientService;
+
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
+
 
     @Value("${recipeRequestUrl}")
     private String baseUrl;
@@ -66,6 +79,7 @@ public class RecipeService {
             }
         }
 
+//        boardRepository.save(Board.from(null,recipe)); // 통합전 user=?
         recipeRepository.save(recipe);
 
         return recipeToDto(recipe);
@@ -78,16 +92,33 @@ public class RecipeService {
         String name = recipeInfo.get("RCP_NM").asText();
         String ingredients = recipeInfo.get("RCP_PARTS_DTLS").asText();
         String imageUrl = recipeInfo.get("ATT_FILE_NO_MAIN").asText();
+        Image mainImage = imageRepository.save(Image.outUri(imageUrl));
 
         List<RecipeIngredient> recipeIngredientList = ingredientService.extractIngredients(ingredients);
-        List<String> manuals = extractManuals(recipeInfo);
+        List<Description> manuals = extractManualsToDescription(recipeInfo);
 
         return Recipe.builder()
                 .name(name)
-                .manuals(manuals)
-                .imageUrl(imageUrl)
+                .descriptions(manuals)
+                .imageUrl(mainImage)
                 .recipeIngredients(recipeIngredientList)
                 .build();
+    }
+
+    private List<Description> extractManualsToDescription(JsonNode json){
+        List<Description> list = new ArrayList<>();
+        for (int i = 1; i <= 20; i++) {
+            JsonNode manualNode = json.get( "MANUAL" + String.format("%02d", i));
+            JsonNode imageNode = json.get( "MANUAL_IMG" + String.format("%02d", i));
+            String manualText = (manualNode != null && !manualNode.asText().trim().isEmpty()) ? manualNode.asText() : null;
+            String imageUri = (imageNode != null && !imageNode.asText().trim().isEmpty()) ? imageNode.asText() : null;
+            if (manualText != null || imageUri != null) {
+                Description description = new Description(manualText, Image.outUri(imageUri));
+                descriptionRepository.save(description);
+                list.add(description);
+            }
+        }
+        return list;
     }
 
     private JsonNode requestRecipe(String url) {
@@ -155,7 +186,7 @@ public class RecipeService {
                 .name(recipe.getName())
                 .ingredients(ingredients)
                 .manuals(recipe.getManuals())
-                .imageUrl(recipe.getImageUrl())
+                .imageUrl(recipe.getImageUrl().getLink())
                 .build();
     }
 }
