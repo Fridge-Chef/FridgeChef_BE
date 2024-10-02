@@ -1,7 +1,9 @@
 package Fridge_Chef.team.board.domain;
 
+import Fridge_Chef.team.comment.domain.Comment;
 import Fridge_Chef.team.common.entity.BaseEntity;
 import Fridge_Chef.team.image.domain.Image;
+import Fridge_Chef.team.recipe.domain.Recipe;
 import Fridge_Chef.team.user.domain.User;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -24,6 +26,10 @@ public class Board extends BaseEntity {
 
     @OneToMany(mappedBy = "board", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private List<BoardUserEvent> boardUserEvent;
+
+    @OneToMany(mappedBy = "board", fetch = FetchType.LAZY)
+    private List<Comment> comments;
+
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
     private String title;
@@ -47,6 +53,16 @@ public class Board extends BaseEntity {
         this.hit = 0;
         this.count = 0;
         this.boardUserEvent = new ArrayList<>();
+    }
+
+    public static Board from(User user, Recipe recipe) {
+        return new Board(user, recipe.getName(),
+                Context.formMyUserRecipe(
+                        recipe.getRecipeIngredients(),
+                        recipe.getDescriptions()
+                ),
+                recipe.getImageUrl(),
+                BoardType.OPEN_API);
     }
 
     public void updateStar(double totalStar) {
@@ -90,6 +106,10 @@ public class Board extends BaseEntity {
     }
 
     public void updateId(long id) {
-        this.id=id;
+        this.id = id;
+    }
+
+    public List<Comment> getComment() {
+        return comments;
     }
 }
