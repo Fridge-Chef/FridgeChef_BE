@@ -58,4 +58,12 @@ public class Comment extends BaseEntity {
         }
         return "";
     }
+    public Comment updateId(Long id){
+        this.id=id;
+        return this;
+    }
+
+    public void updateImage(Image image) {
+        this.commentImage=image;
+    }
 }

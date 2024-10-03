@@ -14,8 +14,7 @@ import lombok.NoArgsConstructor;
 public class BookRecipeRequest {
     private BookType bookType;
     private SortType sortType;
-    @Min(1)
-    private int page = 1;
+    private int page;
     @Min(1)
     @Max(50)
     private int size = 50;

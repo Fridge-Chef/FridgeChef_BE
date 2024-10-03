@@ -60,7 +60,9 @@ public class CommentServiceTest {
     void setUp() {
         user = UserFixture.create("test@email.com");
         board = BoardFixture.create(user);
+        board.updateId(1L);
         comment = new Comment(board, user, null, "Test Comment", 4.0);
+        comment.updateId(1L);
     }
 
     @Test
@@ -85,7 +87,7 @@ public class CommentServiceTest {
     @Transactional
     @DisplayName("댓글 수정 - 성공")
     void updateComment_Success() {
-        CommentUpdateRequest request = new CommentUpdateRequest("",null,4.5);
+        CommentUpdateRequest request = new CommentUpdateRequest("test",null,4.5);
         when(commentRepository.findById(anyLong())).thenReturn(Optional.of(comment));
 
         Comment result = commentService.updateComment(1L, 1L, user.getUserId(), request);
@@ -101,7 +103,7 @@ public class CommentServiceTest {
     void deleteComment_Success() {
         when(commentRepository.findById(anyLong())).thenReturn(Optional.of(comment));
 
-        commentService.deleteComment(1L, 1L, user.getUserId());
+        commentService.deleteComment(board.getId(), comment.getId(), user.getUserId());
 
         verify(commentRepository, times(1)).delete(any(Comment.class));
     }
