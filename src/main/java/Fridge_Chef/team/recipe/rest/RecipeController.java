@@ -25,7 +25,7 @@ public class RecipeController {
     public RecipeNamesResponse recipesFromIngredients(@RequestParam("ingredients") List<String> ingredients) {
 
         RecipeRequest recipeRequest = new RecipeRequest(ingredients);
-        List<String> recipeTitles = recipeService.getRecipeTitles(recipeRequest);
+        List<String> recipeTitles = null;
 
         RecipeNamesResponse response = new RecipeNamesResponse(recipeTitles);
 
@@ -39,7 +39,7 @@ public class RecipeController {
     @GetMapping("/details")
     public RecipeDetailsResponse recipeInfo(@RequestParam("recipe_name") String recipeName) {
 
-        RecipeDetailsResponse response = recipeService.getRecipeDetails(recipeName);
+        RecipeDetailsResponse response = null;
 
         return response;
     }
