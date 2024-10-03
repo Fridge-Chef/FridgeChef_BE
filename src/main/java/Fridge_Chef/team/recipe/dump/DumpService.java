@@ -31,6 +31,7 @@ public class DumpService {
 
     private final RecipeRepository recipeRepository;
     private final IngredientRepository ingredientRepository;
+
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -186,12 +187,8 @@ public class DumpService {
 
     private RecipeIngredient createRecipeIngredient(String ingredientName, String quantity) {
 
-        if (ingredientName == null || ingredientName.trim().isEmpty()) {
-            throw new ApiException(ErrorCode.INGREDIENT_NOT_FOUND);
-        }
-
         Ingredient ingredient = ingredientRepository.findByName(ingredientName)
-                .orElseGet(() -> Ingredient.builder().name(ingredientName).build());
+                .orElse(Ingredient.builder().name(ingredientName).build());
 
         return RecipeIngredient.builder()
                 .ingredient(ingredient)
