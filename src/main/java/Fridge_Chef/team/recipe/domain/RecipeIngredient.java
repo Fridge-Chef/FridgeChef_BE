@@ -26,7 +26,7 @@ public class RecipeIngredient {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "recipe_id")
     private Recipe recipe;
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ingredient_id")
     private Ingredient ingredient;
     private String quantity;
@@ -48,5 +48,9 @@ public class RecipeIngredient {
         this.ingredient=ingredient;
         this.quantity=details;
         return this;
+    }
+
+    public void setIngredient(Ingredient ingredient) {
+        this.ingredient = ingredient;
     }
 }
