@@ -1,6 +1,5 @@
 package Fridge_Chef.team.recipe.service;
 
-import Fridge_Chef.team.board.domain.Board;
 import Fridge_Chef.team.board.domain.Description;
 import Fridge_Chef.team.board.repository.BoardRepository;
 import Fridge_Chef.team.board.repository.DescriptionRepository;
@@ -8,11 +7,9 @@ import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.exception.ErrorCode;
 import Fridge_Chef.team.image.domain.Image;
 import Fridge_Chef.team.image.repository.ImageRepository;
-import Fridge_Chef.team.image.service.ImageService;
 import Fridge_Chef.team.ingredient.rest.response.IngredientResponse;
 import Fridge_Chef.team.ingredient.service.IngredientService;
 import Fridge_Chef.team.recipe.domain.Recipe;
-import Fridge_Chef.team.recipe.domain.RecipeDescription;
 import Fridge_Chef.team.recipe.domain.RecipeIngredient;
 import Fridge_Chef.team.recipe.repository.RecipeRepository;
 import Fridge_Chef.team.recipe.rest.request.RecipeRequest;
@@ -94,14 +91,14 @@ public class RecipeService {
         String imageUrl = recipeInfo.get("ATT_FILE_NO_MAIN").asText();
         Image mainImage = imageRepository.save(Image.outUri(imageUrl));
 
-        List<RecipeIngredient> recipeIngredientList = ingredientService.extractIngredients(ingredients);
+//        List<RecipeIngredient> recipeIngredientList = ingredientService.extractIngredients(ingredients);
         List<Description> manuals = extractManualsToDescription(recipeInfo);
 
         return Recipe.builder()
                 .name(name)
                 .descriptions(manuals)
                 .imageUrl(mainImage)
-                .recipeIngredients(recipeIngredientList)
+//                .recipeIngredients(recipeIngredientList)
                 .build();
     }
 

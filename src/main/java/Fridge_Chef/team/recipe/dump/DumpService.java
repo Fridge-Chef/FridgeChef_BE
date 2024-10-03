@@ -2,6 +2,7 @@ package Fridge_Chef.team.recipe.dump;
 
 import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.exception.ErrorCode;
+import Fridge_Chef.team.image.domain.Image;
 import Fridge_Chef.team.ingredient.domain.Ingredient;
 import Fridge_Chef.team.ingredient.repository.IngredientRepository;
 import Fridge_Chef.team.recipe.domain.Recipe;
@@ -79,6 +80,7 @@ public class DumpService {
         String name = recipeInfo.get("RCP_NM").asText();
         String ingredients = recipeInfo.get("RCP_PARTS_DTLS").asText();
         String imageUrl = recipeInfo.get("ATT_FILE_NO_MAIN").asText();
+        Image image = Image.outUri(imageUrl);
 
         List<RecipeIngredient> recipeIngredientList = extractIngredients(ingredients);
         List<String> manuals = extractManuals(recipeInfo);
@@ -86,7 +88,7 @@ public class DumpService {
         return Recipe.builder()
                 .name(name)
                 .manuals(manuals)
-                .imageUrl(imageUrl)
+                .imageUrl(image)
                 .recipeIngredients(recipeIngredientList)
                 .build();
     }
