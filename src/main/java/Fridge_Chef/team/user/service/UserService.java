@@ -8,12 +8,12 @@ import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.domain.UserId;
 import Fridge_Chef.team.user.repository.UserRepository;
 import Fridge_Chef.team.user.rest.model.AuthenticatedUser;
+import Fridge_Chef.team.user.rest.request.UserProfileNameUpdateRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -22,12 +22,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public Optional<User> findByUserId(AuthenticatedUser userId) {
-        return userRepository.findByUserId_Value(userId.userId().getValue());
-    }
-
-    @Transactional(readOnly = true)
-    public Optional<User> findByUserId(String uudid) {
-        return userRepository.findByUserId_Value(UUID.fromString(uudid));
+        return userRepository.findByUserId(userId.userId());
     }
 
     @Transactional
@@ -52,9 +47,14 @@ public class UserService {
         findByUserId(userId).updatePicture(picture);
     }
 
-    @Transactional(readOnly = true)
-    public User findByUserId(UserId userId) {
-        return findByUserId(userId.getValue().toString())
+
+    @Transactional
+    public void updateUserProfileUsername(UserId userId, UserProfileNameUpdateRequest request) {
+        findByUserId(userId).updateUsername(request.username());
+    }
+
+    private User findByUserId(UserId userId) {
+        return userRepository.findByUserId(userId)
                 .filter(user -> !user.getIsDelete().bool())
                 .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
     }

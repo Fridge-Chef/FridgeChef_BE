@@ -13,14 +13,14 @@ import static lombok.AccessLevel.PROTECTED;
 
 @Entity
 @Getter
-@Table(name = "users",
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"profile_social", "profile_email"})
-        })
+@Table(name = "users", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"profile_email", "profile_social"})
+})
 @NoArgsConstructor(access = PROTECTED)
 public class User extends BaseEntity {
     @EmbeddedId
     private UserId userId;
+
     @Embedded
     @AttributeOverrides({
             @AttributeOverride(name = "email", column = @Column(name = "profile_email")),
@@ -29,7 +29,6 @@ public class User extends BaseEntity {
     private Profile profile;
     @Enumerated(EnumType.STRING)
     private Role role;
-
     @OneToOne(fetch = FetchType.LAZY)
     private UserHistory history;
     @OneToOne(mappedBy = "user")
@@ -43,12 +42,8 @@ public class User extends BaseEntity {
         super.updateIsDelete(false);
     }
 
-    public static User createSocialUser(String email, String name, Image picture, Role role, Social social) {
-        return new User(UserId.create(), new Profile(picture,email, name,social), role);
-    }
-
     public static User createSocialUser(String email, String name, Role role, Social social) {
-        return new User(UserId.create(), new Profile(null, email,name,social), role);
+        return new User(UserId.create(), new Profile(null, email, name, social), role);
     }
 
 
@@ -99,5 +94,9 @@ public class User extends BaseEntity {
 
     public String getEmail() {
         return profile.getEmail();
+    }
+
+    public void updateUsername(String username) {
+        this.profile.updateName(username);
     }
 }

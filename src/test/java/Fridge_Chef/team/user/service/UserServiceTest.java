@@ -33,7 +33,7 @@ public class UserServiceTest extends ServiceLayerTest {
     void account_delete() {
         user.accountDelete(true);
 
-        when(userRepository.findByUserId_Value(user.getId()))
+        when(userRepository.findByUserId(user.getUserId()))
                 .thenReturn(Optional.of(user));
 
         assertThrows(ApiException.class, () -> {
@@ -46,7 +46,7 @@ public class UserServiceTest extends ServiceLayerTest {
     void account_delete_input_name() {
         String username = user.getUsername() + "_";
 
-        when(userRepository.findByUserId_Value(user.getId()))
+        when(userRepository.findByUserId(user.getUserId()))
                 .thenReturn(Optional.of(user));
 
         assertThrows(ApiException.class, () -> {

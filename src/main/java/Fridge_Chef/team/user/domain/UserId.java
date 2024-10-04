@@ -27,7 +27,7 @@ public class UserId implements Serializable {
     }
 
     public static UserId create() {
-        return new UserId( UUID.randomUUID());
+        return new UserId(UUID.randomUUID());
     }
 
     public UUID getValue() {
