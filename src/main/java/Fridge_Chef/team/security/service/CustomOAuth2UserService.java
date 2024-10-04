@@ -84,7 +84,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
     private User signup(OAuthAttributes attributes) {
         userLog(attributes, " 회원가입 ");
-        Social social = Social.valueOf(attributes.registrationId().toUpperCase());
+        Social social = Social.signupOf(attributes.registrationId().toUpperCase());
         User user = User.createSocialUser(
                 attributes.email(),
                 attributes.name(),

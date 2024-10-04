@@ -6,20 +6,15 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Embeddable
 @Getter
+@Embeddable
 @AllArgsConstructor
 @NoArgsConstructor
 public class Profile {
-
     @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     private Image picture;
-
-    @Column
     private String email;
-    @Column
     private String username;
-
     @Enumerated(EnumType.STRING)
     private Social social;
 
