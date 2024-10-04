@@ -58,7 +58,7 @@ public class JpaTest extends QueryDslTest {
     @Transactional
     public void userBoardCommentMetaData() {
         List<User> users = creates();
-        List<Board> boards = BoardFixture.creates(100, users);
+        List<Board> boards = BoardFixture.creates(50, users);
 
         for (Board board : boards) {
             board = saveBoard(board);
@@ -109,7 +109,7 @@ public class JpaTest extends QueryDslTest {
             recipeIngredients.add(RecipeIngredient.ofMyRecipe(ingredient, recipeIngredient.getQuantity()));
         }
 
-        Board result = new Board(board.getUser(), board.getTitle(), contextRepository.save(new Context(
+        Board result = new Board(board.getUser(),board.getIntroduction(), board.getTitle(), contextRepository.save(new Context(
                 recipeIngredientRepository.saveAll(recipeIngredients),
                 descriptionRepository.saveAll(descriptions))), saveImage(board.getMainImage()), board.getType());
         return boardRepository.save(result);
