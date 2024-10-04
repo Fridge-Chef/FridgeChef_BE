@@ -26,7 +26,7 @@ public class BoardDslRepository {
     private final JPAQueryFactory factory;
 
     public Page<BoardMyRecipePageResponse> findByPageUsers(PageRequest pageable, BoardPageRequest pageRequest) {
-        JPAQuery<Board> query = createBaseQuery(pageRequest, pageable);
+        JPAQuery<Board> query = createBaseQuery(pageable);
         applySort(query, pageRequest.getSortType());
 
         List<BoardMyRecipePageResponse> content = query.fetch().stream()
@@ -36,18 +36,10 @@ public class BoardDslRepository {
         return new PageImpl<>(content, pageable, content.size());
     }
 
-    private JPAQuery<Board> createBaseQuery(BoardPageRequest pageRequest, PageRequest pageable) {
-        JPAQuery<Board> query = factory.selectFrom(board)
+    private JPAQuery<Board> createBaseQuery(PageRequest pageable) {
+        return factory.selectFrom(board)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize());
-
-        if (pageRequest.getSortType() == SortType.WEEKLY_RECIPE) {
-            applyWeeklyFilter(query);
-        } else if (pageRequest.getSortType() == SortType.MONTHLY_RECIPE) {
-            applyMonthlyFilter(query);
-        }
-
-        return query;
     }
 
     private void applySort(JPAQuery<Board> query, SortType sortType) {
@@ -57,17 +49,5 @@ public class BoardDslRepository {
             case CLICKS -> query.orderBy(board.count.desc());
             default -> query.orderBy(board.createTime.desc());
         }
-    }
-
-    private void applyWeeklyFilter(JPAQuery<Board> query) {
-        LocalDate startOfWeek = LocalDate.now().with(DayOfWeek.SUNDAY);
-        LocalDate endOfWeek = LocalDate.now().with(DayOfWeek.SATURDAY);
-        query.where(board.createTime.between(startOfWeek.atStartOfDay(), endOfWeek.atTime(LocalTime.MAX)));
-    }
-
-    private void applyMonthlyFilter(JPAQuery<Board> query) {
-        LocalDate startOfMonth = LocalDate.now().withDayOfMonth(1);
-        LocalDate endOfMonth = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth());
-        query.where(board.createTime.between(startOfMonth.atStartOfDay(), endOfMonth.atTime(LocalTime.MAX)));
     }
 }

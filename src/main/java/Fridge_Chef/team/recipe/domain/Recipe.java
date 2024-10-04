@@ -34,7 +34,9 @@ public class Recipe extends BaseEntity {
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "recipe_manuals", joinColumns = @JoinColumn(name = "recipe_id"))
     @Column(name = "manual")
-    private List<String> manuals; //
+    private List<String> manuals;
+
+    private String intro;
 
     @OneToOne(fetch = FetchType.LAZY)
     private Image imageUrl;

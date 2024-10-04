@@ -20,7 +20,7 @@ public class BoardFixture {
     private final static Random random = new Random();
 
     public static Board create(User user) {
-        Board board = new Board(user, "title", new Context(List.of(), List.of()), ImageFixture.create(), BoardType.USER);
+        Board board = new Board(user, "","title", new Context(List.of(), List.of()), ImageFixture.create(), BoardType.USER);
         board.updateId(2L);
         return board;
     }
@@ -42,7 +42,7 @@ public class BoardFixture {
                 ingredients.add(RecipeIngredient.ofMyRecipe(new Ingredient(ingredient.getName()), ingredient.getDetails()));
             });
 
-            Board board = new Board(user, title, new Context(
+            Board board = new Board(user,"소개글 ~~~~~ ", title, new Context(
                     ingredients,
                     descriptions
             ), ImageFixture.create(), BoardType.USER);

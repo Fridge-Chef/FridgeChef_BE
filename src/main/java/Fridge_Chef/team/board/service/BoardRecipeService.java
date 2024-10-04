@@ -34,7 +34,7 @@ public class BoardRecipeService {
                         Image image) {
         User user = findByUserId(userId);
         Context context = contextRepository.save(Context.formMyUserRecipe(recipeIngredient, descriptions));
-        Board board = boardRepository.save(new Board(user, request.getName(), context, image, BoardType.USER));
+        Board board = boardRepository.save(new Board(user, request.getDescription(),request.getName(), context, image, BoardType.USER));
         BoardUserEvent event = new BoardUserEvent(board, user);
         boardUserEventRepository.save(event);
         return board;
