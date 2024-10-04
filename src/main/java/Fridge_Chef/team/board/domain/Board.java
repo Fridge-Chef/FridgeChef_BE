@@ -33,6 +33,7 @@ public class Board extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
     private String title;
+    private String introduction;
     @ManyToOne(fetch = FetchType.LAZY)
     private Context context;
     @Enumerated(EnumType.STRING)
@@ -43,8 +44,9 @@ public class Board extends BaseEntity {
     private int hit;
     private int count;
 
-    public Board(User user, String title, Context context, Image mainImage, BoardType type) {
+    public Board(User user,String introduction, String title, Context context, Image mainImage, BoardType type) {
         this.user = user;
+        this.introduction=introduction;
         this.title = title;
         this.context = context;
         this.mainImage = mainImage;
@@ -56,7 +58,7 @@ public class Board extends BaseEntity {
     }
 
     public static Board from(User user, Recipe recipe) {
-        return new Board(user, recipe.getName(),
+        return new Board(user,recipe.getIntro(), recipe.getName(),
                 Context.formMyUserRecipe(
                         recipe.getRecipeIngredients(),
                         recipe.getDescriptions()
