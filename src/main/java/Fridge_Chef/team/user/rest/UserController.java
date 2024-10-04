@@ -6,6 +6,7 @@ import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.rest.model.AuthenticatedUser;
 import Fridge_Chef.team.user.rest.request.UserAccountDeleteRequest;
 import Fridge_Chef.team.user.rest.request.UserProfileImageUpdateRequest;
+import Fridge_Chef.team.user.rest.request.UserProfileNameUpdateRequest;
 import Fridge_Chef.team.user.rest.response.UserProfileResponse;
 import Fridge_Chef.team.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,11 @@ public class UserController {
     public UserProfileResponse get(@AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
         User user = userService.findByUser(authenticatedUser.userId());
         return UserProfileResponse.from(user);
+    }
+
+    @PatchMapping("/name")
+    public void profileNameUpdate(@AuthenticationPrincipal AuthenticatedUser authenticatedUser, @RequestBody UserProfileNameUpdateRequest request){
+        userService.updateUserProfileUsername(authenticatedUser.userId(),request);
     }
 
     @PatchMapping("/picture")
