@@ -64,9 +64,8 @@ public class SecurityDevConfig {
                         "/docs.html", "/favicon.ico", "/api/auth/**", "/api/cert/email/**",
                         "/api/email/**", "/api/user/signup", "/api/user/login",
                         "/api/ingredients/**", "/api/fridge/ingredients", "/api/recipes/", "/api/recipes/{id}",
-                        "/api/categorys", "/api/categorys/boards/**", "/api/recipes/{recipe_id}/comments",
-                        "/api/categorys/{category_id}/boards/{board_id}/comments",
-                        "/api/boards","/api/mobile/auth/**"
+
+                        "/api/boards","/api/mobile/auth/login"
                 ).permitAll()
                 .requestMatchers("/api/user", "/api/user/account", "/api/books"
                 )
