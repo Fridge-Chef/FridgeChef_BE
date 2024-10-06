@@ -64,7 +64,7 @@ public class SecurityConfig {
                         "/docs.html", "/favicon.ico", "/api/auth/**", "/api/cert/email/**",
                         "/api/email/**", "/api/user/signup", "/api/user/login",
                         "/api/ingredients/**", "/api/fridge/ingredients", "/api/recipes/", "/api/recipes/{id}",
-                        "/api/boards","/api/boards/**","/api/mobile/auth/**"
+                        "/api/boards","/api/boards/**","/api/mobile/auth/**","/api/mobile/auth/login"
                 ).permitAll()
                 .requestMatchers("/api/user", "/api/user/account",
                         "/api/categorys/{category_id}/board", "/api/recipes/{recipe_id}/comment","/api/books"
