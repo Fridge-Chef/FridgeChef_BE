@@ -59,7 +59,8 @@ public enum ErrorCode {
     //comment
     COMMENT_NOT_FOUND(404, "댓글을 찾을 수 없음"),
     COMMENT_NOT_USER_AUTHOR(406, "댓글 작성자가 아님"),
-    COMMENT_NOT_BOARD(407, "댓글의 게시글이 아님");
+    COMMENT_NOT_BOARD(407, "댓글의 게시글이 아님"),
+    TEXT_FILTER(490,"비속어 검출" );
 
     private final int status;
     private final String message;
