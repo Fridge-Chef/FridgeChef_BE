@@ -1,5 +1,6 @@
 package Fridge_Chef.team.comment.domain;
 
+import Fridge_Chef.team.board.domain.Board;
 import Fridge_Chef.team.common.entity.BaseEntity;
 import Fridge_Chef.team.user.domain.User;
 import jakarta.persistence.*;
@@ -19,14 +20,26 @@ public class CommentUserEvent extends BaseEntity {
     private Long id;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn
-    private Comment board;
+    private Board board;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn
+    private Comment comment;
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
     private int hit;
 
-    public CommentUserEvent(Comment board, User user, int hit) {
+    public CommentUserEvent(Board board, Comment comment, User user) {
         this.board = board;
+        this.comment = comment;
         this.user = user;
-        this.hit = hit;
+        this.hit = 0;
+    }
+
+    public void updateHit() {
+        if (hit == 0) {
+            hit = 1;
+        } else {
+            hit = 0;
+        }
     }
 }
