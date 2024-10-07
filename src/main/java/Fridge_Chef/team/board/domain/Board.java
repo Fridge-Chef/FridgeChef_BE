@@ -119,7 +119,4 @@ public class Board extends BaseEntity {
         this.id = id;
     }
 
-    public List<Comment> getComment() {
-        return comments;
-    }
 }

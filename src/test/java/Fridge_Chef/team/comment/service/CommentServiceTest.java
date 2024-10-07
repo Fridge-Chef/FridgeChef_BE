@@ -87,7 +87,7 @@ public class CommentServiceTest {
     @Transactional
     @DisplayName("댓글 수정 - 성공")
     void updateComment_Success() {
-        CommentUpdateRequest request = new CommentUpdateRequest("test",null,4.5);
+        CommentUpdateRequest request = new CommentUpdateRequest("test",false,null,4.5);
         when(commentRepository.findById(anyLong())).thenReturn(Optional.of(comment));
 
         Comment result = commentService.updateComment(1L, 1L, user.getUserId(), request);
@@ -135,7 +135,7 @@ public class CommentServiceTest {
     void updateComment_CommentNotFound() {
         when(commentRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        ApiException exception = assertThrows(ApiException.class, () -> commentService.updateComment(1L, 1L,  UserFixture.create("tests@gmail.com").getUserId(), new CommentUpdateRequest("test",null,4.0)));
+        ApiException exception = assertThrows(ApiException.class, () -> commentService.updateComment(1L, 1L,  UserFixture.create("tests@gmail.com").getUserId(), new CommentUpdateRequest("test",false,null,4.0)));
         assertEquals(ErrorCode.COMMENT_NOT_FOUND, exception.getErrorCode());
     }
 

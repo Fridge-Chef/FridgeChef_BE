@@ -54,13 +54,26 @@ public class CommentControllerTest extends RestDocControllerTests {
 
         // Then
         result.andExpect(status().isOk())
-                .andDo(document("댓글 달기",
+                .andDo(document("후기 추가",
                         jwtTokenRequest(),
                         requestFields(
-                                fieldWithPath("comment").description("The content of the comment"),
-                                fieldWithPath("image").description("Optional image attached to the comment"),
-                                fieldWithPath("star").description("Rating out of 5 stars, allowing for half-star increments")
+                                fieldWithPath("comment").description("내용"),
+                                fieldWithPath("image").description("이미지 리스트 "),
+                                fieldWithPath("star").description("별점")
                         )));
+    }
+
+    @Test
+    @WithMockCustomUser
+    @DisplayName("좋아요 클릭")
+    void addLikeClick() throws Exception {
+        // When
+        ResultActions result = jwtPatchPathWhen("/api/boards/{board_id}/comments/{comment_id}/like", 1,1);
+
+        // Then
+        result.andExpect(status().isOk())
+                .andDo(document("좋아요 클릭",
+                        jwtTokenRequest()));
     }
 
     @Test
@@ -68,7 +81,7 @@ public class CommentControllerTest extends RestDocControllerTests {
     @DisplayName("수정")
     void testUpdateComment() throws Exception {
         // Given
-        CommentUpdateRequest commentRequest = new CommentUpdateRequest("수정된 댓글 내용", null, 4.5);
+        CommentUpdateRequest commentRequest = new CommentUpdateRequest("수정된 댓글 내용", false,null, 4.5);
         String requestJson = objectMapper.writeValueAsString(commentRequest);
 
         // When
@@ -76,14 +89,16 @@ public class CommentControllerTest extends RestDocControllerTests {
 
         // Then
         result.andExpect(status().isOk())
-                .andDo(document("댓글 수정",
+                .andDo(document("후기 수정",
                         jwtTokenRequest(),
                         requestFields(
-                                fieldWithPath("comment").description("수정된 댓글 내용"),
+                                fieldWithPath("comment").description("수정된 후기 내용"),
+                                fieldWithPath("isImage").description("이미지 수정 여부"),
                                 fieldWithPath("image").description("이미지"),
                                 fieldWithPath("star").description("별점")
                         )));
     }
+
 
     @Test
     @WithMockCustomUser
@@ -92,7 +107,7 @@ public class CommentControllerTest extends RestDocControllerTests {
         ResultActions result = jwtDeletePathWhen("/api/boards/{board_id}/comments/{comment_id}", 1, 1);
 
         result.andExpect(status().isOk())
-                .andDo(document("댓글 삭제",
+                .andDo(document("후기 삭제",
                         jwtTokenRequest()));
     }
 
@@ -105,13 +120,15 @@ public class CommentControllerTest extends RestDocControllerTests {
         ResultActions result = jwtGetPathWhen("/api/boards/{board_id}/comments", 1);
 
         result.andExpect(status().isOk())
-                .andDo(document("댓글조회",
+                .andDo(document("후기 조회",
                         responseFields(
-                                fieldWithPath("[].id").description("댓글 ID"),
-                                fieldWithPath("[].comment").description("댓글 내용"),
+                                fieldWithPath("[]").description("후기 리스트"),
+                                fieldWithPath("[].id").description("후기 ID"),
+                                fieldWithPath("[].comment").description("후기 내용"),
+                                fieldWithPath("[].like").description("좋아요 수 "),
                                 fieldWithPath("[].star").description("별점"),
                                 fieldWithPath("[].userName").description("사용자 이름"),
-                                fieldWithPath("[].imageLink").description("이미지 주소"),
+                                fieldWithPath("[].imageLink[]").description("이미지 주소"),
                                 fieldWithPath("[].boardId").description("게시판 ID"),
                                 fieldWithPath("[].createdAt").description("작성일")
                         )));
@@ -119,8 +136,8 @@ public class CommentControllerTest extends RestDocControllerTests {
 
     private static List<CommentResponse> getAllCommentsProvider() {
         return List.of(
-                new CommentResponse(1L, "댓글 내용", 4.5, "User1", "test.png", 1L, LocalDateTime.now()),
-                new CommentResponse(2L, "또 다른 댓글", 5.0, "User2", "test.png", 1L, LocalDateTime.now())
+                new CommentResponse(1L, "후기 내용", 4.5,1, "User1", List.of("test.png"), 1L, LocalDateTime.now()),
+                new CommentResponse(2L, "또 다른 후기", 5.0, 1,"User2", List.of("test.png","test2.png"), 1L, LocalDateTime.now())
         );
     }
 }

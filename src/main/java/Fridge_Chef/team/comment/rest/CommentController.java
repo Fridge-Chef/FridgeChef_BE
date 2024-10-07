@@ -56,4 +56,11 @@ public class CommentController {
         return commentService.getCommentsByBoard(boardId, commentId);
     }
 
+    @PatchMapping("/{comment_id}/like")
+    public void addLike(
+            @AuthenticationPrincipal AuthenticatedUser user,
+            @PathVariable("board_id") Long boardId,
+            @PathVariable("comment_id") Long commentId) {
+        commentService.updateHit(boardId,commentId, user.userId());
+    }
 }

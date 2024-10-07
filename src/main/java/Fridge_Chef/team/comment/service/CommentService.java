@@ -3,7 +3,9 @@ package Fridge_Chef.team.comment.service;
 import Fridge_Chef.team.board.domain.Board;
 import Fridge_Chef.team.board.repository.BoardRepository;
 import Fridge_Chef.team.comment.domain.Comment;
+import Fridge_Chef.team.comment.domain.CommentUserEvent;
 import Fridge_Chef.team.comment.repository.CommentRepository;
+import Fridge_Chef.team.comment.repository.CommentUserEventRepository;
 import Fridge_Chef.team.comment.rest.request.CommentCreateRequest;
 import Fridge_Chef.team.comment.rest.request.CommentUpdateRequest;
 import Fridge_Chef.team.comment.rest.response.CommentResponse;
@@ -19,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,6 +29,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CommentService {
     private final CommentRepository commentRepository;
+    private final CommentUserEventRepository commentUserEventRepository;
     private final BoardRepository boardRepository;
     private final UserRepository userRepository;
     private final ImageService imageService;
@@ -37,11 +41,22 @@ public class CommentService {
         User user = findByUser(userId);
         Image image = imageService.imageUpload(userId, request.image());
 
-//        commentRepository.findById()
-        Comment comment = new Comment(board, user, image, request.comment(), request.star());
-        board.updateStar(calculateNewTotalStar(board, request.star()));
 
-        return commentRepository.save(comment);
+        Optional<Comment> existingComment = board.getComments()
+                .stream()
+                .filter(comment -> comment.getUser().getUserId().equals(userId))
+                .findFirst();
+
+        if (existingComment.isPresent()) {
+            Comment commentToUpdate = existingComment.get();
+            commentToUpdate.updateComment(request.comment());
+            commentToUpdate.updateStar(request.star());
+            return commentRepository.save(commentToUpdate);
+        } else {
+            Comment newComment = new Comment(board, user, image, request.comment(), request.star());
+            board.updateStar(calculateNewTotalStar(board, request.star()));
+            return commentRepository.save(newComment);
+        }
     }
 
     @Transactional
@@ -54,6 +69,12 @@ public class CommentService {
         validCommentUserAuthor(comment, userId);
 
         comment.updateStar(request.star());
+        comment.updateComment(request.comment());
+        if(request.isImage()){
+            List<Image> images = new ArrayList<>();
+            request.image().forEach(image -> images.add( imageService.imageUpload(userId,image)));
+            comment.updateComments(images);
+        }
         commentRepository.save(comment);
 
         return comment;
@@ -111,6 +132,31 @@ public class CommentService {
         return CommentResponse.fromEntity(comment);
     }
 
+
+    @Transactional
+    public void updateHit(Long boardId, Long commentId, UserId userId) {
+        Optional<CommentUserEvent> event = commentUserEventRepository.findByBoardIdAndCommentIdAndUserUserId(boardId,commentId,userId);
+        event.ifPresent(CommentUserEvent::updateHit);
+        if(event.isEmpty()){
+            Board board =findByBoard(boardId);
+            Comment comment = findComment(commentId);
+            validCommentBoardAuthor(boardId,comment,board);
+            User user = findByUser(userId);
+            var userEvent = new CommentUserEvent(board,comment,user);
+            userEvent.updateHit();
+            int sum = comment.getCommentUserEvent()
+                    .stream()
+                    .mapToInt(CommentUserEvent::getHit)
+                    .sum();
+            comment.updateHit(sum);
+        }
+    }
+
+    private Comment findComment(Long commentId) {
+        return commentRepository.findById(commentId)
+                .orElseThrow(() -> new ApiException(ErrorCode.COMMENT_NOT_FOUND));
+    }
+
     private double calculateNewTotalStar(Board board, double newStar) {
         List<Comment> comments = commentRepository.findAllByBoard(board);
         if (comments.size() == 0) {
@@ -144,4 +190,5 @@ public class CommentService {
             throw new ApiException(ErrorCode.COMMENT_NOT_USER_AUTHOR);
         }
     }
+
 }

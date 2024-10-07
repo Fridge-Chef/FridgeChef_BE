@@ -353,9 +353,15 @@ public class RestDocControllerTests {
                 .accept(MediaType.APPLICATION_JSON)
         );
     }
-
-
-    protected ResultActions jwtJsonPutPathWhen(String uri,String json, Object... path) throws Exception {
+    protected ResultActions jwtPatchPathWhen(String uri, Object... path) throws Exception {
+        return mockMvc.perform(patch(uri, path)
+                .characterEncoding("UTF-8")
+                .header(AUTHORIZATION, "Bearer ")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+        );
+    }
+    protected ResultActions jwtJsonPutPathWhen(String uri, String json,Object... path) throws Exception {
         return mockMvc.perform(put(uri, path)
                 .characterEncoding("UTF-8")
                 .header(AUTHORIZATION, "Bearer ")
