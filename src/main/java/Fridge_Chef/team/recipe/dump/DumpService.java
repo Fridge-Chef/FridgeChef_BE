@@ -81,15 +81,17 @@ public class DumpService {
         String name = recipeInfo.get("RCP_NM").asText();
         String ingredients = recipeInfo.get("RCP_PARTS_DTLS").asText();
         String imageUrl = recipeInfo.get("ATT_FILE_NO_MAIN").asText();
+        String intro = recipeInfo.get("RCP_NA_TIP").asText();
         Image image = Image.outUri(imageUrl);
 
-        List<RecipeIngredient> recipeIngredientList = extractIngredients(ingredients);
+        List<RecipeIngredient> recipeIngredientList = extractIngredients(ingredients, name);
         List<String> manuals = extractManuals(recipeInfo);
 
         return Recipe.builder()
                 .name(name)
                 .manuals(manuals)
                 .imageUrl(image)
+                .intro(intro)
                 .recipeIngredients(recipeIngredientList)
                 .build();
     }
@@ -113,7 +115,9 @@ public class DumpService {
         recipeRepository.save(recipe);
     }
 
-    public List<RecipeIngredient> extractIngredients(String ingredients) {
+    public List<RecipeIngredient> extractIngredients(String ingredients, String recipeName) {
+
+        String trimmedName = recipeName.replaceAll("\\s+", "");
 
         List<RecipeIngredient> recipeIngredients = new ArrayList<>();
 
@@ -142,20 +146,29 @@ public class DumpService {
 
                 if (item.contains("약간")) {
                     String ingredientName = item.replace("약간", "").trim();
+
+                    if (recipeName.equals(ingredientName) || trimmedName.equals(ingredientName)) {
+                        continue;
+                    }
+
                     recipeIngredients.add(createRecipeIngredient(ingredientName, "약간"));
-                    continue; // "약간" 처리 후 다음 아이템으로 이동
+                    continue;
                 }
 
                 Matcher matcher = Pattern.compile("([가-힣\\s]+)\\s*(\\([^)]*\\s*\\d+(?:\\.\\d+)?\\s*(?:g|ml)\\)|\\d+(?:\\.\\d+)?\\s*(?:g|ml)(?:\\(.*?\\))?)?").matcher(item);
 
                 if (matcher.find()) {
                     String ingredientName = matcher.group(1).trim();
-                    String quantity = matcher.group(2) != null ? matcher.group(2).trim() : "X"; // null 체크 후 trim 호출
+                    String quantity = matcher.group(2) != null ? matcher.group(2).trim() : "X";
+
+                    if (recipeName.equals(ingredientName) || trimmedName.equals(ingredientName)) {
+                        continue;
+                    }
 
                     recipeIngredients.add(createRecipeIngredient(ingredientName, quantity));
                 } else {
                     if (!item.isEmpty()) {
-                        recipeIngredients.add(createRecipeIngredient(item, "X")); // 수량이 없으면 "X"
+                        recipeIngredients.add(createRecipeIngredient(item, "X"));
                     }
                 }
             }
