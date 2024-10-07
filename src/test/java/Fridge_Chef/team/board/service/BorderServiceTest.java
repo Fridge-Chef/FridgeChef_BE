@@ -5,6 +5,7 @@ import Fridge_Chef.team.board.domain.BoardUserEvent;
 import Fridge_Chef.team.board.domain.Description;
 import Fridge_Chef.team.board.repository.BoardRepository;
 import Fridge_Chef.team.board.repository.BoardUserEventRepository;
+import Fridge_Chef.team.board.repository.model.IssueType;
 import Fridge_Chef.team.board.repository.model.SortType;
 import Fridge_Chef.team.board.rest.request.BoardByRecipeRequest;
 import Fridge_Chef.team.board.rest.request.BoardByRecipeUpdateRequest;
@@ -97,7 +98,7 @@ public class BorderServiceTest {
     void finds() {
         givenBoardContexts();
         executionTime(() -> {
-            BoardPageRequest request = new BoardPageRequest(1, 50, SortType.HIT);
+            BoardPageRequest request = new BoardPageRequest(1, 50, IssueType.ALL, SortType.HIT);
             Page<BoardMyRecipePageResponse> result = boardService.findMyRecipes(request);
             int left = result.getContent().get(0).getHit();
             int right = result.getContent().get(result.getSize() - 1).getHit();
@@ -107,7 +108,7 @@ public class BorderServiceTest {
             return result;
         });
         executionTime(() -> {
-            BoardPageRequest request = new BoardPageRequest(1, 50, SortType.CLICKS);
+            BoardPageRequest request = new BoardPageRequest(1, 50,IssueType.ALL, SortType.CLICKS);
             Page<BoardMyRecipePageResponse> result = boardService.findMyRecipes(request);
             int left = result.getContent().get(0).getClick();
             int right = result.getContent().get(result.getSize() - 1).getClick();
@@ -117,7 +118,7 @@ public class BorderServiceTest {
             return result;
         });
         executionTime(() -> {
-            BoardPageRequest request = new BoardPageRequest(1, 50, SortType.LATEST);
+            BoardPageRequest request = new BoardPageRequest(1, 50, IssueType.ALL,SortType.LATEST);
             Page<BoardMyRecipePageResponse> result = boardService.findMyRecipes(request);
             LocalDateTime left = result.getContent().get(0).getCreateTime();
             LocalDateTime right = result.getContent().get(result.getSize() - 1).getCreateTime();

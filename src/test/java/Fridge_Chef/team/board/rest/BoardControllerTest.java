@@ -3,6 +3,7 @@ package Fridge_Chef.team.board.rest;
 
 import Fridge_Chef.team.board.domain.Description;
 import Fridge_Chef.team.board.repository.BoardRepository;
+import Fridge_Chef.team.board.repository.model.IssueType;
 import Fridge_Chef.team.board.repository.model.SortType;
 import Fridge_Chef.team.board.rest.request.BoardByRecipeDeleteRequest;
 import Fridge_Chef.team.board.rest.request.BoardByRecipeRequest;
@@ -95,10 +96,12 @@ public class BoardControllerTest extends RestDocControllerTests {
                         jwtTokenRequest(),
                         requestFields(
                                 fieldWithPath("name").description("레시피 이름").optional(),
-                                fieldWithPath("description").description("레시피 설명"),
-                                fieldWithPath("mainImage").description("레시피 메인 이미지"),
+                                fieldWithPath("description").description("소개"),
+                                fieldWithPath("mainImage").description("메인 이미지"),
+                                fieldWithPath("recipeIngredients[]").description("레시피"),
                                 fieldWithPath("recipeIngredients[].name").description("레시피 재료 이름"),
                                 fieldWithPath("recipeIngredients[].details").description("레시피 재료 설명"),
+                                fieldWithPath("instructions[]").description("조리 순서 "),
                                 fieldWithPath("instructions[].content").description("조리법 설명"),
                                 fieldWithPath("instructions[].image").description("조리법 이미지 (파일)")
                         )
@@ -118,17 +121,21 @@ public class BoardControllerTest extends RestDocControllerTests {
         actions.andExpect(status().isOk())
                 .andDo(document("나만의 레시피 단일 조회",
                         responseFields(
+                                fieldWithPath("boardId").description("레시피 ID"),
                                 fieldWithPath("title").description("레시피 제목"),
                                 fieldWithPath("rating").description("레시피 평점"),
                                 fieldWithPath("mainImage").description("레시피 메인 이미지 URL"),
-                                fieldWithPath("ownedIngredients[].id").description("사용자가 소유한 재료 ID"),
-                                fieldWithPath("ownedIngredients[].name").description("사용자가 소유한 재료 이름"),
-                                fieldWithPath("recipeIngredients[].id").description("레시피에 포함된 재료 ID"),
-                                fieldWithPath("recipeIngredients[].name").description("레시피에 포함된 재료 이름"),
-                                fieldWithPath("recipeIngredients[].details").description("레시피 재료의 세부 설명"),
-                                fieldWithPath("instructions[].content").description("레시피 조리법 설명"),
-                                fieldWithPath("instructions[].imageLink").description("조리법 이미지 URL"),
-                                fieldWithPath("boardId").description("레시피가 속한 게시판 ID")
+                                fieldWithPath("issueInfo").description("전체 : [(공백)] , 이번주 : [이번주 레시피], 이번달 :[이번달 레시피] "),
+                                fieldWithPath("ownedIngredients[]").description("소유자가 소유한 재료"),
+                                fieldWithPath("ownedIngredients[].id").description("재료 ID"),
+                                fieldWithPath("ownedIngredients[].name").description("재료 이름"),
+                                fieldWithPath("recipeIngredients[]").description("레시피에 포함된 재료"),
+                                fieldWithPath("recipeIngredients[].id").description("재료 ID"),
+                                fieldWithPath("recipeIngredients[].name").description("재료 이름"),
+                                fieldWithPath("recipeIngredients[].details").description("재료의 세부 설명"),
+                                fieldWithPath("instructions[]").description("조리 방법들"),
+                                fieldWithPath("instructions[].content").description("설명"),
+                                fieldWithPath("instructions[].imageLink").description("이미지 URL")
                         )
                 ));
     }
@@ -136,7 +143,7 @@ public class BoardControllerTest extends RestDocControllerTests {
     @Test
     @DisplayName("페이징")
     void finds() throws Exception {
-        BoardPageRequest boardByRecipeRequest = new BoardPageRequest(1, 10, SortType.RATING);
+        BoardPageRequest boardByRecipeRequest = new BoardPageRequest(1, 10, IssueType.ALL,SortType.RATING);
         Page<BoardMyRecipePageResponse> responsePage = new PageImpl<>(
                 List.of(
                         new BoardMyRecipePageResponse(SortType.RATING, 1L, "Delicious Recipe", "User1", 4.5, 100, 50, LocalDateTime.now()),
@@ -155,6 +162,7 @@ public class BoardControllerTest extends RestDocControllerTests {
                         requestFields(
                                 fieldWithPath("page").description("페이지 번호 (0부터 시작)"),
                                 fieldWithPath("size").description("한 페이지에 출력할 레시피 개수 (1~50 사이즈 제한)"),
+                                fieldWithPath("issueType").description("전체,이번주,이번달 [ ALL, THIS_WEEK , THIS_MONTH ] "),
                                 fieldWithPath("sortType").description("정렬 방식 " +
                                         "(예: WEEKLY_RECIPE, MONTHLY_RECIPE, LATEST ,RATING ,CLICKS ,HIT )").optional()
                         ),
@@ -315,6 +323,7 @@ public class BoardControllerTest extends RestDocControllerTests {
                 "Delicious Recipe",
                 4.5,
                 "https://objectstorage.ap-chuncheon-1.oraclecloud.com/p/RO5Ur4yw-jzifHvgLdMG4nkUmU_UJpzy3YQnWXaJnTIAygJO3qDzSwMy0ulHEwxt/n/axqoa2bp7wqg/b/fridge/o/notfound.png",
+                "이번주 레시피",
                 createOwnedIngredients(),
                 createRecipeIngredients(),
                 createInstructions(),

@@ -12,6 +12,7 @@ import Fridge_Chef.team.image.domain.Image;
 import Fridge_Chef.team.image.service.ImageService;
 import Fridge_Chef.team.recipe.domain.RecipeIngredient;
 import Fridge_Chef.team.user.rest.model.AuthenticatedUser;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +30,9 @@ public class BoardController {
 
     @PostMapping
     void create(@AuthenticationPrincipal AuthenticatedUser user,
-                @RequestBody BoardByRecipeRequest request) {
+                @Valid @RequestBody BoardByRecipeRequest request) {
+        boardService.textFilterPolicy(request);
+
         Image mainImage = imageService.imageUpload(user.userId(), request.getMainImage());
 
         List<Description> descriptions = boardIngredientService.uploadInstructionImages(user.userId(), request);

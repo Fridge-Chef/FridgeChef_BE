@@ -23,10 +23,14 @@ public class Board extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
-
     @OneToMany(mappedBy = "board", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private List<BoardUserEvent> boardUserEvent;
 
+    @OneToMany(mappedBy = "board", fetch = FetchType.LAZY)
+    private List<BoardIssue> boardIssues;
+
+    @OneToMany(mappedBy = "board", fetch = FetchType.LAZY)
+    private List<BoardHistory> historys;
     @OneToMany(mappedBy = "board", fetch = FetchType.LAZY)
     private List<Comment> comments;
 
@@ -54,7 +58,11 @@ public class Board extends BaseEntity {
         this.totalStar = 0L;
         this.hit = 0;
         this.count = 0;
+
         this.boardUserEvent = new ArrayList<>();
+        this.historys = new ArrayList<>();
+        this.comments=new ArrayList<>();
+        this.boardIssues = new ArrayList<>();
     }
 
     public static Board from(User user, Recipe recipe) {
