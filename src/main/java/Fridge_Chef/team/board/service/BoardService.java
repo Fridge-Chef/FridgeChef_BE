@@ -1,13 +1,8 @@
 package Fridge_Chef.team.board.service;
 
-import Fridge_Chef.team.board.domain.Board;
-import Fridge_Chef.team.board.domain.BoardUserEvent;
-import Fridge_Chef.team.board.domain.Context;
-import Fridge_Chef.team.board.domain.Description;
-import Fridge_Chef.team.board.repository.BoardDslRepository;
-import Fridge_Chef.team.board.repository.BoardRepository;
-import Fridge_Chef.team.board.repository.BoardUserEventRepository;
-import Fridge_Chef.team.board.repository.ContextRepository;
+import Fridge_Chef.team.board.domain.*;
+import Fridge_Chef.team.board.repository.*;
+import Fridge_Chef.team.board.rest.request.BoardByRecipeRequest;
 import Fridge_Chef.team.board.rest.request.BoardPageRequest;
 import Fridge_Chef.team.board.rest.request.BoardStarRequest;
 import Fridge_Chef.team.board.service.response.BoardMyRecipePageResponse;
@@ -18,14 +13,17 @@ import Fridge_Chef.team.image.service.ImageService;
 import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.domain.UserId;
 import Fridge_Chef.team.user.repository.UserRepository;
+import com.vane.badwordfiltering.BadWordFiltering;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.OptionalDouble;
 
 @Service
 @RequiredArgsConstructor
@@ -36,18 +34,33 @@ public class BoardService {
     private final ImageService imageService;
     private final UserRepository userRepository;
     private final BoardUserEventRepository boardUserEventRepository;
+    private final BoardIssueRepository boardIssueRepository;
+
+    private final BoardHistoryRepository boardHistoryRepository;
 
     @Transactional(readOnly = true)
     public BoardMyRecipeResponse findMyRecipeId(Long boardId) {
         Board board = findById(boardId);
+
+        var todayStart = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
+        var todayEnd = todayStart.plusDays(1).minusNanos(1);
+        BoardHistory todayHistory = board.getHistorys().stream()
+                .filter(history -> {
+                    var createTime = history.getCreateTime();
+                    return createTime.isAfter(todayStart) && createTime.isBefore(todayEnd);
+                }).findFirst()
+                .orElse(boardHistoryRepository.save(new BoardHistory(board, 0)));
+
+        todayHistory.countUp();
+        board.updateCount();
         return BoardMyRecipeResponse.of(board);
     }
 
     @Transactional(readOnly = true)
     public Page<BoardMyRecipePageResponse> findMyRecipes(BoardPageRequest request) {
-        PageRequest pageRequest = PageRequest.of(request.getPage(), request.getSize());
+        var page = PageRequest.of(request.getPage(), request.getSize());
 
-        return boardDslRepository.findByPageUsers(pageRequest, request);
+        return boardDslRepository.findByPageUsers(page, request);
     }
 
     @Transactional
@@ -85,7 +98,7 @@ public class BoardService {
         BoardUserEvent evnet = getUserEvent(user, board);
 
         evnet.hitUp();
-        if(evnet.getHit() == 0 && evnet.getStar() == 0){
+        if (evnet.getHit() == 0 && evnet.getStar() == 0) {
             boardUserEventRepository.deleteById(evnet.getId());
         }
 
@@ -107,7 +120,7 @@ public class BoardService {
 
         evnet.updateStar(request.star());
 
-        if(evnet.getHit() == 0 && evnet.getStar() == 0){
+        if (evnet.getHit() == 0 && evnet.getStar() == 0) {
             boardUserEventRepository.deleteById(evnet.getId());
         }
 
@@ -142,5 +155,25 @@ public class BoardService {
                 .filter(events -> events.getUser() != null && events.getUser().getUserId().equals(user.getUserId()))
                 .findAny()
                 .orElse(new BoardUserEvent(board, user));
+    }
+
+    public void textFilterPolicy(BoardByRecipeRequest request) {
+        List<String> filters = new ArrayList<>();
+        filters.add(request.getName());
+        filters.add(request.getDescription());
+        request.getInstructions().forEach(text -> {
+            filters.add(text.getContent());
+        });
+        request.getRecipeIngredients().forEach(text -> {
+            filters.add(text.getName());
+            filters.add(text.getDetails());
+        });
+        BadWordFiltering filtering = new BadWordFiltering();
+        filters.stream()
+                .filter(filtering::check)
+                .findAny()
+                .ifPresent(check -> {
+                    throw new ApiException(ErrorCode.TEXT_FILTER);
+                });
     }
 }
