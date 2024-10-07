@@ -65,7 +65,7 @@ public class JpaTest extends QueryDslTest {
 
             List<Comment> comments = CommentFixture.creates(random.nextInt(100) + 100, board, users);
             for (Comment comment : comments) {
-                comment.updateImage(imageRepository.save(comment.getCommentImage()));
+                comment.updateImage(imageRepository.saveAll(comment.getCommentImage()));
             }
             commentRepository.saveAll(comments);
             randomEvent(board, users);
