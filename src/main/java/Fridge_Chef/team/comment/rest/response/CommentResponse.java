@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @Getter
@@ -15,8 +16,9 @@ public class CommentResponse {
     private Long id;
     private String comment;
     private double star;
+    private int like;
     private String userName;
-    private String imageLink;
+    private List<String> imageLink;
     private Long boardId;
     private LocalDateTime createdAt;
 
@@ -25,8 +27,9 @@ public class CommentResponse {
                 comment.getId(),
                 comment.getComment(),
                 comment.getStar(),
+                comment.getTotalHit(),
                 comment.getUser().getUsername(),
-                comment.getImageLink(),
+                comment.getImageLinks(),
                 comment.getBoard().getId(),
                 comment.getCreateTime()
         );
