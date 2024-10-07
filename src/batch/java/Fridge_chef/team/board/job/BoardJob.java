@@ -39,15 +39,17 @@ public class BoardJob {
         }
 
         for (Board board : boards) {
+            if(board.getCount() <= 10){
+                return;
+            }
             if (!(board.getCount() >= userSize * 2 && board.getTotalStar() >= 3.5)){
                 return;
             }
 
-            var historys = board.getHistorys();
             var yesterdayStart = LocalDateTime.now().minusDays(1).truncatedTo(ChronoUnit.DAYS);
             var yesterdayEnd = yesterdayStart.plusDays(1).minusNanos(1);
 
-            int count = historys.stream()
+            int count =  board.getHistorys().stream()
                     .filter(history -> {
                         var createTime = history.getCreateTime();
                         return createTime.isAfter(yesterdayStart) && createTime.isBefore(yesterdayEnd);
