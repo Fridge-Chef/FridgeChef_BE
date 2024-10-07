@@ -123,7 +123,7 @@ public class DumpServiceTest {
         List<RecipeIngredient> result9 = dumpService.extractIngredients(ingredient9, name9);
 
         assertThat(result9).extracting("ingredient.name").containsExactly(
-                "돼지고기", "파인애플", "브로콜리", "방울토마토", "배사과소스 배", "사과", "레몬즙", "꿀");
+                "돼지고기", "파인애플", "브로콜리", "방울토마토", "배", "사과", "레몬즙", "꿀");
         assertThat(result9).extracting("quantity").containsExactly(
                 "(목살, 120g)", "(30g)", "(20g)", "(40g)", "(30g)", "(50g)", "(5g)", "(5g)");
     }

@@ -1,8 +1,11 @@
 package Fridge_Chef.team.recipe.dump;
 
+import Fridge_Chef.team.board.domain.Description;
+import Fridge_Chef.team.board.repository.DescriptionRepository;
 import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.exception.ErrorCode;
 import Fridge_Chef.team.image.domain.Image;
+import Fridge_Chef.team.image.repository.ImageRepository;
 import Fridge_Chef.team.ingredient.domain.Ingredient;
 import Fridge_Chef.team.ingredient.repository.IngredientRepository;
 import Fridge_Chef.team.recipe.domain.Recipe;
@@ -17,6 +20,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
@@ -31,6 +35,8 @@ public class DumpService {
 
     private final RecipeRepository recipeRepository;
     private final IngredientRepository ingredientRepository;
+    private final DescriptionRepository descriptionRepository;
+    private final ImageRepository imageRepository;
 
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -40,21 +46,30 @@ public class DumpService {
     @Value("${recipeRequestUrl}")
     private String baseUrl;
 
+    @Transactional
     public void insertAll() {
 
-        for (int start = 1; start <= 1124; start += 10) {
-            if (start == 921) {
-                continue;
-            }
-            int end = start + 9;
-            String url = baseUrl + start + "/" + end;
-            System.out.println(url);
-            JsonNode json = requestRecipe(url);
+//        for (int start = 1; start <= 1124; start += 10) {
+//            if (start == 921) {
+//                continue;
+//            }
+//            int end = start + 9;
+//            String url = baseUrl + start + "/" + end;
+//            System.out.println(url);
+//            JsonNode json = requestRecipe(url);
+//
+//            for (int i = 0; i < 10; i++) {
+//                Recipe recipe = createRecipe(json, i);
+//                saveRecipeWithIngredients(recipe);
+//            }
+//        }
 
-            for (int i = 0; i < 10; i++) {
-                Recipe recipe = createRecipe(json, i);
-                saveRecipeWithIngredients(recipe);
-            }
+        String url = baseUrl + "1/10";
+        JsonNode json = requestRecipe(url);
+
+        for (int i = 0; i < 10; i++) {
+            Recipe recipe = createRecipe(json, i);
+            saveRecipeWithIngredients(recipe);
         }
     }
 
@@ -83,13 +98,13 @@ public class DumpService {
         String imageUrl = recipeInfo.get("ATT_FILE_NO_MAIN").asText();
         String intro = recipeInfo.get("RCP_NA_TIP").asText();
         Image image = Image.outUri(imageUrl);
+        List<Description> descriptions = extractManualsToDescription(recipeInfo);
 
         List<RecipeIngredient> recipeIngredientList = extractIngredients(ingredients, name);
-        List<String> manuals = extractManuals(recipeInfo);
 
         return Recipe.builder()
                 .name(name)
-                .manuals(manuals)
+                .descriptions(descriptions)
                 .imageUrl(image)
                 .intro(intro)
                 .recipeIngredients(recipeIngredientList)
@@ -126,7 +141,6 @@ public class DumpService {
 
         String[] lines = prefixRemovedIngredients.split("\n");
         for (String line : lines) {
-            // ":" 앞의 내용을 레시피 이름으로 간주하고 이를 무시함
             String[] parts = line.split(":", 2);
             if (parts.length > 1) {
                 line = parts[1].trim(); // ":" 뒤의 내용만 사용
@@ -160,6 +174,18 @@ public class DumpService {
                 if (matcher.find()) {
                     String ingredientName = matcher.group(1).trim();
                     String quantity = matcher.group(2) != null ? matcher.group(2).trim() : "X";
+
+                    if (ingredientName.contains("소스") && ingredientName.matches(".*소스\\s+[가-힣]+.*")) {
+                        String[] partsAfterSauce = ingredientName.split("소스", 2);
+                        ingredientName = partsAfterSauce[0].trim(); // 소스 이전 부분
+                        String additionalIngredient = partsAfterSauce[1].trim(); // 소스 이후 부분
+
+                        // 소스 이후 한글
+                        if (!additionalIngredient.isEmpty()) {
+                            recipeIngredients.add(createRecipeIngredient(additionalIngredient, quantity));
+                            continue;
+                        }
+                    }
 
                     if (recipeName.equals(ingredientName) || trimmedName.equals(ingredientName)) {
                         continue;
@@ -219,20 +245,34 @@ public class DumpService {
         }
     }
 
-    private List<String> extractManuals(JsonNode recipeInfo) {
-
-        List<String> manuals = new ArrayList<>();
-
+    private List<Description> extractManualsToDescription(JsonNode recipeInfo){
+        List<Description> list = new ArrayList<>();
         for (int i = 1; i <= 20; i++) {
-            String key = "MANUAL" + String.format("%02d", i);
-            JsonNode manualNode = recipeInfo.get(key);
+            String manualTextKey = "MANUAL" + String.format("%02d", i);
+            String manualImageKey = "MANUAL_IMG" + String.format("%02d", i);
 
-            if (manualNode != null && !manualNode.asText().isEmpty()) {
-                String manualText = manualNode.asText().replace("\n", " ").trim();
-                manuals.add(manualText);
+            JsonNode manualNode = recipeInfo.get(manualTextKey);
+            JsonNode imageNode = recipeInfo.get(manualImageKey);
+
+            String manualText = (manualNode != null && !manualNode.asText().trim().isEmpty())
+                    ? manualNode.asText().replaceAll("\n", " ").trim() : null;
+            String imageUri = (imageNode != null && !imageNode.asText().trim().isEmpty()) ? imageNode.asText() : null;
+
+            Image image = null;
+            if (imageUri != null) {
+                image = Image.outUri(imageUri);
+                imageRepository.save(image);
+            }
+            if (manualText != null || imageUri != null) {
+                Description description = new Description(manualText, image);
+                list.add(description);
+            } else {
+                break;
             }
         }
 
-        return manuals;
+        descriptionRepository.saveAll(list);
+
+        return list;
     }
 }

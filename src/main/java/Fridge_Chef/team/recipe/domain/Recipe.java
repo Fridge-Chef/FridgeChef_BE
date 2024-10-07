@@ -1,6 +1,5 @@
 package Fridge_Chef.team.recipe.domain;
 
-import Fridge_Chef.team.board.domain.Board;
 import Fridge_Chef.team.board.domain.Description;
 import Fridge_Chef.team.common.entity.BaseEntity;
 import Fridge_Chef.team.image.domain.Image;
@@ -31,16 +30,13 @@ public class Recipe extends BaseEntity {
     private UUID id;
     private String name;
 
-    @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name = "recipe_manuals", joinColumns = @JoinColumn(name = "recipe_id"))
-    @Column(name = "manual")
-    private List<String> manuals;
-
     private String intro;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Image imageUrl;
-    @OneToMany(fetch = FetchType.LAZY)
+
+    @Column(name = "recipe_description")
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Description> descriptions;
     @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RecipeIngredient> recipeIngredients;

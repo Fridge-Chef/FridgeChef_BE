@@ -182,7 +182,7 @@ public class RecipeService {
         return RecipeDetailsResponse.builder()
                 .name(recipe.getName())
                 .ingredients(ingredients)
-                .manuals(recipe.getManuals())
+//                .manuals(recipe.getManuals())
                 .imageUrl(recipe.getImageUrl().getLink())
                 .build();
     }
