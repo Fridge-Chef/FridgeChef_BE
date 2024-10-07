@@ -20,7 +20,7 @@ public class UserJob {
     @Transactional
     @Scheduled(cron = "0 0 2 * * ?")
     void userDeletePolicy(){
-        List<User> users= userRepository.findByDelete(OracleBoolean.T);
+        List<User> users= userRepository.findByIsDelete(OracleBoolean.T);
         userRepository.deleteAll(users);
     }
 }

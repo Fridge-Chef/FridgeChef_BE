@@ -28,7 +28,7 @@ public class UserService {
     @Transactional
     public void accountDelete(UserId userId, String username) {
         User user = findByUserId(userId);
-        if (user.getDelete() != null && user.getDelete().bool()) {
+        if (user.getIsDelete() != null && user.getIsDelete().bool()) {
             throw new ApiException(ErrorCode.USER_ACCOUNT_DELETE);
         }
         if (!user.getProfile().getUsername().equals(username)) {
@@ -55,7 +55,7 @@ public class UserService {
 
     private User findByUserId(UserId userId) {
         return userRepository.findByUserId(userId)
-                .filter(user -> !user.getDelete().bool())
+                .filter(user -> !user.getIsDelete().bool())
                 .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
     }
 }
