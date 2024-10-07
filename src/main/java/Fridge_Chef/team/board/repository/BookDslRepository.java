@@ -55,7 +55,7 @@ public class BookDslRepository {
         QComment comment = QComment.comment1;
 
         JPAQuery<Comment> query = factory.selectFrom(comment)
-                .where(comment.board.user.userId.eq(userId))
+                .where(comment.user.userId.eq(userId))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize());
 
