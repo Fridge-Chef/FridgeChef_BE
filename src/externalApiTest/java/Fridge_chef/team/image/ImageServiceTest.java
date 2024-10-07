@@ -70,6 +70,27 @@ public class ImageServiceTest extends FridgeChefApplicationApiTest {
     }
 
     @Test
+    @DisplayName("유저가 이미지 업로드")
+    void userUpload() throws IOException {
+        String name = file.getName();
+        MultipartFile body = new MockMultipartFile(
+                name,
+                name,
+                "image/png",
+                Files.readAllBytes(file.toPath())
+        );
+
+        User user = userRepository.save(User.createSocialUser("test2@gmail.com", "test2", Role.USER, Social.KAKAO));
+        Image image = imageService.imageUpload(user.getUserId(),body);
+
+        System.out.println(image.getLink());
+
+        assertThat(isUrlConnect(image.getLink())).isTrue();
+
+        imageService.imageRemove(user.getUserId(), image.getId());
+    }
+
+    @Test
     @DisplayName("서비스 삭제")
     void remove() throws IOException {
         File file = path.toFile();
@@ -134,5 +155,4 @@ public class ImageServiceTest extends FridgeChefApplicationApiTest {
                         .objectName(objectName)
                         .build());
     }
-
 }
