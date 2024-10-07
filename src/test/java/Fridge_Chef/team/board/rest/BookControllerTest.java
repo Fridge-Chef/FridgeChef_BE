@@ -66,7 +66,7 @@ public class BookControllerTest extends RestDocControllerTests {
         ResultActions actions = jwtJsonGetWhen("/api/books/recipe", request);
 
         actions.andExpect(status().isOk())
-                .andDo(document(",찜하기",
+                .andDo(document("[좋아요]",
                         jwtTokenRequest(),
                         responseFields(
                                 fieldWithPath("totalPages").description("총 페이지 수"),
@@ -112,7 +112,7 @@ public class BookControllerTest extends RestDocControllerTests {
         ResultActions actions = jwtJsonGetWhen("/api/books/recipe", request);
 
         actions.andExpect(status().isOk())
-                .andDo(document("나만의 레시피",
+                .andDo(document("[나만의 레시피]",
                         jwtTokenRequest(),
                         responseFields(
                                 fieldWithPath("totalPages").description("총 페이지 수"),
