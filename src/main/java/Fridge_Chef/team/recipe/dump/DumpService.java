@@ -20,6 +20,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
@@ -45,6 +46,7 @@ public class DumpService {
     @Value("${recipeRequestUrl}")
     private String baseUrl;
 
+    @Transactional
     public void insertAll() {
 
 //        for (int start = 1; start <= 1124; start += 10) {
@@ -96,7 +98,7 @@ public class DumpService {
         String imageUrl = recipeInfo.get("ATT_FILE_NO_MAIN").asText();
         String intro = recipeInfo.get("RCP_NA_TIP").asText();
         Image image = Image.outUri(imageUrl);
-        List<Description> descriptions = extractManualsToDescription(json);
+        List<Description> descriptions = extractManualsToDescription(recipeInfo);
 
         List<RecipeIngredient> recipeIngredientList = extractIngredients(ingredients, name);
 
@@ -243,41 +245,34 @@ public class DumpService {
         }
     }
 
-    private List<String> extractManuals(JsonNode recipeInfo) {
-
-        List<String> manuals = new ArrayList<>();
-
-        for (int i = 1; i <= 20; i++) {
-            String key = "MANUAL" + String.format("%02d", i);
-            JsonNode manualNode = recipeInfo.get(key);
-
-            if (manualNode != null && !manualNode.asText().isEmpty()) {
-                String manualText = manualNode.asText().replace("\n", " ").trim();
-                manuals.add(manualText);
-            }
-        }
-
-        return manuals;
-    }
-
-    private List<Description> extractManualsToDescription(JsonNode json){
+    private List<Description> extractManualsToDescription(JsonNode recipeInfo){
         List<Description> list = new ArrayList<>();
         for (int i = 1; i <= 20; i++) {
-            JsonNode manualNode = json.get( "MANUAL" + String.format("%02d", i));
-            JsonNode imageNode = json.get( "MANUAL_IMG" + String.format("%02d", i));
-            String manualText = (manualNode != null && !manualNode.asText().trim().isEmpty()) ? manualNode.asText() : null;
+            String manualTextKey = "MANUAL" + String.format("%02d", i);
+            String manualImageKey = "MANUAL_IMG" + String.format("%02d", i);
+
+            JsonNode manualNode = recipeInfo.get(manualTextKey);
+            JsonNode imageNode = recipeInfo.get(manualImageKey);
+
+            String manualText = (manualNode != null && !manualNode.asText().trim().isEmpty())
+                    ? manualNode.asText().replaceAll("\n", " ").trim() : null;
             String imageUri = (imageNode != null && !imageNode.asText().trim().isEmpty()) ? imageNode.asText() : null;
 
+            Image image = null;
+            if (imageUri != null) {
+                image = Image.outUri(imageUri);
+                imageRepository.save(image);
+            }
             if (manualText != null || imageUri != null) {
-                Description description = new Description(manualText, Image.outUri(imageUri));
-                descriptionRepository.save(description);
-                System.out.println("Saved description: " + description.getDescription());
-
+                Description description = new Description(manualText, image);
                 list.add(description);
             } else {
                 break;
             }
         }
+
+        descriptionRepository.saveAll(list);
+
         return list;
     }
 }
