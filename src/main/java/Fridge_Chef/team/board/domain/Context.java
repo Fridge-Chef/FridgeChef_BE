@@ -21,9 +21,9 @@ public class Context {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY)
     private List<RecipeIngredient> boardIngredients;
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY)
     private List<Description> descriptions;
 
     public Context(List<RecipeIngredient> boardIngredients, List<Description> descriptions) {

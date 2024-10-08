@@ -38,7 +38,7 @@ public class Board extends BaseEntity {
     private User user;
     private String title;
     private String introduction;
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Context context;
     @Enumerated(EnumType.STRING)
     private BoardType type;
@@ -119,4 +119,7 @@ public class Board extends BaseEntity {
         this.id = id;
     }
 
+    public void setContext(Context context) {
+        this.context = context;
+    }
 }
