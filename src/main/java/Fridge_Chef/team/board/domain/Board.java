@@ -119,4 +119,7 @@ public class Board extends BaseEntity {
         this.id = id;
     }
 
+    public void setContext(Context context) {
+        this.context = context;
+    }
 }

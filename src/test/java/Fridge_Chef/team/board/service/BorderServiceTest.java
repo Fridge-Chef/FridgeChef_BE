@@ -73,6 +73,7 @@ public class BorderServiceTest {
     @ParameterizedTest
     @MethodSource("provideBoardCreateRequests")
     @DisplayName("추가")
+    @Transactional
     void create(BoardByRecipeRequest request) {
         Image mainImage = imageService.imageUpload(user.getUserId(), request.getMainImage());
 
@@ -85,6 +86,7 @@ public class BorderServiceTest {
 
     @Test
     @DisplayName("단일 검색")
+    @Transactional
     void find() {
         givenBoardContext();
         Board board = boardRepository.findByUserId(user.getUserId()).get().get(0);
@@ -95,6 +97,7 @@ public class BorderServiceTest {
 
     @Test
     @DisplayName("페이징")
+    @Transactional
     void finds() {
         givenBoardContexts();
         executionTime(() -> {
@@ -131,6 +134,7 @@ public class BorderServiceTest {
 
     @Test
     @DisplayName("삭제")
+    @Transactional
     void delete() {
         givenBoardContext();
 
@@ -144,6 +148,7 @@ public class BorderServiceTest {
 
     @Test
     @DisplayName("게시자가 삭제")
+    @Transactional
     void deleteIsNotUser() {
         givenBoardContext();
         Board board = boardRepository.findByUserId(user.getUserId()).get().get(0);
@@ -204,13 +209,19 @@ public class BorderServiceTest {
     }
 
     @Test
+    @Transactional
     void counting() {
         givenBoardContexts();
-        Board before = boardRepository.findByUserId(user.getUserId()).get().get(1);
-        boardService.counting(boardRepository.findByUserId(user.getUserId()).get().get(1).getId());
-        Board after = boardRepository.findByUserId(user.getUserId()).get().get(1);
 
-        assertThat(before.getCount() != after.getCount()).isTrue();
+        Board before = boardRepository.findByUserId(user.getUserId()).get().get(1);
+        int beforeCount = before.getCount();
+
+        boardService.counting(boardRepository.findByUserId(user.getUserId()).get().get(1).getId());
+
+        Board after = boardRepository.findByUserId(user.getUserId()).get().get(1);
+        int afterCount = after.getCount();
+
+        assertThat(afterCount).isEqualTo(beforeCount + 1);
     }
 
 

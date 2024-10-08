@@ -1,6 +1,10 @@
 package Fridge_Chef.team.recipe.dump;
 
+import Fridge_Chef.team.board.domain.Board;
+import Fridge_Chef.team.board.domain.Context;
 import Fridge_Chef.team.board.domain.Description;
+import Fridge_Chef.team.board.repository.BoardRepository;
+import Fridge_Chef.team.board.repository.ContextRepository;
 import Fridge_Chef.team.board.repository.DescriptionRepository;
 import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.exception.ErrorCode;
@@ -11,6 +15,11 @@ import Fridge_Chef.team.ingredient.repository.IngredientRepository;
 import Fridge_Chef.team.recipe.domain.Recipe;
 import Fridge_Chef.team.recipe.domain.RecipeIngredient;
 import Fridge_Chef.team.recipe.repository.RecipeRepository;
+import Fridge_Chef.team.user.domain.Profile;
+import Fridge_Chef.team.user.domain.Role;
+import Fridge_Chef.team.user.domain.User;
+import Fridge_Chef.team.user.domain.UserId;
+import Fridge_Chef.team.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +46,9 @@ public class DumpService {
     private final IngredientRepository ingredientRepository;
     private final DescriptionRepository descriptionRepository;
     private final ImageRepository imageRepository;
+    private final BoardRepository boardRepository;
+    private final ContextRepository contextRepository;
+    private final UserRepository userRepository;
 
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -48,6 +60,13 @@ public class DumpService {
 
     @Transactional
     public void insertAll() {
+
+        //임의 관리자 생성
+        UserId userId = UserId.create();
+        Profile profile = new Profile();
+        User user = new User(userId, profile, Role.ADMIN);
+
+        userRepository.save(user);
 
 //        for (int start = 1; start <= 1124; start += 10) {
 //            if (start == 921) {
@@ -70,6 +89,13 @@ public class DumpService {
         for (int i = 0; i < 10; i++) {
             Recipe recipe = createRecipe(json, i);
             saveRecipeWithIngredients(recipe);
+
+            Context context = Context.formMyUserRecipe(recipe.getRecipeIngredients(), recipe.getDescriptions());
+            context = contextRepository.save(context);
+
+            Board board = Board.from(user, recipe);
+            board.setContext(context);
+            boardRepository.save(board);
         }
     }
 

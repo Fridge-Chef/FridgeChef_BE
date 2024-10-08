@@ -32,7 +32,18 @@ public class Context {
     }
 
     public static Context formMyUserRecipe(List<RecipeIngredient> boardIngredients, List<Description> descriptions) {
-        return new Context(boardIngredients, descriptions);
+
+        List<RecipeIngredient> copiedIngredients = new ArrayList<>();
+        List<Description> copiedDescriptions = new ArrayList<>();
+
+        for (RecipeIngredient ingredient : boardIngredients) {
+            copiedIngredients.add(ingredient);
+        }
+
+        for (Description description : descriptions) {
+            copiedDescriptions.add(description);
+        }
+        return new Context(copiedIngredients, copiedDescriptions);
     }
 
     public void updateIngredients(List<RecipeIngredient> ingredients) {
