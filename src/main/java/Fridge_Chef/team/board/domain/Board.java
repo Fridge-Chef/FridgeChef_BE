@@ -38,7 +38,7 @@ public class Board extends BaseEntity {
     private User user;
     private String title;
     private String introduction;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Context context;
     @Enumerated(EnumType.STRING)
     private BoardType type;

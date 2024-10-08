@@ -35,7 +35,7 @@ public class RecipeIngredient {
         this.recipe = recipe;
     }
 
-    private RecipeIngredient(Ingredient ingredient, String detail) {
+    public RecipeIngredient(Ingredient ingredient, String detail) {
         this.ingredient = ingredient;
         this.quantity = detail;
     }
