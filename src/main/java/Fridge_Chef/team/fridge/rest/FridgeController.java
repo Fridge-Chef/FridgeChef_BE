@@ -1,6 +1,6 @@
 package Fridge_Chef.team.fridge.rest;
 
-import Fridge_Chef.team.fridge.rest.request.FridgeIngredientNameRequest;
+import Fridge_Chef.team.fridge.rest.request.FridgeIngredientAddRequest;
 import Fridge_Chef.team.fridge.rest.request.FridgeIngredientRequest;
 import Fridge_Chef.team.fridge.rest.response.FridgeIngredientResponse;
 import Fridge_Chef.team.fridge.service.FridgeService;
@@ -27,6 +27,9 @@ public class FridgeController {
         UserId userId = user.userId();
 
         fridgeService.createFridge(userId);
+
+        //TODO
+        // - 냉장고 초기 재료 세팅
     }
 
     @GetMapping("/")
@@ -40,19 +43,18 @@ public class FridgeController {
 
     @PostMapping("/ingredients")
     @ResponseStatus(HttpStatus.CREATED)
-    public void add(@AuthenticationPrincipal AuthenticatedUser user, @RequestBody List<String> ingredientNames) {
+    public void add(@AuthenticationPrincipal AuthenticatedUser user, @RequestBody FridgeIngredientAddRequest request) {
 
         UserId userId = user.userId();
 
-        fridgeService.addIngredientsToFridge(userId, ingredientNames);
+        fridgeService.addIngredientToFridge(userId, request);
     }
 
     @DeleteMapping("/ingredients")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@AuthenticationPrincipal AuthenticatedUser user, @RequestBody FridgeIngredientNameRequest request) {
+    public void delete(@AuthenticationPrincipal AuthenticatedUser user, @RequestBody String ingredientName) {
 
         UserId userId = user.userId();
-        String ingredientName = request.getIngredientName();
 
         fridgeService.deleteIngredients(userId, ingredientName);
     }

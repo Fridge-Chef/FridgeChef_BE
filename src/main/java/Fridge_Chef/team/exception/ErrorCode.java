@@ -47,6 +47,7 @@ public enum ErrorCode {
 
     //ingredient
     INGREDIENT_NOT_FOUND(404, "재료 정보 없음"),
+    INGREDIENT_ALREADY_EXISTS(409, "이미 존재하는 재료"),
 
     //board
     BOARD_NOT_USER_CREATE(405, "내가 생성하지 않는 게시판"),

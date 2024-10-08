@@ -1,5 +1,6 @@
 package Fridge_Chef.team.fridge.rest.request;
 
+import Fridge_Chef.team.fridge.domain.Storage;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,7 +10,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class FridgeIngredientNameRequest {
+public class FridgeIngredientAddRequest {
 
     private String ingredientName;
+    private Storage storage;
 }
