@@ -1,6 +1,7 @@
 package Fridge_Chef.team.recipe.service;
 
 import Fridge_Chef.team.board.domain.Board;
+import Fridge_Chef.team.board.domain.BoardType;
 import Fridge_Chef.team.board.domain.Context;
 import Fridge_Chef.team.board.domain.Description;
 import Fridge_Chef.team.board.repository.BoardRepository;
@@ -108,8 +109,7 @@ public class RecipeService {
         Context context = Context.formMyUserRecipe(recipe.getRecipeIngredients(), recipe.getDescriptions());
         contextRepository.save(context);
 
-        Board board = Board.from(user, recipe);
-        board.setContext(context);
+        Board board = new Board(user, recipe.getIntro(), recipe.getName(), context, recipe.getImage(), BoardType.USER);
         boardRepository.save(board);
     }
 
