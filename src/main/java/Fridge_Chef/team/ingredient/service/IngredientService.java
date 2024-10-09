@@ -27,6 +27,11 @@ public class IngredientService {
                 .orElseThrow(() -> new ApiException(ErrorCode.INGREDIENT_NOT_FOUND));
     }
 
+    public Ingredient getOrCreate(String ingredientName) {
+        return ingredientRepository.findByName(ingredientName)
+                .orElseGet(() -> ingredientRepository.save(new Ingredient(ingredientName)));
+    }
+
     public boolean exist(String ingredientName) {
         return ingredientRepository.findByName(ingredientName).isPresent();
     }
@@ -35,9 +40,9 @@ public class IngredientService {
         Optional<Ingredient> data = ingredientRepository.findByName(ingredient.getName());
 
         if (data.isPresent()) {
-            return data.get(); // 이미 존재하는 경우 해당 Ingredient 반환
+            return data.get();
         } else {
-            return ingredientRepository.save(ingredient); // 새로 저장한 Ingredient 반환
+            return ingredientRepository.save(ingredient);
         }
     }
 

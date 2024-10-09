@@ -8,4 +8,5 @@ import java.util.UUID;
 
 public interface RecipeRepository extends JpaRepository<Recipe, UUID> {
     Optional<Recipe> findByName(String recipeName);
+    boolean existsByName(String recipeName);
 }

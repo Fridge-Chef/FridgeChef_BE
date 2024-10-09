@@ -1,6 +1,9 @@
 package Fridge_Chef.team.recipe.rest.response;
 
+import Fridge_Chef.team.board.domain.Description;
+import Fridge_Chef.team.image.domain.Image;
 import Fridge_Chef.team.ingredient.rest.response.IngredientResponse;
+import Fridge_Chef.team.recipe.domain.RecipeIngredient;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,10 +15,11 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RecipeDetailsResponse {
+public class RecipeResponse {
 
     private String name;
-    private List<IngredientResponse> ingredients;
-    private List<String> manuals;
-    private String imageUrl;
+    private String intro;
+    private Image image;
+    private List<RecipeIngredient> recipeIngredients;
+    private List<Description> descriptions;
 }

@@ -71,7 +71,7 @@ public class Board extends BaseEntity {
                         recipe.getRecipeIngredients(),
                         recipe.getDescriptions()
                 ),
-                recipe.getImageUrl(),
+                recipe.getImage(),
                 BoardType.OPEN_API);
     }
 

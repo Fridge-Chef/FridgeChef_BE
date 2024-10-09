@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,16 +29,17 @@ public class Recipe extends BaseEntity {
     @UuidGenerator
     @Column(name = "recipe_id", columnDefinition = "BINARY(16)")
     private UUID id;
-    private String name;
 
+    private String name;
     private String intro;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Image imageUrl;
+    private Image image;
 
     @Column(name = "recipe_description")
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Description> descriptions;
+
     @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RecipeIngredient> recipeIngredients;
 }

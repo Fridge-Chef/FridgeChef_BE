@@ -131,7 +131,7 @@ public class DumpService {
         return Recipe.builder()
                 .name(name)
                 .descriptions(descriptions)
-                .imageUrl(image)
+                .image(image)
                 .intro(intro)
                 .recipeIngredients(recipeIngredientList)
                 .build();

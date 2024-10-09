@@ -42,12 +42,16 @@ public enum ErrorCode {
     SIGNUP_USER_FAIL_SNS_EMAIL_UNIQUE(407,"회원가입 SNS 가입 중복 " ),
     SIGNUP_SNS_NOT_SUPPORT(408, "지원하지 않는 SNS 인증 타입"),
 
+    //recipe
+    RECIPE_NAME_ALREADY_EXISTS(409, "이미 존재하는 레시피 이름"),
+
     //fridge
     FRIDGE_NOT_FOUND(404, "냉장고 정보 없음"),
 
     //ingredient
     INGREDIENT_NOT_FOUND(404, "재료 정보 없음"),
     INGREDIENT_ALREADY_EXISTS(409, "이미 존재하는 재료"),
+    INGREDIENT_INVALID(400, "유효하지 않은 재료"),
 
     //board
     BOARD_NOT_USER_CREATE(405, "내가 생성하지 않는 게시판"),
