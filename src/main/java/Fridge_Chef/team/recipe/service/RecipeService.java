@@ -12,6 +12,7 @@ import Fridge_Chef.team.exception.ErrorCode;
 import Fridge_Chef.team.image.domain.Image;
 import Fridge_Chef.team.image.repository.ImageRepository;
 import Fridge_Chef.team.ingredient.domain.Ingredient;
+import Fridge_Chef.team.ingredient.repository.RecipeIngredientRepository;
 import Fridge_Chef.team.ingredient.rest.response.IngredientResponse;
 import Fridge_Chef.team.ingredient.service.IngredientService;
 import Fridge_Chef.team.recipe.domain.Recipe;
@@ -19,8 +20,11 @@ import Fridge_Chef.team.recipe.domain.RecipeIngredient;
 import Fridge_Chef.team.recipe.repository.RecipeRepository;
 import Fridge_Chef.team.recipe.rest.request.RecipeCreateRequest;
 import Fridge_Chef.team.recipe.rest.response.RecipeResponse;
+import Fridge_Chef.team.user.domain.Profile;
+import Fridge_Chef.team.user.domain.Role;
 import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.domain.UserId;
+import Fridge_Chef.team.user.repository.UserRepository;
 import Fridge_Chef.team.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -41,6 +45,7 @@ public class RecipeService {
     private final ImageRepository imageRepository;
     private final ContextRepository contextRepository;
     private final BoardRepository boardRepository;
+    private final RecipeIngredientRepository recipeIngredientRepository;
 
     @Transactional
     public void createMyRecipe(UserId userId, RecipeCreateRequest request) {
@@ -52,6 +57,8 @@ public class RecipeService {
         }
 
         Image image = Image.outUri(request.getImageUrl());
+        imageRepository.save(image);
+
         List<Description> descriptions = insertDescriptions(request.getDescriptions());
         List<RecipeIngredient> recipeIngredients = insertRecipeIngredients(request.getRecipeIngredients());
 
@@ -80,10 +87,10 @@ public class RecipeService {
             }
 
             Description description = new Description(manual, image);
-            descriptionRepository.save(description);
-
             descriptions.add(description);
         }
+
+        descriptionRepository.saveAll(descriptions);
 
         return descriptions;
     }
@@ -100,6 +107,8 @@ public class RecipeService {
             RecipeIngredient recipeIngredient = RecipeIngredient.ofMyRecipe(ingredient, quantity);
             recipeIngredients.add(recipeIngredient);
         }
+
+        recipeIngredientRepository.saveAll(recipeIngredients);
 
         return recipeIngredients;
     }
