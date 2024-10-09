@@ -23,7 +23,7 @@ public class Fridge {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany(mappedBy = "fridge", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "fridge", fetch = FetchType.LAZY)
     private List<FridgeIngredient> fridgeIngredients;
 
     @OneToOne
