@@ -1,11 +1,9 @@
 package Fridge_Chef.team.recipe.rest;
 
-import Fridge_Chef.team.board.domain.Board;
-import Fridge_Chef.team.recipe.domain.Recipe;
 import Fridge_Chef.team.recipe.rest.request.RecipeCreateRequest;
 import Fridge_Chef.team.recipe.rest.request.RecipeRequest;
-import Fridge_Chef.team.recipe.rest.response.RecipeResponse;
 import Fridge_Chef.team.recipe.rest.response.RecipeNamesResponse;
+import Fridge_Chef.team.recipe.rest.response.RecipeResponse;
 import Fridge_Chef.team.recipe.service.RecipeService;
 import Fridge_Chef.team.user.domain.UserId;
 import Fridge_Chef.team.user.rest.model.AuthenticatedUser;

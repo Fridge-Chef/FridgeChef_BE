@@ -2,7 +2,6 @@ package Fridge_Chef.team.recipe.rest.response;
 
 import Fridge_Chef.team.board.domain.Description;
 import Fridge_Chef.team.image.domain.Image;
-import Fridge_Chef.team.ingredient.rest.response.IngredientResponse;
 import Fridge_Chef.team.recipe.domain.RecipeIngredient;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
