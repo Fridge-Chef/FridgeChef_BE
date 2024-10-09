@@ -12,6 +12,7 @@ import Fridge_Chef.team.image.domain.Image;
 import Fridge_Chef.team.image.repository.ImageRepository;
 import Fridge_Chef.team.ingredient.domain.Ingredient;
 import Fridge_Chef.team.ingredient.repository.IngredientRepository;
+import Fridge_Chef.team.ingredient.repository.RecipeIngredientRepository;
 import Fridge_Chef.team.recipe.domain.Recipe;
 import Fridge_Chef.team.recipe.domain.RecipeIngredient;
 import Fridge_Chef.team.recipe.repository.RecipeRepository;
@@ -49,6 +50,7 @@ public class DumpService {
     private final BoardRepository boardRepository;
     private final ContextRepository contextRepository;
     private final UserRepository userRepository;
+    private final RecipeIngredientRepository recipeIngredientRepository;
 
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -88,6 +90,7 @@ public class DumpService {
 
         for (int i = 0; i < 10; i++) {
             Recipe recipe = createRecipe(json, i);
+            recipeRepository.save(recipe);
             saveRecipeWithIngredients(recipe);
 
             Context context = Context.formMyUserRecipe(recipe.getRecipeIngredients(), recipe.getDescriptions());
@@ -123,15 +126,16 @@ public class DumpService {
         String ingredients = recipeInfo.get("RCP_PARTS_DTLS").asText();
         String imageUrl = recipeInfo.get("ATT_FILE_NO_MAIN").asText();
         String intro = recipeInfo.get("RCP_NA_TIP").asText();
-        Image image = Image.outUri(imageUrl);
-        List<Description> descriptions = extractManualsToDescription(recipeInfo);
 
+        Image image = Image.outUri(imageUrl);
+        imageRepository.save(image);
+        List<Description> descriptions = extractManualsToDescription(recipeInfo);
         List<RecipeIngredient> recipeIngredientList = extractIngredients(ingredients, name);
 
         return Recipe.builder()
                 .name(name)
                 .descriptions(descriptions)
-                .imageUrl(image)
+                .image(image)
                 .intro(intro)
                 .recipeIngredients(recipeIngredientList)
                 .build();
@@ -151,6 +155,8 @@ public class DumpService {
                 Ingredient savedIngredient = insertIngredient(ingredient);
                 recipeIngredient.setIngredient(savedIngredient);
             }
+
+            recipeIngredientRepository.save(recipeIngredient);
         }
 
         recipeRepository.save(recipe);

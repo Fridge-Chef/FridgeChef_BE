@@ -1,176 +1,128 @@
 package Fridge_Chef.team.recipe.service;
 
+import Fridge_Chef.team.board.domain.Board;
+import Fridge_Chef.team.board.domain.BoardType;
+import Fridge_Chef.team.board.domain.Context;
 import Fridge_Chef.team.board.domain.Description;
 import Fridge_Chef.team.board.repository.BoardRepository;
+import Fridge_Chef.team.board.repository.ContextRepository;
 import Fridge_Chef.team.board.repository.DescriptionRepository;
 import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.exception.ErrorCode;
 import Fridge_Chef.team.image.domain.Image;
 import Fridge_Chef.team.image.repository.ImageRepository;
+import Fridge_Chef.team.ingredient.domain.Ingredient;
+import Fridge_Chef.team.ingredient.repository.RecipeIngredientRepository;
 import Fridge_Chef.team.ingredient.rest.response.IngredientResponse;
 import Fridge_Chef.team.ingredient.service.IngredientService;
 import Fridge_Chef.team.recipe.domain.Recipe;
 import Fridge_Chef.team.recipe.domain.RecipeIngredient;
 import Fridge_Chef.team.recipe.repository.RecipeRepository;
-import Fridge_Chef.team.recipe.rest.request.RecipeRequest;
-import Fridge_Chef.team.recipe.rest.response.RecipeDetailsResponse;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import Fridge_Chef.team.recipe.rest.request.RecipeCreateRequest;
+import Fridge_Chef.team.recipe.rest.response.RecipeResponse;
+import Fridge_Chef.team.user.domain.Profile;
+import Fridge_Chef.team.user.domain.Role;
+import Fridge_Chef.team.user.domain.User;
+import Fridge_Chef.team.user.domain.UserId;
+import Fridge_Chef.team.user.repository.UserRepository;
+import Fridge_Chef.team.user.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class RecipeService {
 
+    private final IngredientService ingredientService;
+    private final UserService userService;
+
     private final RecipeRepository recipeRepository;
     private final DescriptionRepository descriptionRepository;
-    private final BoardRepository boardRepository;
     private final ImageRepository imageRepository;
-    private final IngredientService ingredientService;
-
-    private final RestTemplate restTemplate;
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
-
-    @Value("${recipeRequestUrl}")
-    private String baseUrl;
-
-    public List<String> getRecipeTitles(RecipeRequest request) throws ApiException {
-
-        String url = baseUrl + "/RCP_PARTS_DTLS=" + request.toString();
-        JsonNode json = requestRecipe(url);
-        List<String> recipeNames = extractRecipeNames(json);
-
-        return recipeNames;
-    }
+    private final ContextRepository contextRepository;
+    private final BoardRepository boardRepository;
+    private final RecipeIngredientRepository recipeIngredientRepository;
 
     @Transactional
-    public RecipeDetailsResponse getRecipeDetails(String recipeName) throws ApiException {
+    public void createMyRecipe(UserId userId, RecipeCreateRequest request) {
 
-        Optional<Recipe> optionalRecipe = recipeRepository.findByName(recipeName);
-        if (!optionalRecipe.isEmpty()) {
-            Recipe recipe = optionalRecipe.get();
-            return recipeToDto(recipe);
+        User user = userService.findByUser(userId);
+
+        if (recipeRepository.existsByName(request.getName())) {
+            throw new ApiException(ErrorCode.RECIPE_NAME_ALREADY_EXISTS);
         }
 
-        String url = baseUrl + "/RCP_NM=" + recipeName;
-        JsonNode json = requestRecipe(url);
-        Recipe recipe = createRecipe(json);
+        Image image = Image.outUri(request.getImageUrl());
+        imageRepository.save(image);
 
-        for (RecipeIngredient recipeIngredient : recipe.getRecipeIngredients()) {
-            recipeIngredient.setRecipe(recipe);
-            if (recipeIngredient.getIngredient().getId() == null) {
-                ingredientService.insertIngredient(recipeIngredient.getIngredient());
-            }
-        }
+        List<Description> descriptions = insertDescriptions(request.getDescriptions());
+        List<RecipeIngredient> recipeIngredients = insertRecipeIngredients(request.getRecipeIngredients());
 
-//        boardRepository.save(Board.from(null,recipe)); // 통합전 user=?
+        Recipe recipe = Recipe.builder()
+                .name(request.getName())
+                .intro(request.getIntro())
+                .image(image)
+                .descriptions(descriptions)
+                .recipeIngredients(recipeIngredients)
+                .build();
         recipeRepository.save(recipe);
 
-        return recipeToDto(recipe);
+        recipeToBoard(user, recipe);
     }
 
-    private Recipe createRecipe(JsonNode json) {
+    private List<Description> insertDescriptions(List<Description> requestDescriptions) {
 
-        JsonNode recipeInfo = json.get("COOKRCP01").get("row").get(0);
+        List<Description> descriptions = new ArrayList<>();
 
-        String name = recipeInfo.get("RCP_NM").asText();
-        String ingredients = recipeInfo.get("RCP_PARTS_DTLS").asText();
-        String imageUrl = recipeInfo.get("ATT_FILE_NO_MAIN").asText();
-        Image mainImage = imageRepository.save(Image.outUri(imageUrl));
+        for (Description requestDescription : requestDescriptions) {
+            String manual = requestDescription.getDescription();
+            Image image = requestDescription.getImage();
 
-//        List<RecipeIngredient> recipeIngredientList = ingredientService.extractIngredients(ingredients);
-        List<Description> manuals = extractManualsToDescription(recipeInfo);
-
-        return Recipe.builder()
-                .name(name)
-                .descriptions(manuals)
-                .imageUrl(mainImage)
-//                .recipeIngredients(recipeIngredientList)
-                .build();
-    }
-
-    private List<Description> extractManualsToDescription(JsonNode json){
-        List<Description> list = new ArrayList<>();
-        for (int i = 1; i <= 20; i++) {
-            JsonNode manualNode = json.get( "MANUAL" + String.format("%02d", i));
-            JsonNode imageNode = json.get( "MANUAL_IMG" + String.format("%02d", i));
-            String manualText = (manualNode != null && !manualNode.asText().trim().isEmpty()) ? manualNode.asText() : null;
-            String imageUri = (imageNode != null && !imageNode.asText().trim().isEmpty()) ? imageNode.asText() : null;
-            if (manualText != null || imageUri != null) {
-                Description description = new Description(manualText, Image.outUri(imageUri));
-                descriptionRepository.save(description);
-                list.add(description);
+            if (image != null) {
+                imageRepository.save(image);
             }
-        }
-        return list;
-    }
 
-    private JsonNode requestRecipe(String url) {
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Content-Type", "application/json");
-        HttpEntity<String> request = new HttpEntity<>(null, headers);
-
-        try {
-            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, request, String.class);
-            String responseBody = response.getBody();
-
-            return objectMapper.readTree(responseBody);
-        } catch (Exception e) {
-            throw new ApiException(ErrorCode.INVALID_VALUE);
-        }
-    }
-
-    private List<String> extractRecipeNames(JsonNode json) {
-
-        List<String> recipeNames = new ArrayList<>();
-
-        JsonNode cookRcpNode = json.path("COOKRCP01");
-        JsonNode rowArray = cookRcpNode.path("row");
-
-        if (rowArray.isArray()) {
-            for (JsonNode node : rowArray) {
-                JsonNode recipeName = node.get("RCP_NM");
-                if (recipeName != null) {
-                    recipeNames.add(recipeName.asText());
-                }
-            }
+            Description description = new Description(manual, image);
+            descriptions.add(description);
         }
 
-        return recipeNames;
+        descriptionRepository.saveAll(descriptions);
+
+        return descriptions;
     }
 
-    private List<String> extractManuals(JsonNode recipeInfo) {
+    private List<RecipeIngredient> insertRecipeIngredients(List<RecipeIngredient> requestRecipeIngredients) {
 
-        List<String> manuals = new ArrayList<>();
+        List<RecipeIngredient> recipeIngredients = new ArrayList<>();
 
-        for (int i = 1; i <= 20; i++) {
-            String key = "MANUAL" + String.format("%02d", i);
-            JsonNode manualNode = recipeInfo.get(key);
+        for (RecipeIngredient requestIngredient : requestRecipeIngredients) {
+            String ingredientName = requestIngredient.getIngredient().getName();
+            String quantity = requestIngredient.getQuantity();
 
-            if (manualNode != null && !manualNode.asText().isEmpty()) {
-                String manualText = manualNode.asText().replace("\n", " ").trim();
-                manuals.add(manualText);
-            }
+            Ingredient ingredient = ingredientService.getOrCreate(ingredientName);
+            RecipeIngredient recipeIngredient = RecipeIngredient.ofMyRecipe(ingredient, quantity);
+            recipeIngredients.add(recipeIngredient);
         }
 
-        return manuals;
+        recipeIngredientRepository.saveAll(recipeIngredients);
+
+        return recipeIngredients;
     }
 
-    private RecipeDetailsResponse recipeToDto(Recipe recipe) {
+    private void recipeToBoard(User user, Recipe recipe) {
+
+        Context context = Context.formMyUserRecipe(recipe.getRecipeIngredients(), recipe.getDescriptions());
+        contextRepository.save(context);
+
+        Board board = new Board(user, recipe.getIntro(), recipe.getName(), context, recipe.getImage(), BoardType.USER);
+        boardRepository.save(board);
+    }
+
+    private RecipeResponse recipeToDto(Recipe recipe) {
 
         List<IngredientResponse> ingredients = recipe.getRecipeIngredients().stream()
                 .map(recipeIngredient -> IngredientResponse.builder()
@@ -179,11 +131,11 @@ public class RecipeService {
                         .build())
                 .toList();
 
-        return RecipeDetailsResponse.builder()
+        return RecipeResponse.builder()
                 .name(recipe.getName())
-                .ingredients(ingredients)
+//                .ingredients(ingredients)
 //                .manuals(recipe.getManuals())
-                .imageUrl(recipe.getImageUrl().getLink())
+//                .imageUrl(recipe.getImage().getLink())
                 .build();
     }
 }

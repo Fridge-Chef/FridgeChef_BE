@@ -48,7 +48,7 @@ public class Board extends BaseEntity {
     private int hit;
     private int count;
 
-    public Board(User user,String introduction, String title, Context context, Image mainImage, BoardType type) {
+    public Board(User user, String introduction, String title, Context context, Image mainImage, BoardType type) {
         this.user = user;
         this.introduction=introduction;
         this.title = title;
@@ -71,7 +71,7 @@ public class Board extends BaseEntity {
                         recipe.getRecipeIngredients(),
                         recipe.getDescriptions()
                 ),
-                recipe.getImageUrl(),
+                recipe.getImage(),
                 BoardType.OPEN_API);
     }
 
