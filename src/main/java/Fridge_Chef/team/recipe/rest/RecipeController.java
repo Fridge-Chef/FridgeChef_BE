@@ -1,13 +1,15 @@
 package Fridge_Chef.team.recipe.rest;
 
+import Fridge_Chef.team.exception.ApiException;
+import Fridge_Chef.team.exception.ErrorCode;
 import Fridge_Chef.team.recipe.rest.request.RecipeCreateRequest;
-import Fridge_Chef.team.recipe.rest.request.RecipeRequest;
-import Fridge_Chef.team.recipe.rest.response.RecipeNamesResponse;
 import Fridge_Chef.team.recipe.rest.response.RecipeResponse;
+import Fridge_Chef.team.recipe.rest.response.RecipeSearchResult;
 import Fridge_Chef.team.recipe.service.RecipeService;
 import Fridge_Chef.team.user.domain.UserId;
 import Fridge_Chef.team.user.rest.model.AuthenticatedUser;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -32,14 +34,20 @@ public class RecipeController {
         recipeService.createMyRecipe(userId, request);
     }
 
-    //레시피 이름 조회 api
+    //레시피 조회
     @GetMapping("/")
-    public RecipeNamesResponse recipesFromIngredients(@RequestParam("ingredients") List<String> ingredients) {
+    public RecipeSearchResult search(
+            @RequestParam("ingredients") List<String> ingredients,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "20") int size) {
 
-        RecipeRequest recipeRequest = new RecipeRequest(ingredients);
-        List<String> recipeTitles = null;
+        if (ingredients.size() == 0) {
+            throw new ApiException(ErrorCode.INGREDIENT_INVALID);
+        }
 
-        RecipeNamesResponse response = new RecipeNamesResponse(recipeTitles);
+        PageRequest pageRequest = PageRequest.of(page, size);
+
+        RecipeSearchResult response = recipeService.searchRecipe(pageRequest, ingredients);
 
         return response;
     }
