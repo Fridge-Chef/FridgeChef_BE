@@ -58,7 +58,7 @@ public class JpaTest extends QueryDslTest {
     @Transactional
     public void userBoardCommentMetaData() {
         List<User> users = creates();
-        List<Board> boards = BoardFixture.creates(50, users);
+        List<Board> boards = BoardFixture.creates(5, users);
 
         for (Board board : boards) {
             board = saveBoard(board);

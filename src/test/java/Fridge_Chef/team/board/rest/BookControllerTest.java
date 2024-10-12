@@ -31,8 +31,7 @@ import java.util.List;
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
-import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 
 @DisplayName("레시피 북 API")
 @WebMvcTest(BookController.class)
@@ -66,8 +65,14 @@ public class BookControllerTest extends RestDocControllerTests {
         ResultActions actions = jwtJsonGetWhen("/api/books/recipe", request);
 
         actions.andExpect(status().isOk())
-                .andDo(document("[좋아요]",
+                .andDo(document("좋아요",
                         jwtTokenRequest(),
+                        requestFields(
+                                fieldWithPath("bookType").description("북 타입 : (좋아요,나만의레시피,후기) [LIKE,MYRECIPE,LIKE]"),
+                                fieldWithPath("page").description("페이지 번호 "),
+                                fieldWithPath("size").description("사이즈 크기 "),
+                                fieldWithPath("sortType").description("정렬 타입 :(최신순,별점순,클릭순,좋아요순) [ LATEST, RATING , CLICKS, HIT ] ")
+                        ),
                         responseFields(
                                 fieldWithPath("totalPages").description("총 페이지 수"),
                                 fieldWithPath("totalElements").description("총 요소 수"),
@@ -112,8 +117,14 @@ public class BookControllerTest extends RestDocControllerTests {
         ResultActions actions = jwtJsonGetWhen("/api/books/recipe", request);
 
         actions.andExpect(status().isOk())
-                .andDo(document("[나만의 레시피]",
+                .andDo(document("나만의 레시피,",
                         jwtTokenRequest(),
+                        requestFields(
+                                fieldWithPath("bookType").description("북 타입 : (좋아요,나만의레시피,후기) [LIKE,MYRECIPE,LIKE]"),
+                                fieldWithPath("page").description("페이지 번호 "),
+                                fieldWithPath("size").description("사이즈 크기 "),
+                                fieldWithPath("sortType").description("정렬 타입 :(최신순,별점순,클릭순,좋아요순) [ LATEST, RATING , CLICKS, HIT ] ")
+                        ),
                         responseFields(
                                 fieldWithPath("totalPages").description("총 페이지 수"),
                                 fieldWithPath("totalElements").description("총 요소 수"),
@@ -159,6 +170,11 @@ public class BookControllerTest extends RestDocControllerTests {
         actions.andExpect(status().isOk())
                 .andDo(document("레시피 후기",
                         jwtTokenRequest(),
+                        requestFields(
+                                fieldWithPath("page").description("페이지 번호 "),
+                                fieldWithPath("size").description("사이즈 크기 "),
+                                fieldWithPath("sortType").description("정렬 타입 :(최신순,별점순,클릭순,좋아요순) [ LATEST, RATING , CLICKS, HIT ] ")
+                        ),
                         responseFields(
                                 fieldWithPath("totalPages").description("총 페이지 수"),
                                 fieldWithPath("totalElements").description("총 요소 수"),
