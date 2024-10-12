@@ -44,6 +44,7 @@ public enum ErrorCode {
 
     //recipe
     RECIPE_NAME_ALREADY_EXISTS(409, "이미 존재하는 레시피 이름"),
+    RECIPE_NOT_FOUND(404, "레시피 정보 없음"),
 
     //fridge
     FRIDGE_NOT_FOUND(404, "냉장고 정보 없음"),

@@ -81,7 +81,15 @@ public class DumpService {
 //
 //            for (int i = 0; i < 10; i++) {
 //                Recipe recipe = createRecipe(json, i);
+//                recipeRepository.save(recipe);
 //                saveRecipeWithIngredients(recipe);
+//
+//                Context context = Context.formMyUserRecipe(recipe.getRecipeIngredients(), recipe.getDescriptions());
+//                context = contextRepository.save(context);
+//
+//                Board board = Board.from(user, recipe);
+//                board.setContext(context);
+//                boardRepository.save(board);
 //            }
 //        }
 
