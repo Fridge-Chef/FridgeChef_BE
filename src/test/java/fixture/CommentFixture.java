@@ -12,7 +12,7 @@ public class CommentFixture {
     private final static Random random = new Random();
 
     public static Comment create(Board board, User user) {
-        return new Comment(board, user, ImageFixture.create(), "댓글 내용", 3.5).updateId(2L);
+        return new Comment(board, user,List.of(ImageFixture.create()), "댓글 내용", 3.5).updateId(2L);
     }
 
     public static List<Comment> creates(int size, Board board, List<User> users) {
@@ -23,7 +23,7 @@ public class CommentFixture {
             User user = users.get(random.nextInt(users.size()));
             String content = commentContents.get(random.nextInt(commentContents.size()));
             double starRating = 0.5 * (random.nextInt(9) + 2);
-            comments.add(new Comment(board, user, ImageFixture.create(), content, starRating));
+            comments.add(new Comment(board, user, List.of(ImageFixture.create()), content, starRating));
         }
         return comments;
     }
