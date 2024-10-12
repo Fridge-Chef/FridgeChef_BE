@@ -11,12 +11,13 @@ import static com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME;
 
 @JsonTypeName("user")
 @JsonTypeInfo(include = WRAPPER_OBJECT, use = NAME)
-public record UserProfileResponse(String email, String role, String username , LocalDateTime createAt) {
+public record UserProfileResponse(String email, String role, String username ,String profileLink, LocalDateTime createAt) {
     public static UserProfileResponse from(User user) {
         return new UserProfileResponse(
                 user.getEmail(),
                 user.getRole().getAuthority(),
                 user.getProfile().getUsername(),
+                user.getImageLink(),
                 user.getCreateTime()
         );
     }

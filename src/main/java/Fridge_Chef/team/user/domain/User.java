@@ -29,9 +29,9 @@ public class User extends BaseEntity {
     private Profile profile;
     @Enumerated(EnumType.STRING)
     private Role role;
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, orphanRemoval = true)
     private UserHistory history;
-    @OneToOne(mappedBy = "user")
+    @OneToOne(fetch = FetchType.LAZY, orphanRemoval = true)
     private Fridge fridge;
 
 
@@ -98,5 +98,17 @@ public class User extends BaseEntity {
 
     public void updateUsername(String username) {
         this.profile.updateName(username);
+    }
+
+
+    public String getImageLink() {
+        if (profile != null && profile.getPicture() != null) {
+            return profile.getPicture().getLink();
+        }
+        return "";
+    }
+
+    public void addHistory() {
+        this.history.update();
     }
 }

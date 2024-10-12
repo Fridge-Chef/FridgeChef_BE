@@ -14,6 +14,7 @@ import Fridge_Chef.team.recipe.domain.RecipeIngredient;
 import Fridge_Chef.team.user.rest.model.AuthenticatedUser;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,22 +29,25 @@ public class BoardController {
     private final BoardIngredientService boardIngredientService;
     private final ImageService imageService;
 
-    @PostMapping
-    void create(@AuthenticationPrincipal AuthenticatedUser user,
-                @Valid @RequestBody BoardByRecipeRequest request) {
+
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    void create(
+            @AuthenticationPrincipal AuthenticatedUser user,
+            @Valid @ModelAttribute BoardByRecipeRequest request
+    ) {
         boardService.textFilterPolicy(request);
 
-        Image mainImage = imageService.imageUpload(user.userId(), request.getMainImage());
+        Image image = imageService.imageUpload(user.userId(), request.getMainImage());
 
         List<Description> descriptions = boardIngredientService.uploadInstructionImages(user.userId(), request);
         List<RecipeIngredient> ingredients = boardIngredientService.findOrCreate(request);
 
-        boardRecipeService.create(user.userId(), request, ingredients, descriptions, mainImage);
+        boardRecipeService.create(user.userId(), request, ingredients, descriptions, image);
     }
 
-    @PatchMapping
+    @PutMapping
     void update(@AuthenticationPrincipal AuthenticatedUser user,
-                @RequestBody BoardByRecipeUpdateRequest request) {
+                @Valid @ModelAttribute BoardByRecipeUpdateRequest request) {
 
         Image mainImage = imageService.uploadImageWithId(user.userId(), request.isMainImageChange(),
                 request.getMainImageId(), request.getMainImage());

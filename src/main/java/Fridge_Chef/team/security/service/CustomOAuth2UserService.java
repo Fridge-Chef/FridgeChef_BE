@@ -69,18 +69,10 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         userLog(attributes, " 로그인 시도 ");
         Social loginType = Social.valueOf(attributes.registrationId().toUpperCase());
 
-        User user = userRepository.findByProfileEmailAndProfileSocial(attributes.email(), loginType)
+        return userRepository.findByProfileEmailAndProfileSocial(attributes.email(), loginType)
                 .orElseGet(() -> registerNewUser(attributes, loginType));
-
-        userPolicy(user);
-        return user;
     }
 
-    private void userPolicy(User user) {
-        if (user.getHistory() == null) {
-            userHistoryRepository.save(new UserHistory(user)).update();
-        }
-    }
 
     private User signup(OAuthAttributes attributes) {
         userLog(attributes, " 회원가입 ");
