@@ -26,26 +26,26 @@ public class Comment extends BaseEntity {
     @Column(name = "id")
     private Long id;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true)
     private List<CommentUserEvent> commentUserEvent;
+    @OneToMany(fetch = FetchType.LAZY)
+    private List<Image> commentImage;
     @ManyToOne(fetch = FetchType.LAZY)
     private Board board;
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
-    @OneToMany(fetch = FetchType.LAZY)
-    private List<Image> commentImage;
+
     private String comment;
     private double star;
     private int totalHit;
 
-    public Comment(Board board, User user, Image commentImage, String comment, double star) {
+    public Comment(Board board, User user, List<Image> images, String comment, double star) {
         this.board = board;
         this.user = user;
         this.comment = comment;
         this.star = star;
         this.totalHit=0;
-        this.commentImage = new ArrayList<>();
-        this.commentImage.add(commentImage);
+        this.commentImage = images;
         this.commentUserEvent = new ArrayList<>();
     }
 
