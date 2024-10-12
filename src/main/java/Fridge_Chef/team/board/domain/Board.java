@@ -23,13 +23,11 @@ public class Board extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
-    @OneToMany(mappedBy = "board", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "board", fetch = FetchType.LAZY, orphanRemoval = true)
     private List<BoardUserEvent> boardUserEvent;
-
-    @OneToMany(mappedBy = "board", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "board", fetch = FetchType.LAZY, orphanRemoval = true)
     private List<BoardIssue> boardIssues;
-
-    @OneToMany(mappedBy = "board", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "board", fetch = FetchType.LAZY, orphanRemoval = true)
     private List<BoardHistory> historys;
     @OneToMany(mappedBy = "board", fetch = FetchType.LAZY)
     private List<Comment> comments;
@@ -38,7 +36,7 @@ public class Board extends BaseEntity {
     private User user;
     private String title;
     private String introduction;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     private Context context;
     @Enumerated(EnumType.STRING)
     private BoardType type;

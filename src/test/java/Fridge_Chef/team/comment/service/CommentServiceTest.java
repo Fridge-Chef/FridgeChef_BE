@@ -16,6 +16,7 @@ import Fridge_Chef.team.user.domain.UserId;
 import Fridge_Chef.team.user.repository.UserRepository;
 import Fridge_Chef.team.user.rest.model.AuthenticatedUser;
 import fixture.BoardFixture;
+import fixture.ImageFixture;
 import fixture.UserFixture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -24,7 +25,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -61,7 +64,7 @@ public class CommentServiceTest {
         user = UserFixture.create("test@email.com");
         board = BoardFixture.create(user);
         board.updateId(1L);
-        comment = new Comment(board, user, null, "Test Comment", 4.0);
+        comment = new Comment(board, user, List.of(), "Test Comment", 4.0);
         comment.updateId(1L);
     }
 
@@ -69,10 +72,11 @@ public class CommentServiceTest {
     @Transactional
     @DisplayName("댓글 추가 - 성공")
     void addComment_Success() {
-        CommentCreateRequest request = new CommentCreateRequest("Test Comment", null,4.0);
+        CommentCreateRequest request = new CommentCreateRequest("Test Comment", null, 4.0);
+        List<MultipartFile> files = List.of(new MockMultipartFile("test", "test.png".getBytes()));
         when(boardRepository.findById(anyLong())).thenReturn(Optional.of(board));
         when(userRepository.findByUserId_Value(any(UUID.class))).thenReturn(Optional.of(user));
-        when(imageService.imageUpload(any(UserId.class), any())).thenReturn(null);
+        when(imageService.imageUploads(any(UserId.class), isNull())).thenReturn(List.of(ImageFixture.create()));
         when(commentRepository.save(any(Comment.class))).thenReturn(comment);
 
         Comment result = commentService.addComment(1L, UserFixture.create("tests@gmail.com").getUserId(), request);
@@ -87,7 +91,7 @@ public class CommentServiceTest {
     @Transactional
     @DisplayName("댓글 수정 - 성공")
     void updateComment_Success() {
-        CommentUpdateRequest request = new CommentUpdateRequest("test",false,null,4.5);
+        CommentUpdateRequest request = new CommentUpdateRequest("test", false, null, 4.5);
         when(commentRepository.findById(anyLong())).thenReturn(Optional.of(comment));
 
         Comment result = commentService.updateComment(1L, 1L, user.getUserId(), request);
@@ -115,7 +119,7 @@ public class CommentServiceTest {
         when(boardRepository.findById(anyLong())).thenReturn(Optional.of(board));
         when(commentRepository.findAllByBoard(any(Board.class))).thenReturn(List.of(comment));
 
-        List<CommentResponse> comments = commentService.getCommentsByBoard(1L, Optional.of(new  AuthenticatedUser(UserId.create(), Role.USER)));
+        List<CommentResponse> comments = commentService.getCommentsByBoard(1L, Optional.of(new AuthenticatedUser(UserId.create(), Role.USER)));
 
         assertNotNull(comments);
         assertEquals(1, comments.size());
@@ -126,7 +130,7 @@ public class CommentServiceTest {
     void addComment_BoardNotFound() {
         when(boardRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        ApiException exception = assertThrows(ApiException.class, () -> commentService.addComment(1L,  UserFixture.create("tests@gmail.com").getUserId(), new CommentCreateRequest("Test", null,5.0)));
+        ApiException exception = assertThrows(ApiException.class, () -> commentService.addComment(1L, UserFixture.create("tests@gmail.com").getUserId(), new CommentCreateRequest("Test", null, 5.0)));
         assertEquals(ErrorCode.BOARD_NOT_FOUND, exception.getErrorCode());
     }
 
@@ -135,7 +139,7 @@ public class CommentServiceTest {
     void updateComment_CommentNotFound() {
         when(commentRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        ApiException exception = assertThrows(ApiException.class, () -> commentService.updateComment(1L, 1L,  UserFixture.create("tests@gmail.com").getUserId(), new CommentUpdateRequest("test",false,null,4.0)));
+        ApiException exception = assertThrows(ApiException.class, () -> commentService.updateComment(1L, 1L, UserFixture.create("tests@gmail.com").getUserId(), new CommentUpdateRequest("test", false, null, 4.0)));
         assertEquals(ErrorCode.COMMENT_NOT_FOUND, exception.getErrorCode());
     }
 

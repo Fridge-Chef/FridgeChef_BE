@@ -5,6 +5,7 @@ import Fridge_Chef.team.comment.rest.request.CommentUpdateRequest;
 import Fridge_Chef.team.comment.rest.response.CommentResponse;
 import Fridge_Chef.team.comment.service.CommentService;
 import Fridge_Chef.team.user.rest.model.AuthenticatedUser;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +24,7 @@ public class CommentController {
     public void addComment(
             @AuthenticationPrincipal AuthenticatedUser user,
             @PathVariable("board_id") Long boardId,
-            @RequestBody CommentCreateRequest commentRequest) {
+            @Valid @ModelAttribute CommentCreateRequest commentRequest) {
         commentService.addComment(boardId, user.userId(), commentRequest);
     }
 
@@ -32,7 +33,7 @@ public class CommentController {
             @AuthenticationPrincipal AuthenticatedUser user,
             @PathVariable("board_id") Long boardId,
             @PathVariable("comment_id") Long commentId,
-            @RequestBody CommentUpdateRequest commentRequest) {
+            @Valid @ModelAttribute CommentUpdateRequest commentRequest) {
         commentService.updateComment(boardId, commentId, user.userId(), commentRequest);
     }
 

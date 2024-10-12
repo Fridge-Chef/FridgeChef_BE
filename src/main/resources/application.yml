@@ -16,6 +16,8 @@ logging:
 
 
 # 테스트 중인 것 나중에 분리할 수 있도록 할 것
+springdoc:
+  default-support-form-data: false
 
 client:
   naver:

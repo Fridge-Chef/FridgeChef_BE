@@ -3,11 +3,13 @@ package Fridge_Chef.team.board.rest.request;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,6 +23,7 @@ public class BoardByRecipeUpdateRequest {
     private List<BoardByRecipeUpdateRequest.RecipeIngredient> recipeIngredients;
     private List<BoardByRecipeUpdateRequest.Instructions> instructions;
 
+    @Setter
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
@@ -29,7 +32,7 @@ public class BoardByRecipeUpdateRequest {
         private String name;
         private String details;
     }
-
+    @Setter
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor

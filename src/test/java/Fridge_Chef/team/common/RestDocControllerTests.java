@@ -13,6 +13,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.headers.RequestHeadersSnippet;
 import org.springframework.restdocs.payload.RequestFieldsSnippet;
@@ -20,9 +21,13 @@ import org.springframework.restdocs.payload.ResponseFieldsSnippet;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.ResultMatcher;
+import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.result.StatusResultMatchers;
+import org.springframework.util.MultiValueMap;
+
 import java.util.Arrays;
+import java.util.List;
 
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -216,6 +221,7 @@ public class RestDocControllerTests {
         );
     }
 
+
     protected ResultActions jwtJsonPutWhen(String uri, String request) throws Exception {
         return mockMvc.perform(put(uri)
                 .header(AUTHORIZATION, "Bearer ")
@@ -313,7 +319,7 @@ public class RestDocControllerTests {
         );
     }
 
-    protected ResultActions jwtJsonGetPathWhen(String uri,String json, Object... path) throws Exception {
+    protected ResultActions jwtJsonGetPathWhen(String uri, String json, Object... path) throws Exception {
         return mockMvc.perform(get(uri, path)
                 .characterEncoding("UTF-8")
                 .header(AUTHORIZATION, "Bearer ")
@@ -324,7 +330,7 @@ public class RestDocControllerTests {
         );
     }
 
-    protected ResultActions jwtJsonPostPathWhen(String uri, String json,Object... path) throws Exception {
+    protected ResultActions jwtJsonPostPathWhen(String uri, String json, Object... path) throws Exception {
         return mockMvc.perform(post(uri, path)
                 .characterEncoding("UTF-8")
                 .header(AUTHORIZATION, "Bearer ")
@@ -335,7 +341,7 @@ public class RestDocControllerTests {
         );
     }
 
-    protected ResultActions jwtDeletePathWhen(String uri,Object... path) throws Exception {
+    protected ResultActions jwtDeletePathWhen(String uri, Object... path) throws Exception {
         return mockMvc.perform(delete(uri, path)
                 .characterEncoding("UTF-8")
                 .header(AUTHORIZATION, "Bearer ")
@@ -353,6 +359,7 @@ public class RestDocControllerTests {
                 .accept(MediaType.APPLICATION_JSON)
         );
     }
+
     protected ResultActions jwtPatchPathWhen(String uri, Object... path) throws Exception {
         return mockMvc.perform(patch(uri, path)
                 .characterEncoding("UTF-8")
@@ -361,7 +368,8 @@ public class RestDocControllerTests {
                 .accept(MediaType.APPLICATION_JSON)
         );
     }
-    protected ResultActions jwtJsonPutPathWhen(String uri, String json,Object... path) throws Exception {
+
+    protected ResultActions jwtJsonPutPathWhen(String uri, String json, Object... path) throws Exception {
         return mockMvc.perform(put(uri, path)
                 .characterEncoding("UTF-8")
                 .header(AUTHORIZATION, "Bearer ")
@@ -369,5 +377,22 @@ public class RestDocControllerTests {
                 .accept(MediaType.APPLICATION_JSON)
                 .content(json)
         );
+    }
+
+    protected ResultActions jwtFormPostWhen(
+            String uri,
+            List<MockMultipartFile> files,
+            MultiValueMap<String, String> params) throws Exception {
+        return mockMvc.perform(formFiles(uri, files)
+                .header(AUTHORIZATION, "Bearer ")
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .params(params)
+        );
+    }
+
+    private MockMultipartHttpServletRequestBuilder formFiles(String uri, List<MockMultipartFile> files) {
+        var part = multipart(uri);
+        files.forEach(part::file);
+        return part;
     }
 }

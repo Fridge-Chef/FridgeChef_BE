@@ -31,8 +31,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.restdocs.payload.JsonFieldType;
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -43,10 +44,15 @@ import java.util.List;
 import java.util.Random;
 
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
+import static fixture.ImageFixture.getMultiFile;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.partWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.requestParts;
+
 
 @DisplayName("나만의 게시판")
 @WebMvcTest({BoardController.class, BoardsController.class})
@@ -76,10 +82,6 @@ public class BoardControllerTest extends RestDocControllerTests {
     @DisplayName("추가")
     @WithMockCustomUser
     void create() throws Exception {
-        BoardByRecipeRequest boardByRecipeRequest = createBoardByRecipeRequest();
-
-        String request = objectMapper.writeValueAsString(boardByRecipeRequest);
-
         when(imageService.imageUpload(any(UserId.class), any(MultipartFile.class)))
                 .thenReturn(new Image("Fridge_chef.team.image-path", ImageType.ORACLE_CLOUD));
 
@@ -89,21 +91,32 @@ public class BoardControllerTest extends RestDocControllerTests {
         when(boardIngredientService.findOrCreate(any(BoardByRecipeRequest.class)))
                 .thenReturn(Collections.emptyList());
 
-        ResultActions actions = jwtJsonPostWhen("/api/board", request);
+        MockMultipartFile mainImage = getMultiFile("mainImage");
+        MockMultipartFile instructionImage1 = getMultiFile("instructions[0].image");
+
+
+        var requestBuilder =
+                RestDocumentationRequestBuilders.multipart("/api/board")
+                        .file(mainImage)
+                        .file(instructionImage1)
+                        .param("name", "레시피 명")
+                        .param("description", "레시피 설명")
+                        .param("recipeIngredients[0].name", "재료1")
+                        .param("recipeIngredients[0].details", "상세정보1")
+                        .param("recipeIngredients[1].name", "재료2")
+                        .param("recipeIngredients[1].details", "상세정보3")
+                        .param("instructions[0].content", "설명1")
+                        .header(AUTHORIZATION, "Bearer ")
+                        .contentType(MediaType.MULTIPART_FORM_DATA);
+
+        ResultActions actions = mockMvc.perform(requestBuilder);
 
         actions.andExpect(status().isOk())
                 .andDo(document("나만의 레시피 추가",
                         jwtTokenRequest(),
-                        requestFields(
-                                fieldWithPath("name").description("레시피 이름").optional(),
-                                fieldWithPath("description").description("소개"),
-                                fieldWithPath("mainImage").description("메인 이미지"),
-                                fieldWithPath("recipeIngredients[]").description("레시피"),
-                                fieldWithPath("recipeIngredients[].name").description("레시피 재료 이름"),
-                                fieldWithPath("recipeIngredients[].details").description("레시피 재료 설명"),
-                                fieldWithPath("instructions[]").description("조리 순서 "),
-                                fieldWithPath("instructions[].content").description("조리법 설명"),
-                                fieldWithPath("instructions[].image").description("조리법 이미지 (파일)")
+                        requestParts(
+                                partWithName("mainImage").description("레시피의 메인 이미지 파일"),
+                                partWithName("instructions[0].image").description("첫 번째 설명 단계의 이미지 파일")
                         )
                 ));
     }
@@ -143,7 +156,7 @@ public class BoardControllerTest extends RestDocControllerTests {
     @Test
     @DisplayName("페이징")
     void finds() throws Exception {
-        BoardPageRequest boardByRecipeRequest = new BoardPageRequest(1, 10, IssueType.ALL,SortType.RATING);
+        BoardPageRequest boardByRecipeRequest = new BoardPageRequest(1, 10, IssueType.ALL, SortType.RATING);
         Page<BoardMyRecipePageResponse> responsePage = new PageImpl<>(
                 List.of(
                         new BoardMyRecipePageResponse(SortType.RATING, 1L, "Delicious Recipe", "User1", 4.5, 100, 50, LocalDateTime.now()),
@@ -215,10 +228,6 @@ public class BoardControllerTest extends RestDocControllerTests {
     @DisplayName("수정")
     @WithMockCustomUser
     void update() throws Exception {
-        BoardByRecipeUpdateRequest boardByRecipeRequest = createUpdateRequest(1L, true);
-
-        String request = objectMapper.writeValueAsString(boardByRecipeRequest);
-
         Image mockImage = mock(Image.class);
         List<Description> mockDescriptions = Collections.singletonList(mock(Description.class));
         List<RecipeIngredient> mockIngredients = Collections.singletonList(mock(RecipeIngredient.class));
@@ -240,26 +249,40 @@ public class BoardControllerTest extends RestDocControllerTests {
         )).thenReturn(null);
 
 
-        ResultActions actions = jwtJsonPatchWhen("/api/board", request);
+        MockMultipartFile mainImage = getMultiFile("mainImage");
+        MockMultipartFile instructionImage1 = getMultiFile("instructions[0].image");
+
+        var requestBuilder =
+                RestDocumentationRequestBuilders.multipart("/api/board")
+                        .file(mainImage)
+                        .file(instructionImage1)
+                        .param("id", "1")
+                        .param("title", "title name ")
+                        .param("description", "info")
+                        .param("mainImageId", "1")
+                        .param("mainImageChange", "false")
+                        .param("recipeIngredients[0].id", "1")
+                        .param("recipeIngredients[0].name", "재료1")
+                        .param("recipeIngredients[0].details", "상세정보1")
+                        .param("recipeIngredients[1].id", "2")
+                        .param("recipeIngredients[1].name", "재료2")
+                        .param("recipeIngredients[1].details", "상세정보3")
+                        .param("instructions[0].id", "1")
+                        .param("instructions[0].content", "설명1")
+                        .param("instructions[0].imageChange", "false")
+                        .header(AUTHORIZATION, "Bearer ")
+                        .contentType(MediaType.MULTIPART_FORM_DATA);
+
+        requestBuilder.with(request -> {
+            request.setMethod("PUT");
+            return request;
+        });
+
+        ResultActions actions = mockMvc.perform(requestBuilder);
 
         actions.andExpect(status().isOk())
                 .andDo(document("나만의 레시피 수정",
-                        jwtTokenRequest(),
-                        requestFields(
-                                fieldWithPath("id").description("레시피 ID").optional(),
-                                fieldWithPath("title").description("레시피 제목"),
-                                fieldWithPath("description").description("레시피 설명"),
-                                fieldWithPath("mainImage").description("업로드할 메인 이미지"),
-                                fieldWithPath("mainImageId").description("기존 메인 이미지 ID"),
-                                fieldWithPath("mainImageChange").type(JsonFieldType.BOOLEAN).description("메인 이미지 변경 여부"),
-                                fieldWithPath("recipeIngredients[].id").description("재료 ID"),
-                                fieldWithPath("recipeIngredients[].name").description("재료 이름"),
-                                fieldWithPath("recipeIngredients[].details").description("재료 상세 설명"),
-                                fieldWithPath("instructions[].id").description("조리법 ID"),
-                                fieldWithPath("instructions[].content").description("조리법 내용"),
-                                fieldWithPath("instructions[].image").description("조리법 이미지"),
-                                fieldWithPath("instructions[].imageChange").description("조리법 이미지 변경 여부")
-                        )
+                        jwtTokenRequest()
                 ));
 
     }

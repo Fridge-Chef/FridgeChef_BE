@@ -71,7 +71,7 @@ public class BoardFixture {
         List<BoardByRecipeRequest.Instructions> instructions = new ArrayList<>();
         for (BoardByRecipeRequest.RecipeIngredient recipeIngredient : recipeIngredients) {
             String stepDescription = recipeIngredient.getName() + "을(를) 사용해 " + recipeDescription;
-            instructions.add(new BoardByRecipeRequest.Instructions(stepDescription, instructionImage));
+            instructions.add(new BoardByRecipeRequest.Instructions(stepDescription, null));
         }
 
         return new BoardByRecipeRequest(
