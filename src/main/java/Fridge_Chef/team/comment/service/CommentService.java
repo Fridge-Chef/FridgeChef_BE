@@ -39,8 +39,7 @@ public class CommentService {
     public Comment addComment(Long boardId, UserId userId, CommentCreateRequest request) {
         Board board = findByBoard(boardId);
         User user = findByUser(userId);
-        Image image = imageService.imageUpload(userId, request.image());
-
+        List<Image> images = imageService.imageUploads(userId,request.images());
 
         Optional<Comment> existingComment = board.getComments()
                 .stream()
@@ -53,7 +52,7 @@ public class CommentService {
             commentToUpdate.updateStar(request.star());
             return commentRepository.save(commentToUpdate);
         } else {
-            Comment newComment = new Comment(board, user, image, request.comment(), request.star());
+            Comment newComment = new Comment(board, user, images, request.comment(), request.star());
             board.updateStar(calculateNewTotalStar(board, request.star()));
             return commentRepository.save(newComment);
         }
