@@ -132,7 +132,7 @@ task makeOAS(type: Exec) {
 
 
 task openapi3fix(type: Exec) {
-    commandLine 'bash', '-c', 'source venv/bin/activate && python fix-openapi-yaml.py build/api-spec/openapi3.yaml'
+    commandLine 'bash', '-c', 'source venv/bin/activate &&  python fix-openapi-form-yaml.py && python fix-openapi-yaml.py build/api-spec/openapi3.yaml'
     standardOutput = new ByteArrayOutputStream()
 
     doLast {

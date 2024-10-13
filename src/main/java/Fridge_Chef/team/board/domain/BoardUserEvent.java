@@ -4,6 +4,7 @@ import Fridge_Chef.team.common.entity.BaseEntity;
 import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.exception.ErrorCode;
 import Fridge_Chef.team.user.domain.User;
+import Fridge_Chef.team.user.domain.UserId;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -50,5 +51,12 @@ public class BoardUserEvent extends BaseEntity {
             throw new ApiException(ErrorCode.RATING_IS_0_5_UNITS);
         }
         this.star = star;
+    }
+
+    public boolean isUserHit(UserId userId) {
+        if(userId.equals(user.getUserId())){
+            return hit != 0;
+        }
+        return false;
     }
 }

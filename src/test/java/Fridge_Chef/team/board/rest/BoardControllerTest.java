@@ -2,6 +2,7 @@ package Fridge_Chef.team.board.rest;
 
 
 import Fridge_Chef.team.board.domain.Description;
+import Fridge_Chef.team.board.repository.BoardDslRepository;
 import Fridge_Chef.team.board.repository.BoardRepository;
 import Fridge_Chef.team.board.repository.model.IssueType;
 import Fridge_Chef.team.board.repository.model.SortType;
@@ -66,6 +67,8 @@ public class BoardControllerTest extends RestDocControllerTests {
     private BoardService boardService;
     @MockBean
     private ImageLocalService imageService;
+    @MockBean
+    private BoardDslRepository boardDslRepository;
     @MockBean
     private BoardRepository boardRepository;
     @MockBean
@@ -156,16 +159,17 @@ public class BoardControllerTest extends RestDocControllerTests {
     @Test
     @DisplayName("페이징")
     void finds() throws Exception {
-        BoardPageRequest boardByRecipeRequest = new BoardPageRequest(1, 10, IssueType.ALL, SortType.RATING);
+        BoardPageRequest boardByRecipeRequest = new BoardPageRequest(0, 50, IssueType.ALL, SortType.RATING);
         Page<BoardMyRecipePageResponse> responsePage = new PageImpl<>(
                 List.of(
-                        new BoardMyRecipePageResponse(SortType.RATING, 1L, "Delicious Recipe", "User1", 4.5, 100, 50, LocalDateTime.now()),
-                        new BoardMyRecipePageResponse(SortType.RATING, 2L, "Another Recipe", "User2", 4.0, 90, 45, LocalDateTime.now())
+                        new BoardMyRecipePageResponse(SortType.RATING, 1L, "Delicious Recipe", "User1", "null",1L,4.5, 100,true,50, LocalDateTime.now()),
+                        new BoardMyRecipePageResponse(SortType.RATING, 2L, "Another Recipe", "User2", "",22L,4.0, 90, false,50,LocalDateTime.now())
                 )
         );
 
-        when(boardService.findMyRecipes(any(BoardPageRequest.class)))
+        when(boardService.findMyRecipes(any(),any(BoardPageRequest.class)))
                 .thenReturn(responsePage);
+
         String request = objectMapper.writeValueAsString(boardByRecipeRequest);
 
         ResultActions actions = jsonGetWhen("/api/boards", request);
@@ -183,9 +187,12 @@ public class BoardControllerTest extends RestDocControllerTests {
                                 fieldWithPath("content[].sortType").description("정렬 방식"),
                                 fieldWithPath("content[].boardId").description("게시판 ID"),
                                 fieldWithPath("content[].title").description("레시피 제목"),
+                                fieldWithPath("content[].mainImage").description("메인 이미지 링크"),
+                                fieldWithPath("content[].mainImageId").description("메인 이미지 id"),
                                 fieldWithPath("content[].userName").description("작성자 이름"),
                                 fieldWithPath("content[].star").description("레시피 평점"),
                                 fieldWithPath("content[].hit").description("조회수"),
+                                fieldWithPath("content[].myHit").description("내가 좋아요 클릭 여부"),
                                 fieldWithPath("content[].click").description("클릭 수"),
                                 fieldWithPath("content[].createTime").description("레시피 생성 시간"),
                                 fieldWithPath("pageable").description("페이지 관련 정보"),

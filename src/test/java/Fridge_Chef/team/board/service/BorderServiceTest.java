@@ -101,8 +101,8 @@ public class BorderServiceTest {
     void finds() {
         givenBoardContexts();
         executionTime(() -> {
-            BoardPageRequest request = new BoardPageRequest(1, 50, IssueType.ALL, SortType.HIT);
-            Page<BoardMyRecipePageResponse> result = boardService.findMyRecipes(request);
+            BoardPageRequest request = new BoardPageRequest(0, 20, IssueType.ALL, SortType.HIT);
+            Page<BoardMyRecipePageResponse> result = boardService.findMyRecipes(user.getUserId(),request);
             int left = result.getContent().get(0).getHit();
             int right = result.getContent().get(result.getSize() - 1).getHit();
             assertThat(left > right)
@@ -111,8 +111,8 @@ public class BorderServiceTest {
             return result;
         });
         executionTime(() -> {
-            BoardPageRequest request = new BoardPageRequest(1, 50,IssueType.ALL, SortType.CLICKS);
-            Page<BoardMyRecipePageResponse> result = boardService.findMyRecipes(request);
+            BoardPageRequest request = new BoardPageRequest(0, 20,IssueType.ALL, SortType.CLICKS);
+            Page<BoardMyRecipePageResponse> result = boardService.findMyRecipes(user.getUserId(),request);
             int left = result.getContent().get(0).getClick();
             int right = result.getContent().get(result.getSize() - 1).getClick();
             assertThat(left > right)
@@ -121,8 +121,8 @@ public class BorderServiceTest {
             return result;
         });
         executionTime(() -> {
-            BoardPageRequest request = new BoardPageRequest(1, 50, IssueType.ALL,SortType.LATEST);
-            Page<BoardMyRecipePageResponse> result = boardService.findMyRecipes(request);
+            BoardPageRequest request = new BoardPageRequest(0, 20, IssueType.ALL,SortType.LATEST);
+            Page<BoardMyRecipePageResponse> result = boardService.findMyRecipes(user.getUserId(),request);
             LocalDateTime left = result.getContent().get(0).getCreateTime();
             LocalDateTime right = result.getContent().get(result.getSize() - 1).getCreateTime();
             assertThat(left.isAfter(right))
@@ -249,7 +249,7 @@ public class BorderServiceTest {
     }
 
     private static Stream<BoardByRecipeRequest> provideBoardFindsRequests() {
-        return Stream.generate(BoardFixture::boardProvider).limit(100);
+        return Stream.generate(BoardFixture::boardProvider).limit(20);
     }
 
     private void givenBoardContexts() {

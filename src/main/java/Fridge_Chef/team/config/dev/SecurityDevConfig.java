@@ -11,6 +11,7 @@ import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -59,21 +60,53 @@ public class SecurityDevConfig {
     }
 
     private void configureAuthorization(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry registry) {
-        registry
-                .requestMatchers("/", "/login","/login/oauth2/login/**","/static/**","/login/oauth2/code",
-                        "/docs.html", "/favicon.ico", "/api/auth/**", "/api/cert/email/**",
-                        "/api/email/**", "/api/user/signup", "/api/user/login",
-                        "/api/ingredients/**", "/api/fridge/ingredients", "/api/recipes/", "/api/recipes/{id}",
-
-                        "/api/boards","/api/mobile/auth/login"
-                ).permitAll()
-                .requestMatchers("/api/user", "/api/user/account", "/api/books"
-                )
-                .hasAnyAuthority(Role.USER.getAuthority(), Role.ADMIN.getAuthority())
-                .requestMatchers("/api/manager/busines/ingredient")
-                .hasAnyAuthority(Role.ADMIN.getAuthority())
+        boardMatchers(registry);
+        commentMatchers(registry);
+        fridgeMatchers(registry);
+        ingredientsMatchers(registry);
+        userMatchers(registry);
+        registry.requestMatchers("/", "/static/**", "/docs.html", "/favicon.ico")
+                .permitAll()
                 .requestMatchers(PathRequest.toH2Console()).permitAll()
                 .anyRequest().authenticated();
+    }
+
+    private void boardMatchers(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry registry) {
+        registry.requestMatchers(HttpMethod.GET,
+                "/api/boards","/api/boards/**")
+                .permitAll()
+                .requestMatchers("/api/boards/**/hit", "/api/board",  "/api/books/**")
+                .hasAnyAuthority(Role.USER.getAuthority(), Role.ADMIN.getAuthority());
+    }
+
+    private void commentMatchers(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry registry) {
+        registry.requestMatchers(HttpMethod.GET, "/api/boards/**/comments", "/api/boards/**/comments/**")
+                .permitAll();
+        registry.requestMatchers(HttpMethod.POST, "/api/boards/**/comments")
+                .hasAnyAuthority(Role.USER.getAuthority(), Role.ADMIN.getAuthority())
+                .requestMatchers(HttpMethod.PUT, "/api/boards/**/comments/**")
+                .hasAnyAuthority(Role.USER.getAuthority(), Role.ADMIN.getAuthority())
+                .requestMatchers(HttpMethod.DELETE, "/api/boards/**/comments/**")
+                .hasAnyAuthority(Role.USER.getAuthority(), Role.ADMIN.getAuthority())
+                .requestMatchers(HttpMethod.PATCH, "/api/boards/**/comments/**/like")
+                .hasAnyAuthority(Role.USER.getAuthority(), Role.ADMIN.getAuthority());
+    }
+
+    private void userMatchers(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry registry) {
+        registry.requestMatchers(  "/api/mobile/auth/login", "/api/auth/**", "/login", "/login/oauth2/login/**", "/login/oauth2/code")
+                .permitAll()
+                .requestMatchers("/api/user", "/api/user/**")
+                .hasAnyAuthority(Role.USER.getAuthority(), Role.ADMIN.getAuthority());
+    }
+
+    private void ingredientsMatchers(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry registry) {
+        registry.requestMatchers("/api/ingredients/**", "/api/fridge/ingredients", "/api/recipes/", "/api/recipes/{id}")
+                .permitAll();
+    }
+
+    private void fridgeMatchers(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry registry) {
+        registry.requestMatchers("/api/fridge/ingredients")
+                .permitAll();
     }
 
     private void configureJwt(OAuth2ResourceServerConfigurer<HttpSecurity> configurer) {

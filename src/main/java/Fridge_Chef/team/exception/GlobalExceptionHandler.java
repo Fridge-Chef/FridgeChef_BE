@@ -13,18 +13,12 @@ import java.util.regex.Pattern;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    private static Pattern pattern = Pattern.compile("default message \\[([^\\]]+)]");
+    private static Pattern pattern = Pattern.compile("default message \\[.*?]");
 
-
-    @ExceptionHandler(value = Exception.class)
-    public ResponseEntity<ErrorResponse> handlerServerException(Exception e) {
-        log.error(e.getMessage(), e);
-        ErrorResponse errorResponse = ErrorResponse.of(ErrorCode.INTERNAL_SERVER_ERROR);
-        return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
-    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     protected ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+
         ErrorResponse errorResponse = ErrorResponse.of(
                 e.getStatusCode().value()
                 , extractMessage(e.getMessage()));
@@ -52,16 +46,19 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
     }
 
-    public static String extractMessage(String error) {
-        Matcher matcher = pattern.matcher(error);
-
-        int count = 0;
-        while (matcher.find()) {
-            if (count++ == 2) {
-                return matcher.group(1);
-            }
-        }
-        return null;
+    @ExceptionHandler(value = Exception.class)
+    public ResponseEntity<ErrorResponse> handlerServerException(Exception e) {
+        log.error(e.getMessage(), e);
+        ErrorResponse errorResponse = ErrorResponse.of(ErrorCode.INTERNAL_SERVER_ERROR);
+        return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
     }
 
+    public static String extractMessage(String error) {
+        Matcher matcher = pattern.matcher(error);
+        String result="";
+        while (matcher.find()) {
+            result = matcher.group();
+        }
+        return result.substring(result.indexOf("[") + 1, result.length() - 1);
+    }
 }

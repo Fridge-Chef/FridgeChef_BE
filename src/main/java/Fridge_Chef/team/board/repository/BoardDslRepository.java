@@ -6,6 +6,7 @@ import Fridge_Chef.team.board.repository.model.IssueType;
 import Fridge_Chef.team.board.repository.model.SortType;
 import Fridge_Chef.team.board.rest.request.BoardPageRequest;
 import Fridge_Chef.team.board.service.response.BoardMyRecipePageResponse;
+import Fridge_Chef.team.user.domain.UserId;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -29,13 +30,13 @@ import static Fridge_Chef.team.board.domain.QBoardIssue.boardIssue;
 public class BoardDslRepository {
     private final JPAQueryFactory factory;
 
-    public Page<BoardMyRecipePageResponse> findByPageUsers(PageRequest pageable, BoardPageRequest pageRequest) {
+    public Page<BoardMyRecipePageResponse> findByPageUsers(PageRequest pageable, BoardPageRequest pageRequest,UserId userId) {
         JPAQuery<Board> query = createBaseQuery(pageable, pageRequest);
 
         applySort(query, pageRequest.getSortType());
 
         List<BoardMyRecipePageResponse> content = query.fetch().stream()
-                .map(entity -> BoardMyRecipePageResponse.ofEntity(pageRequest.getSortType(), entity))
+                .map(entity -> BoardMyRecipePageResponse.ofEntity(pageRequest.getSortType(), entity,userId))
                 .collect(Collectors.toList());
 
         return PageableExecutionUtils.getPage(content , pageable, () -> query.fetch().size());

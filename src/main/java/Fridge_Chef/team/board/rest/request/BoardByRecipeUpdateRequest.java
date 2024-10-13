@@ -19,7 +19,7 @@ public class BoardByRecipeUpdateRequest {
     private String description;
     private MultipartFile mainImage;
     private Long mainImageId;
-    private boolean mainImageChange;
+    private boolean isMainImageChange;
     private List<BoardByRecipeUpdateRequest.RecipeIngredient> recipeIngredients;
     private List<BoardByRecipeUpdateRequest.Instructions> instructions;
 
@@ -40,7 +40,7 @@ public class BoardByRecipeUpdateRequest {
         private Long id;
         private String content;
         private MultipartFile image;
-        private boolean imageChange;
+        private boolean isImageChange;
     }
 
     public BoardByRecipeUpdateRequest(long board, String title, String description, MultipartFile mainImage, boolean isMainImageChange,
@@ -50,7 +50,7 @@ public class BoardByRecipeUpdateRequest {
         this.title = title;
         this.description = description;
         this.mainImage = mainImage;
-        this.mainImageChange = isMainImageChange;
+        this.isMainImageChange = isMainImageChange;
         List<RecipeIngredient> recipeIngredients1 = new ArrayList<>();
         List<Instructions> inst = new ArrayList<>();
         for (BoardByRecipeUpdateRequest.RecipeIngredient recipes : recipeIngredient) {
