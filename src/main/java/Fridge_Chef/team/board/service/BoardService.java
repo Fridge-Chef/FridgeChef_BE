@@ -9,6 +9,7 @@ import Fridge_Chef.team.board.service.response.BoardMyRecipePageResponse;
 import Fridge_Chef.team.board.service.response.BoardMyRecipeResponse;
 import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.exception.ErrorCode;
+import Fridge_Chef.team.image.domain.ImageType;
 import Fridge_Chef.team.image.service.ImageService;
 import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.domain.UserId;
@@ -70,11 +71,11 @@ public class BoardService {
         Context context = board.getContext();
         List<Description> descriptions = context.getDescriptions();
 
-        if (!board.isMainImageEmpty()) {
+        if (!board.isMainImageEmpty() && board.getMainImage().getType().equals(ImageType.ORACLE_CLOUD)) {
             imageService.imageRemove(userId, board.getMainImage().getId());
         }
         descriptions.forEach(description -> {
-            if (!description.isImageEmpty()) {
+            if (!description.isImageEmpty() && description.getImage().getType().equals(ImageType.ORACLE_CLOUD)) {
                 imageService.imageRemove(userId, description.getImage().getId());
             }
         });
