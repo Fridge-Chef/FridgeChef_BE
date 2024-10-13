@@ -9,7 +9,6 @@ import Fridge_Chef.team.image.service.ImageService;
 import Fridge_Chef.team.ingredient.domain.Ingredient;
 import Fridge_Chef.team.ingredient.repository.IngredientRepository;
 import Fridge_Chef.team.ingredient.repository.RecipeIngredientRepository;
-import Fridge_Chef.team.ingredient.service.IngredientService;
 import Fridge_Chef.team.recipe.domain.RecipeIngredient;
 import Fridge_Chef.team.user.domain.UserId;
 import lombok.RequiredArgsConstructor;
@@ -89,8 +88,4 @@ public class BoardIngredientService {
     private Ingredient saveNewIngredient(String ingredientName) {
         return ingredientRepository.save(new Ingredient(ingredientName));
     }
-
-//    private boolean isSeasoning(String ingredientName) {
-//        return IngredientService.SEASONINGS.stream().anyMatch(ingredientName::contains);
-//    }
 }

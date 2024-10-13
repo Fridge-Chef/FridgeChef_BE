@@ -57,10 +57,10 @@ public class BoardService {
     }
 
     @Transactional(readOnly = true)
-    public Page<BoardMyRecipePageResponse> findMyRecipes(BoardPageRequest request) {
+    public Page<BoardMyRecipePageResponse> findMyRecipes(UserId userId, BoardPageRequest request) {
         var page = PageRequest.of(request.getPage(), request.getSize());
 
-        return boardDslRepository.findByPageUsers(page, request);
+        return boardDslRepository.findByPageUsers(page, request, userId);
     }
 
     @Transactional

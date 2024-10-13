@@ -5,6 +5,7 @@ import Fridge_Chef.team.board.rest.request.BoardStarRequest;
 import Fridge_Chef.team.board.service.BoardService;
 import Fridge_Chef.team.board.service.response.BoardMyRecipePageResponse;
 import Fridge_Chef.team.board.service.response.BoardMyRecipeResponse;
+import Fridge_Chef.team.user.domain.UserId;
 import Fridge_Chef.team.user.rest.model.AuthenticatedUser;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,16 +26,25 @@ public class BoardsController {
     }
 
     @GetMapping
-    public Page<BoardMyRecipePageResponse> page(@Valid @RequestBody BoardPageRequest request) {
-        return boardService.findMyRecipes(request);
+    public Page<BoardMyRecipePageResponse> page(@AuthenticationPrincipal AuthenticatedUser user, @Valid @RequestBody BoardPageRequest request) {
+        UserId userId = openUserId(user);
+        return boardService.findMyRecipes(userId, request);
     }
 
     @PostMapping("/{board_id}/hit")
-    public void hit(@AuthenticationPrincipal AuthenticatedUser user,@PathVariable("board_id") Long boardId) {
-        boardService.updateUserHit(user.userId(),boardId);
+    public void hit(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable("board_id") Long boardId) {
+        boardService.updateUserHit(user.userId(), boardId);
     }
+
     @PostMapping("/{board_id}/star")
     public void star(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable("board_id") Long boardId, BoardStarRequest request) {
-        boardService.updateUserStar(user.userId(),boardId,request);
+        boardService.updateUserStar(user.userId(), boardId, request);
+    }
+
+    private static UserId openUserId(AuthenticatedUser user) {
+        if (user == null) {
+            return null;
+        }
+        return user.userId();
     }
 }

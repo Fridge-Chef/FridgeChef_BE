@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 public class BoardPageRequest {
     private int page;
     @Min(1)
-    @Max(50)
+    @Max(value = 50,message = "페이지 크기는 최대 50")
     private int size;
     private IssueType issueType;
     private SortType sortType;
