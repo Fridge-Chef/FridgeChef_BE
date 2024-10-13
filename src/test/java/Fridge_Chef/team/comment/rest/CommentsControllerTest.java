@@ -33,8 +33,8 @@ import static org.springframework.restdocs.request.RequestDocumentation.paramete
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 
 @DisplayName("댓글 API")
-@WebMvcTest(CommentController.class)
-public class CommentControllerTest extends RestDocControllerTests {
+@WebMvcTest({CommentsController.class, CommentController.class})
+public class CommentsControllerTest extends RestDocControllerTests {
 
     @MockBean
     private CommentService commentService;
@@ -54,7 +54,7 @@ public class CommentControllerTest extends RestDocControllerTests {
         MockMultipartFile images1 = getMultiFile("images");
         MockMultipartFile images2 = getMultiFile("images");
         var requestBuilder =
-                RestDocumentationRequestBuilders.multipart("/api/boards/{board_id}/comments", 1)
+                RestDocumentationRequestBuilders.multipart("/api/boards/{board_id}/comment", 1)
                         .file(images1)
                         .file(images2)
                         .param("comment", "댓글")
@@ -148,7 +148,7 @@ public class CommentControllerTest extends RestDocControllerTests {
                         ),
                         responseFields(
                                 fieldWithPath("[]").description("후기 리스트"),
-                                fieldWithPath("[].id").description("후기 ID"),
+                                fieldWithPath("[].id").description("ID"),
                                 fieldWithPath("[].comment").description("후기 내용"),
                                 fieldWithPath("[].like").description("좋아요 수 "),
                                 fieldWithPath("[].star").description("별점"),
@@ -156,6 +156,33 @@ public class CommentControllerTest extends RestDocControllerTests {
                                 fieldWithPath("[].imageLink[]").description("이미지 주소"),
                                 fieldWithPath("[].boardId").description("게시판 ID"),
                                 fieldWithPath("[].createdAt").description("작성일")
+                        )));
+
+    }
+
+    @Test
+    @DisplayName("단일 조회")
+    void getComment() throws Exception {
+        when(commentService.getCommentsByBoard(anyLong(), anyLong()))
+                .thenReturn(getAllCommentsProvider().get(0));
+
+        ResultActions result = jwtGetPathWhen("/api/boards/{board_id}/comments/{comment_id}", 1,1);
+
+        result.andExpect(status().isOk())
+                .andDo(document("후기 조회",
+                        pathParameters(
+                                parameterWithName("board_id").description("게시글 ID"),
+                                parameterWithName("comment_id").description("댓글 ID")
+                        ),
+                        responseFields(
+                                fieldWithPath("id").description(" ID"),
+                                fieldWithPath("comment").description("내용"),
+                                fieldWithPath("like").description("좋아요 수 "),
+                                fieldWithPath("star").description("별점"),
+                                fieldWithPath("userName").description("사용자 이름"),
+                                fieldWithPath("imageLink[]").description("이미지 주소"),
+                                fieldWithPath("boardId").description("게시판 ID"),
+                                fieldWithPath("createdAt").description("작성일")
                         )));
 
     }
