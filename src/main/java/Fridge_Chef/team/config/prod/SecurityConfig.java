@@ -62,7 +62,6 @@ public class SecurityConfig {
     private void configureAuthorization(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry registry) {
         boardMatchers(registry);
         commentMatchers(registry);
-        fridgeMatchers(registry);
         ingredientsMatchers(registry);
         userMatchers(registry);
         registry.requestMatchers("/", "/static/**", "/docs.html", "/favicon.ico")
@@ -72,43 +71,38 @@ public class SecurityConfig {
     }
 
     private void boardMatchers(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry registry) {
-        registry.requestMatchers(HttpMethod.GET,
-                        "/api/boards","/api/boards/**")
+        registry.requestMatchers(HttpMethod.GET, "/api/boards", "/api/boards/{board_id}")
                 .permitAll()
-                .requestMatchers("/api/boards/**/hit", "/api/board",  "/api/books/**")
+                .requestMatchers("/api/boards/{board_id}/hit", "/api/board", "/api/books/{board_id}")
                 .hasAnyAuthority(Role.USER.getAuthority(), Role.ADMIN.getAuthority());
     }
 
     private void commentMatchers(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry registry) {
-        registry.requestMatchers(HttpMethod.GET, "/api/boards/**/comments", "/api/boards/**/comments/**")
-                .permitAll();
-        registry.requestMatchers(HttpMethod.POST, "/api/boards/**/comments")
+        registry.requestMatchers(HttpMethod.GET, "/api/boards/{board_id}/comments")
+                .permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/boards/{board_id}/comments/{comment_id}")
+                .permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/boards/{board_id}/comments")
                 .hasAnyAuthority(Role.USER.getAuthority(), Role.ADMIN.getAuthority())
-                .requestMatchers(HttpMethod.PUT, "/api/boards/**/comments/**")
+                .requestMatchers(HttpMethod.PUT, "/api/boards/{board_id}/comments/{comment_id}")
                 .hasAnyAuthority(Role.USER.getAuthority(), Role.ADMIN.getAuthority())
-                .requestMatchers(HttpMethod.DELETE, "/api/boards/**/comments/**")
+                .requestMatchers(HttpMethod.DELETE, "/api/boards/{board_id}/comments/{comment_id}")
                 .hasAnyAuthority(Role.USER.getAuthority(), Role.ADMIN.getAuthority())
-                .requestMatchers(HttpMethod.PATCH, "/api/boards/**/comments/**/like")
+                .requestMatchers(HttpMethod.PATCH, "/api/boards/{board_id}/comments/{comment_id}/like")
                 .hasAnyAuthority(Role.USER.getAuthority(), Role.ADMIN.getAuthority());
     }
 
     private void userMatchers(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry registry) {
-        registry.requestMatchers(  "/api/mobile/auth/login", "/api/auth/**", "/login", "/login/oauth2/login/**", "/login/oauth2/code")
+        registry.requestMatchers("/api/mobile/auth/login", "/api/auth/**", "/login", "/login/oauth2/login/**", "/login/oauth2/code")
                 .permitAll()
                 .requestMatchers("/api/user", "/api/user/**")
                 .hasAnyAuthority(Role.USER.getAuthority(), Role.ADMIN.getAuthority());
     }
 
     private void ingredientsMatchers(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry registry) {
-        registry.requestMatchers("/api/ingredients/**", "/api/fridge/ingredients", "/api/recipes/", "/api/recipes/{id}")
+        registry.requestMatchers("/api/fridge/ingredients", "/api/ingredients/**", "/api/fridge/ingredients", "/api/recipes/", "/api/recipes/**")
                 .permitAll();
     }
-
-    private void fridgeMatchers(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry registry) {
-        registry.requestMatchers("/api/fridge/ingredients")
-                .permitAll();
-    }
-
 
     private void configureJwt(OAuth2ResourceServerConfigurer<HttpSecurity> configurer) {
         configurer.jwt(jwt -> {
