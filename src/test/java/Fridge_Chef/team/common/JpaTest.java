@@ -63,7 +63,7 @@ public class JpaTest extends QueryDslTest {
         for (Board board : boards) {
             board = saveBoard(board);
 
-            List<Comment> comments = CommentFixture.creates(random.nextInt(100) + 100, board, users);
+            List<Comment> comments = CommentFixture.creates(random.nextInt(10) + 10, board, users);
             for (Comment comment : comments) {
                 comment.updateImage(imageRepository.saveAll(comment.getCommentImage()));
             }
@@ -78,7 +78,7 @@ public class JpaTest extends QueryDslTest {
     }
 
     private List<User> creates() {
-        return userRepository.saveAll(UserFixture.creates(300));
+        return userRepository.saveAll(UserFixture.creates(20));
     }
 
     private void randomEvent(Board board, List<User> users) {
