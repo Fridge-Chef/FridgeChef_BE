@@ -21,5 +21,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByUserId(UserId userid);
 
-    List<User> findByIsDelete(OracleBoolean delete);
+    List<User> findByDelete(OracleBoolean delete);
 }
