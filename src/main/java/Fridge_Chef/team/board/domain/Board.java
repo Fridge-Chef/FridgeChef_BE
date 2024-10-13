@@ -5,6 +5,7 @@ import Fridge_Chef.team.common.entity.BaseEntity;
 import Fridge_Chef.team.image.domain.Image;
 import Fridge_Chef.team.recipe.domain.Recipe;
 import Fridge_Chef.team.user.domain.User;
+import Fridge_Chef.team.user.domain.UserId;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -119,5 +120,20 @@ public class Board extends BaseEntity {
 
     public void setContext(Context context) {
         this.context = context;
+    }
+
+    public boolean getIsMyHit(UserId userId) {
+        if(userId == null){
+            return false;
+        }
+        return boardUserEvent.stream()
+                .anyMatch(event -> event.isUserHit(userId));
+    }
+
+    public Long getMainImageId() {
+        if (mainImage != null) {
+            return mainImage.getId();
+        }
+        return -1L;
     }
 }
