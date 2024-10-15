@@ -49,17 +49,30 @@ public class BasicRecipesInitializer {
     private final ContextRepository contextRepository;
     private final BoardRepository boardRepository;
 
+    private static final Pattern CSV_LINE_PATTERN = Pattern.compile("\"([^\"]*)\"|([^,]+)");
+    private static final Pattern INGREDIENTS_SPLIT_PATTERN = Pattern.compile("\\s*,\\s*(?=(?:[^()]*\\([^()]*\\))*[^()]*$)");
+    private static final Pattern INGREDIENT_NAME_PATTERN = Pattern.compile("(.*?)(\\s*\\(.*?\\))?$");
+    private static final Pattern QUANTITY_PATTERN = Pattern.compile("\\((.*?)\\)");
+
+
 
     @PostConstruct
     public void init() throws IOException{
 
-        //User
+        User user = createAdminUser();
+        createBasicRecipes(user);
+    }
+
+    @Transactional
+    private User createAdminUser() {
+
         UserId userId = UserId.create();
         Profile profile = new Profile(null, null, "fridge chef", null);
         User user = new User(userId, profile, Role.ADMIN);
+
         userRepository.save(user);
 
-        createBasicRecipes(user);
+        return user;
     }
 
     @Transactional
@@ -75,17 +88,13 @@ public class BasicRecipesInitializer {
             Recipe recipe = createRecipe(fields);
             saveRecipeWithIngredients(recipe);
             recipeToBoard(user, recipe);
-
-            System.out.println("created >> " + recipe.getName());
         }
     }
 
     private List<String> parseLine(String line) {
 
         List<String> result = new ArrayList<>();
-
-        Pattern pattern = Pattern.compile("\"([^\"]*)\"|([^,]+)");
-        Matcher matcher = pattern.matcher(line);
+        Matcher matcher = CSV_LINE_PATTERN.matcher(line);
 
         while (matcher.find()) {
             if (matcher.group(1) != null) {
@@ -129,9 +138,7 @@ public class BasicRecipesInitializer {
 
         List<RecipeIngredient> recipeIngredients = new ArrayList<>();
 
-        String regex = "\\s*,\\s*(?=(?:[^()]*\\([^()]*\\))*[^()]*$)";
-        String[] parts = ingredients.split(regex);
-
+        String[] parts = INGREDIENTS_SPLIT_PATTERN.split(ingredients);
         for (String part : parts) {
             part = part.trim();
 
@@ -171,8 +178,7 @@ public class BasicRecipesInitializer {
 
     private String extractIngredientName(String part) {
 
-        String regex = "(.*?)(\\s*\\(.*?\\))?$";
-        Matcher matcher = Pattern.compile(regex).matcher(part);
+        Matcher matcher = INGREDIENT_NAME_PATTERN.matcher(part);
 
         if (matcher.find()) {
             return matcher.group(1).trim();
@@ -183,8 +189,7 @@ public class BasicRecipesInitializer {
 
     private String extractQuantity(String part) {
 
-        String regex = "\\((.*?)\\)";
-        Matcher matcher = Pattern.compile(regex).matcher(part);
+        Matcher matcher = QUANTITY_PATTERN.matcher(part);
 
         if (matcher.find()) {
             return matcher.group(1).trim();
