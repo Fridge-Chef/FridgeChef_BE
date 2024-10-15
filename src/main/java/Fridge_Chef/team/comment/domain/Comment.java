@@ -33,16 +33,16 @@ public class Comment extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Board board;
     @ManyToOne(fetch = FetchType.LAZY)
-    private User user;
+    private User users;
 
-    private String comment;
+    private String comments;
     private double star;
     private int totalHit;
 
-    public Comment(Board board, User user, List<Image> images, String comment, double star) {
+    public Comment(Board board, User users, List<Image> images, String comments, double star) {
         this.board = board;
-        this.user = user;
-        this.comment = comment;
+        this.users = users;
+        this.comments = comments;
         this.star = star;
         this.totalHit=0;
         this.commentImage = images;
@@ -79,7 +79,7 @@ public class Comment extends BaseEntity {
     }
 
     public void updateComment(String comment) {
-        this.comment =comment;
+        this.comments =comment;
     }
 
     public List<String> getImageLinks() {

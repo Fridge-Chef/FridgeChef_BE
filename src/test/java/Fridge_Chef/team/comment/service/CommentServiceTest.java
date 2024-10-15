@@ -82,7 +82,7 @@ public class CommentServiceTest {
         Comment result = commentService.addComment(1L, UserFixture.create("tests@gmail.com").getUserId(), request);
 
         assertNotNull(result);
-        assertEquals("Test Comment", result.getComment());
+        assertEquals("Test Comment", result.getComments());
         assertEquals(4.0, result.getStar());
         verify(commentRepository, times(1)).save(any(Comment.class));
     }

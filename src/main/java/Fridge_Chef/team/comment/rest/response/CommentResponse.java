@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 public class CommentResponse {
     private Long id;
-    private String comment;
+    private String comments;
     private double star;
     private int like;
     private String userName;
@@ -25,10 +25,10 @@ public class CommentResponse {
     public static CommentResponse fromEntity(Comment comment) {
         return new CommentResponse(
                 comment.getId(),
-                comment.getComment(),
+                comment.getComments(),
                 comment.getStar(),
                 comment.getTotalHit(),
-                comment.getUser().getUsername(),
+                comment.getUsers().getUsername(),
                 comment.getImageLinks(),
                 comment.getBoard().getId(),
                 comment.getCreateTime()

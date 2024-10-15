@@ -43,7 +43,7 @@ public class CommentService {
 
         Optional<Comment> existingComment = board.getComments()
                 .stream()
-                .filter(comment -> comment.getUser().getUserId().equals(userId))
+                .filter(comment -> comment.getUsers().getUserId().equals(userId))
                 .findFirst();
 
         if (existingComment.isPresent()) {
@@ -110,7 +110,7 @@ public class CommentService {
         List<Comment> comments = commentRepository.findAllByBoard(board);
 
         user.map(AuthenticatedUser::userId).flatMap(userId -> comments.stream()
-                .filter(comment -> comment.getUser().getUserId().equals(userId))
+                .filter(comment -> comment.getUsers().getUserId().equals(userId))
                 .findFirst()).ifPresent(userComment -> {
             comments.remove(userComment);
             comments.add(0, userComment);
@@ -185,7 +185,7 @@ public class CommentService {
     }
 
     private void validCommentUserAuthor(Comment comment, UserId userId) {
-        if (!comment.getUser().getUserId().equals(userId)) {
+        if (!comment.getUsers().getUserId().equals(userId)) {
             throw new ApiException(ErrorCode.COMMENT_NOT_USER_AUTHOR);
         }
     }

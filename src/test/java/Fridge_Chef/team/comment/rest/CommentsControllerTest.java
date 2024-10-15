@@ -149,7 +149,7 @@ public class CommentsControllerTest extends RestDocControllerTests {
                         responseFields(
                                 fieldWithPath("[]").description("후기 리스트"),
                                 fieldWithPath("[].id").description("ID"),
-                                fieldWithPath("[].comment").description("후기 내용"),
+                                fieldWithPath("[].comments").description("후기 내용"),
                                 fieldWithPath("[].like").description("좋아요 수 "),
                                 fieldWithPath("[].star").description("별점"),
                                 fieldWithPath("[].userName").description("사용자 이름"),
@@ -176,7 +176,7 @@ public class CommentsControllerTest extends RestDocControllerTests {
                         ),
                         responseFields(
                                 fieldWithPath("id").description(" ID"),
-                                fieldWithPath("comment").description("내용"),
+                                fieldWithPath("comments").description("내용"),
                                 fieldWithPath("like").description("좋아요 수 "),
                                 fieldWithPath("star").description("별점"),
                                 fieldWithPath("userName").description("사용자 이름"),
