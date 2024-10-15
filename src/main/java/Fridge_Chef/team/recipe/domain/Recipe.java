@@ -30,6 +30,7 @@ public class Recipe extends BaseEntity {
     private UUID id;
 
     private String name;
+    private String category;
     private String intro;
     private int cookTime;
     private Difficult difficult;

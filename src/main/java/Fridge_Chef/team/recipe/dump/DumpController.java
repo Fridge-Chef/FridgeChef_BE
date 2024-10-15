@@ -12,9 +12,9 @@ public class DumpController {
 
     private final DumpService dumpService;
 
-    @PostMapping("/")
-    public void dump() {
-
-        dumpService.insertAll();
-    }
+//    @PostMapping("/")
+//    public void dump() {
+//
+//        dumpService.insertAll();
+//    }
 }
