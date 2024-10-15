@@ -3,6 +3,7 @@ package Fridge_Chef.team.ingredient.service;
 import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.exception.ErrorCode;
 import Fridge_Chef.team.ingredient.domain.Ingredient;
+import Fridge_Chef.team.ingredient.domain.IngredientCategory;
 import Fridge_Chef.team.ingredient.repository.IngredientRepository;
 import Fridge_Chef.team.recipe.domain.RecipeIngredient;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +45,15 @@ public class IngredientService {
         } else {
             return ingredientRepository.save(ingredient);
         }
+    }
+
+    public IngredientCategory getIngredientCategory(String category) {
+        try {
+            return IngredientCategory.valueOf(category);
+        } catch (Exception e) {
+            throw new ApiException(ErrorCode.INGREDIENT_CATEGORY_INVALID);
+        }
+
     }
 
     private RecipeIngredient createRecipeIngredient(String ingredientName, String quantity) {

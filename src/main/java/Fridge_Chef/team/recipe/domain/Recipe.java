@@ -31,6 +31,8 @@ public class Recipe extends BaseEntity {
 
     private String name;
     private String intro;
+    private int cookTime;
+    private Difficult difficult;
 
     @OneToOne(fetch = FetchType.LAZY)
     private Image image;
