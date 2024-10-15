@@ -14,5 +14,6 @@ import java.time.LocalDate;
 public class FridgeIngredientRequest {
 
     private String ingredientName;
+    private String IngredientCategory;
     private LocalDate expirationDate;
 }

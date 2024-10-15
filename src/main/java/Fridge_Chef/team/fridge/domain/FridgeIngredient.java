@@ -1,6 +1,7 @@
 package Fridge_Chef.team.fridge.domain;
 
 import Fridge_Chef.team.ingredient.domain.Ingredient;
+import Fridge_Chef.team.ingredient.domain.IngredientCategory;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,9 +32,14 @@ public class FridgeIngredient {
 
     private LocalDate expirationDate;
     private Storage storage;
+    private IngredientCategory ingredientCategory;
 
     public void updateExpirationDate(LocalDate exp) {
         this.expirationDate = exp;
+    }
+
+    public void updateCategory(IngredientCategory category) {
+        this.ingredientCategory = category;
     }
 
     public void updateStorage(Storage storage) {

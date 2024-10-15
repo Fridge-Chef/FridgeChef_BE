@@ -1,6 +1,7 @@
 package Fridge_Chef.team.fridge.rest.response;
 
 import Fridge_Chef.team.fridge.domain.Storage;
+import Fridge_Chef.team.ingredient.domain.IngredientCategory;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,4 +18,5 @@ public class FridgeIngredientResponse {
     private String ingredientName;
     private LocalDate expirationDate;
     private Storage storage;
+    private IngredientCategory ingredientCategory;
 }

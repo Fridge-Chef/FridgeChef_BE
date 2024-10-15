@@ -10,6 +10,7 @@ import Fridge_Chef.team.fridge.rest.request.FridgeIngredientAddRequest;
 import Fridge_Chef.team.fridge.rest.request.FridgeIngredientRequest;
 import Fridge_Chef.team.fridge.rest.response.FridgeIngredientResponse;
 import Fridge_Chef.team.ingredient.domain.Ingredient;
+import Fridge_Chef.team.ingredient.domain.IngredientCategory;
 import Fridge_Chef.team.ingredient.service.IngredientService;
 import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.domain.UserId;
@@ -60,6 +61,7 @@ public class FridgeService {
                         .ingredientName(fridgeIngredient.getIngredient().getName())
                         .expirationDate(fridgeIngredient.getExpirationDate())
                         .storage(fridgeIngredient.getStorage())
+                        .ingredientCategory(fridgeIngredient.getIngredientCategory())
                         .build())
                 .collect(Collectors.toList());
 
@@ -99,12 +101,18 @@ public class FridgeService {
     public void updateIngredient(UserId userId, FridgeIngredientRequest request) {
 
         String ingredientName = request.getIngredientName();
+        String category = request.getIngredientCategory();
         LocalDate exp = request.getExpirationDate();
 
         Fridge fridge = getFridge(userId);
         FridgeIngredient updateIngredient = getFridgeIngredient(fridge, ingredientName);
 
-        if (request.getExpirationDate() != null) {
+        if (category != null) {
+            IngredientCategory ingredientCategory = ingredientService.getIngredientCategory(category);
+            updateIngredient.updateCategory(ingredientCategory);
+        }
+
+        if (exp != null) {
             updateIngredient.updateExpirationDate(exp);
         }
 
@@ -117,6 +125,7 @@ public class FridgeService {
                 .ingredient(ingredient)
                 .expirationDate(null)
                 .storage(storage)
+                .ingredientCategory(IngredientCategory.UNCATEGORIZED)
                 .build();
     }
 
