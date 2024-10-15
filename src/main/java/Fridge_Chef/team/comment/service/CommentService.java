@@ -134,7 +134,7 @@ public class CommentService {
 
     @Transactional
     public void updateHit(Long boardId, Long commentId, UserId userId) {
-        Optional<CommentUserEvent> event = commentUserEventRepository.findByBoardIdAndCommentIdAndUserUserId(boardId,commentId,userId);
+        Optional<CommentUserEvent> event = commentUserEventRepository.findByBoardIdAndCommentsIdAndUserUserId(boardId,commentId,userId);
         event.ifPresent(CommentUserEvent::updateHit);
         if(event.isEmpty()){
             Board board =findByBoard(boardId);

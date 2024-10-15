@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface CommentUserEventRepository extends JpaRepository<CommentUserEvent, Long> {
-    Optional<CommentUserEvent> findByBoardIdAndCommentIdAndUserUserId(Long boardId, Long commentId, UserId userId);
+    Optional<CommentUserEvent> findByBoardIdAndCommentsIdAndUserUserId(Long boardId, Long commentId, UserId userId);
 }
