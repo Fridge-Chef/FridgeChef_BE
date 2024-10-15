@@ -15,6 +15,7 @@ import Fridge_Chef.team.ingredient.domain.Ingredient;
 import Fridge_Chef.team.ingredient.repository.RecipeIngredientRepository;
 import Fridge_Chef.team.ingredient.rest.response.IngredientResponse;
 import Fridge_Chef.team.ingredient.service.IngredientService;
+import Fridge_Chef.team.recipe.domain.Difficult;
 import Fridge_Chef.team.recipe.domain.Recipe;
 import Fridge_Chef.team.recipe.domain.RecipeIngredient;
 import Fridge_Chef.team.recipe.repository.RecipeDslRepository;
@@ -60,6 +61,7 @@ public class RecipeService {
         Image image = Image.outUri(request.getImageUrl());
         imageRepository.save(image);
 
+        Difficult difficult = Difficult.valueOf(request.getDifficult());
         List<Description> descriptions = insertDescriptions(request.getDescriptions());
         List<RecipeIngredient> recipeIngredients = insertRecipeIngredients(request.getRecipeIngredients());
 
@@ -68,9 +70,11 @@ public class RecipeService {
                 .intro(request.getIntro())
                 .image(image)
                 .cookTime(request.getCookTime())
+                .difficult(difficult)
                 .descriptions(descriptions)
                 .recipeIngredients(recipeIngredients)
                 .build();
+
         recipeRepository.save(recipe);
 
         recipeToBoard(user, recipe);
