@@ -2,7 +2,7 @@ spring:
   jpa:
     open-in-view: false
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
     properties:
       hibernate:
         order_inserts: true
@@ -11,5 +11,5 @@ spring:
           pool_size: 70
         jdbc:
           batch_size: 1000
-        show_sql:
-        format_sql:
+        show_sql: true
+        format_sql: true
