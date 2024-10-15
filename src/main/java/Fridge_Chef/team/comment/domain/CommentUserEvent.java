@@ -23,14 +23,14 @@ public class CommentUserEvent extends BaseEntity {
     private Board board;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn
-    private Comment comment;
+    private Comment comments;
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
     private int hit;
 
-    public CommentUserEvent(Board board, Comment comment, User user) {
+    public CommentUserEvent(Board board, Comment comments, User user) {
         this.board = board;
-        this.comment = comment;
+        this.comments = comments;
         this.user = user;
         this.hit = 0;
     }
