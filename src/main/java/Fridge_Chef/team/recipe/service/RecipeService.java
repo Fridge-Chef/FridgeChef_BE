@@ -67,6 +67,7 @@ public class RecipeService {
                 .name(request.getName())
                 .intro(request.getIntro())
                 .image(image)
+                .cookTime(request.getCookTime())
                 .descriptions(descriptions)
                 .recipeIngredients(recipeIngredients)
                 .build();
