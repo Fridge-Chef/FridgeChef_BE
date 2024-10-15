@@ -16,8 +16,8 @@ public class BookCommentResponse {
     public BookCommentResponse(Comment entity) {
         this.boardId=entity.getBoard().getId();
         this.commentId=entity.getId();
-        this.name = entity.getUser().getUsername();
+        this.name = entity.getUsers().getUsername();
         this.star=entity.getStar();
-        this.context=entity.getComment();
+        this.context=entity.getComments();
     }
 }
