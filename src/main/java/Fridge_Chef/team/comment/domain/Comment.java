@@ -17,7 +17,7 @@ import static lombok.AccessLevel.PROTECTED;
 
 @Entity
 @Getter
-@Table
+@Table(name = "comments")
 @NoArgsConstructor(access = PROTECTED)
 public class Comment extends BaseEntity {
 
