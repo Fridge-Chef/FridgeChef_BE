@@ -36,6 +36,7 @@ import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
+@org.springframework.context.annotation.Profile({"prod","dev"})
 public class BasicRecipesInitializer {
 
     private final ResourceLoader resourceLoader;
@@ -58,16 +59,17 @@ public class BasicRecipesInitializer {
 
     @PostConstruct
     public void init() throws IOException{
-
-        User user = createAdminUser();
-        createBasicRecipes(user);
+        String email ="recipeUser@fridge.chef";
+        if(!userRepository.existsByProfileEmail(email)){
+            User user = createAdminUser(email);
+            createBasicRecipes(user);
+        }
     }
 
     @Transactional
-    private User createAdminUser() {
-
+    public User createAdminUser(String email) {
         UserId userId = UserId.create();
-        Profile profile = new Profile(null, null, "fridge chef", null);
+        Profile profile = new Profile(null, email, "fridge chef", null);
         User user = new User(userId, profile, Role.ADMIN);
 
         userRepository.save(user);
