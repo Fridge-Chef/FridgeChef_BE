@@ -22,4 +22,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUserId(UserId userid);
 
     List<User> findByDeleteStatus(OracleBoolean deleteStatus);
+
+    boolean existsByProfileEmail(String email);
+
 }
