@@ -45,7 +45,6 @@ public class BoardDslRepository {
     private JPAQuery<Board> createBaseQuery(PageRequest pageable, BoardPageRequest request) {
         if (request.getIssueType() == null || request.getIssueType().equals(IssueType.ALL)) {
             return factory.selectFrom(board)
-                    .where(board.type.eq(BoardType.USER))
                     .offset(pageable.getOffset())
                     .limit(pageable.getPageSize());
         }
