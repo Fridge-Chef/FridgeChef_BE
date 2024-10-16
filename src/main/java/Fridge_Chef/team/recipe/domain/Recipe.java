@@ -26,13 +26,14 @@ public class Recipe extends BaseEntity {
     @Id
     @GeneratedValue(generator = "uuid2")
     @UuidGenerator
-    @Column(name = "recipe_id", columnDefinition = "BINARY(16)")
+    @Column(name = "recipe_id", columnDefinition = "VARCHAR2(36)")
     private UUID id;
 
     private String name;
     private String category;
     private String intro;
     private int cookTime;
+    @Enumerated(EnumType.STRING)
     private Difficult difficult;
 
     @OneToOne(fetch = FetchType.LAZY)
