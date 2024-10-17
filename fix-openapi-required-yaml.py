@@ -58,7 +58,7 @@ def decode_operation_ids(yaml_data):
 
 def main():
     root_dir = "build/generated-snippets/"
-    yaml_file_path = "openapi-fixed.yaml"
+    yaml_file_path = "build/api-spec/openapi3.yaml"
 
     # Step 1: Find all optional fields
     optional_fields = find_optional_true_fields(root_dir)

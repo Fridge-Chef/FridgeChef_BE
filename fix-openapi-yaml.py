@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-#$ python3 ./fix-openapi-yaml.py build/api-spec/openapi3.yaml >openapi-fixed.yaml && redoc-cli bundle openapi-fixed.yaml
+#$ python3 ./fix-openapi-yaml.py build/api-spec/openapi3.yaml > openapi-fixed.yaml && redoc-cli bundle openapi-fixed.yaml
 
 import sys
 import yaml

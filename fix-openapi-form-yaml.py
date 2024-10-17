@@ -1,220 +1,205 @@
 import os
 import re
-import uuid
 import yaml
+import uuid
 
-# snippets 및 openapi 경로 설정
-SNIPPETS_DIR = 'build/generated-snippets'
-OPENAPI_FILE = 'build/api-spec/openapi3.yaml'
+# 경로 설정
+adoc_path = 'build/generated-snippets/'
+openapi_path = 'build/api-spec/openapi3.yaml'
 
-def find_snippet_directories(base_dir):
-    """build/generated-snippets 디렉토리에서 request-parts.adoc이 있는 폴더를 찾음"""
-    for root, dirs, files in os.walk(base_dir):
-        if 'request-parts.adoc' in files:
-            yield root
+# 원하는 순서
+desired_order = [
+    'openapi',
+    'info',
+    'servers',
+    'tags',
+    'paths',
+    'components'
+]
 
-def extract_curl_data(curl_file):
-    """curl-request.adoc 파일에서 -F로 시작하는 부분을 추출 및 경로와 메서드 추출"""
-    with open(curl_file, 'r', encoding='utf-8') as file:
-        content = file.read()
-
-    # 경로 및 메서드 추출 (첫 번째 줄에서 경로와 메서드 추출)
-    path_match = re.search(r"curl 'http://localhost:8080(/[\w/]+)' -i -X (\w+)", content)
-    if path_match:
-        api_path = path_match.group(1)
-        method = path_match.group(2).lower()  # 메서드를 소문자로 처리
-    else:
-        return None, None
-
-    return api_path, method
-
-def extract_http_data(http_file):
-    """http-request.adoc 파일에서 JSON 데이터를 추출"""
-    json_data = {}
-    with open(http_file, 'r', encoding='utf-8') as file:
-        content = file.read()
-
-    # JSON 데이터를 포함한 부분 찾기
-    # 'name'을 동적으로 추출하도록 변경
-    json_match = re.search(r'Content-Disposition: form-data; name=(\w+); filename=(.*)\nContent-Type: application/json\n\n(.*?)(?=\n--)', content, re.DOTALL)
-    if json_match:
-        name = json_match.group(1)  # 'name' 속성 추출
-        json_content = json_match.group(3).strip()  # JSON 내용 추출
-        json_data[name] = json_content  # 동적으로 name에 맞춰 데이터 추가
-
-    return json_data
-
-def extract_image_data(http_file):
-    """http-request.adoc 파일에서 이미지 데이터 추출 (불필요한 부분은 무시)"""
-    image_files = []
-    with open(http_file, 'r', encoding='utf-8') as file:
-        content = file.read()
-
-    # 이미지 파일 목록 찾기
-    image_matches = re.findall(r'Content-Disposition: form-data; name=images; filename=(.*)', content)
-    for match in image_matches:
-        image_files.append(match.strip())
-
-    return image_files
-
-def generate_random_uuid():
-    """랜덤 UUID 생성"""
-    return str(uuid.uuid4())
-
-def load_openapi_spec(file_path):
-    """openapi3.yaml 파일 읽기"""
+def load_yaml(file_path):
+    """Load YAML file."""
     with open(file_path, 'r', encoding='utf-8') as file:
         return yaml.safe_load(file)
 
-def save_openapi_spec(file_path, spec):
-    """openapi3.yaml 파일 저장"""
+def save_yaml(file_path, data):
+    """Save YAML file."""
     with open(file_path, 'w', encoding='utf-8') as file:
-        yaml.dump(spec, file, allow_unicode=True)
+        yaml.dump(data, file, sort_keys=False)
 
-def find_operation_id(api_path, method, openapi_spec):
-    """openapi3.yaml 파일에서 경로와 메서드에 맞는 operationId 값을 찾아 반환"""
-    if api_path in openapi_spec['paths'] and method in openapi_spec['paths'][api_path]:
-        return openapi_spec['paths'][api_path][method].get('operationId')
-    return None
+def sort_yaml_data(yaml_data):
+    """Sort YAML data based on desired order."""
+    sorted_data = {}
+    for key in desired_order:
+        if key in yaml_data:
+            sorted_data[key] = yaml_data[key]
+    return sorted_data
 
-def update_openapi_yaml(api_path, method, operation_id, openapi_spec, http_file):
-    """openapi3.yaml 파일 업데이트"""
-    random_uuid = generate_random_uuid()
+# 함수: 파일명에 '-'가 포함된 것은 제외하고 adoc 파일들을 읽어들이기
+# 해당 폴더에 'request-parts.adoc' 파일이 없는 폴더는 제외
+def get_valid_adoc_folders(base_path):
+    valid_folders = []
+    for root, dirs, files in os.walk(base_path):
+        # 폴더명에 '-'가 포함되지 않은지 확인
+        folder_name = os.path.basename(root)
+        if '-' not in folder_name:
+            # 'request-parts.adoc' 파일이 있는지 확인
+            if 'request-parts.adoc' in files:
+                valid_folders.append([os.path.join(root, file) for file in files if file.endswith('.adoc')])
+    return valid_folders
 
-    # 해당 경로와 메서드가 있는지 확인하고 없으면 추가
-    if api_path not in openapi_spec['paths']:
-        openapi_spec['paths'][api_path] = {}
-    if method not in openapi_spec['paths'][api_path]:
-        openapi_spec['paths'][api_path][method] = {}
 
-    # JSON 데이터 추출
-    json_data = extract_http_data(http_file)
 
-    # 요청 바디의 새로운 스키마 추가
-    openapi_spec['components']['schemas'][f'api-board-{random_uuid}'] = {
+def extract_curl_request(file_content):
+    match = re.search(r"curl '([^']+)' -i -X (\w+)", file_content)
+    if match:
+        full_uri, method = match.groups()
+        # 'http://localhost:8080'을 제거하고 URI의 경로 부분만 추출
+        uri = re.sub(r'^https?://[^/]+', '', full_uri)
+        return uri, method
+    return None, None
+# 함수: request-parts.adoc에서 part와 description 추출
+def extract_request_parts(file_content):
+    parts = re.findall(r"\|`(.+?)`\s*\|\s*(.+)", file_content)
+    return [{'part': part.strip(), 'description': desc.strip()} for part, desc in parts]
+
+
+# 함수: openapi.yaml을 업데이트
+def update_openapi_yaml(uri, method, parts):
+    # YAML 파일 읽기
+    with open(openapi_path, 'r', encoding='utf-8') as f:
+        openapi_data = yaml.safe_load(f)
+
+    # uuid 생성 및 기본 구조 생성
+    operation_id = str(uuid.uuid4())
+    schema_ref = f"api-{operation_id}"
+
+    # paths에 추가
+    if 'paths' not in openapi_data:
+        openapi_data['paths'] = {}
+
+    if uri not in openapi_data['paths']:
+        openapi_data['paths'][uri] = {}
+
+    if method.lower() not in openapi_data['paths'][uri]:
+        openapi_data['paths'][uri][method.lower()] = {}
+
+    # requestBody 작성
+    openapi_data['paths'][uri][method.lower()]['requestBody'] = {
+        'content': {
+            'application/form-data': {
+                'schema': {
+                    '$ref': f"#/components/schemas/{schema_ref}"
+                }
+
+            }
+        }
+    }
+
+    # components.schemas에 추가
+    if 'components' not in openapi_data:
+        openapi_data['components'] = {}
+    if 'schemas' not in openapi_data['components']:
+        openapi_data['components']['schemas'] = {}
+
+    # 스키마 작성
+    schema_structure = {
         'type': 'object',
         'properties': {}
     }
 
-    # JSON 데이터에서 properties 동적으로 생성
-    for key, value in json_data.items():
-        if isinstance(value, list):
-            # 리스트인 경우
-            openapi_spec['components']['schemas'][f'api-board-{random_uuid}']['properties'][key] = {
-                'type': 'array',
-                'items': {
-                    'type': 'object',
-                    'properties': {}
-                },
-                'description': f'{key} 목록'  # 배열 설명 추가
-            }
 
-            # 리스트 아이템의 구조 분석
-            if value:  # 리스트가 비어있지 않을 경우
-                for item in value:
-                    if isinstance(item, dict):
-                        for item_key, item_value in item.items():
-                            openapi_spec['components']['schemas'][f'api-board-{random_uuid}']['properties'][key]['items']['properties'][item_key] = {
-                                'type': type(item_value).__name__,  # 타입 추출
-                                'description': f'{item_key}에 대한 설명'  # 설명 추가
-                            }
+    for part in parts:
+        # '+' 제거
+        cleaned_part = part['part'].replace('+', '')  # '+' 플러스 문자를 제거
 
-        elif isinstance(value, dict):
-            # 객체인 경우
-            openapi_spec['components']['schemas'][f'api-board-{random_uuid}']['properties'][key] = {
-                'type': 'object',
-                'properties': {}
-            }
-            for sub_key, sub_value in value.items():
-                openapi_spec['components']['schemas'][f'api-board-{random_uuid}']['properties'][key]['properties'][sub_key] = {
-                    'type': type(sub_value).__name__,  # 타입 추출
-                    'description': f'{sub_key}에 대한 설명'  # 설명 추가
-                }
+        # 괄호와 숫자 처리
+        match = re.search(r'(\w+)\[(\d+)\]\.(\w+)', cleaned_part)  # field[0].name 형식 체크
+        if match:
+            field_name = match.group(1) + '.' + match.group(3)  # field.name 형식으로 변환
+            number = int(match.group(2))  # 괄호 안의 숫자 추출
 
+            if number >= 1:
+                continue  # 숫자가 1 이상이면 건너뛰기
         else:
-            # 기본 타입인 경우
-            openapi_spec['components']['schemas'][f'api-board-{random_uuid}']['properties'][key] = {
-                'type': type(value).__name__,  # 타입 추출
-                'description': f'{key}에 대한 설명'  # 설명 추가
-            }
+            clean_part = re.sub(r'[\[\]\(\)]', '', cleaned_part)  # 괄호 및 내부 숫자 제거
+            field_name = clean_part  # 괄호 제거 후 field_name 설정
 
-    # operationId 및 requestBody 등의 정보 추가
-    request_body = {
-        'content': {
-            'application/x-www-form-urlencoded;charset=UTF-8': {
-                'schema': {
-                    '$ref': f'#/components/schemas/api-board-{random_uuid}'
-                },
-                'examples': {}
-            }
-        }
-    }
-
-    # JSON 데이터 추가
-    if json_data:
-        request_body['content']['application/x-www-form-urlencoded;charset=UTF-8']['examples'][operation_id] = {
-            'value': json_data[next(iter(json_data))] + "\n"  # 동적으로 JSON 키 사용
+        # properties에 추가
+        schema_structure['properties'][field_name] = {
+            'type': 'string',  # 기본값 string, 필요한 경우 확장
+            'description': part['description']
         }
 
-    # 이미지 파일 추가 (이름만)
-    image_files = extract_image_data(http_file)
-    if image_files:
-        request_body['content']['application/x-www-form-urlencoded;charset=UTF-8']['examples'][operation_id]['value'] += "\n".join([f"-F 'images=@{img};type=image/png' \\" for img in image_files])
+    openapi_data['components']['schemas'][schema_ref] = schema_structure
 
-    # 업데이트하기
-    openapi_spec['paths'][api_path][method].update({
-        'operationId': operation_id,
-        'requestBody': request_body
-    })
-def update_curl_request(curl_file, json_data, image_files):
-    """curl-request.adoc 파일 업데이트"""
-    with open(curl_file, 'r', encoding='utf-8') as file:
-        content = file.read()
+    # YAML 파일에 다시 저장
+    with open(openapi_path, 'w', encoding='utf-8') as f:
+        yaml.dump(openapi_data, f, sort_keys=False)
+# 함수: 깨진 유니코드 문자열을 한글로 변환
+def decode_broken_string(broken_string):
+    # 잘못 인코딩된 문자열을 바이트로 변환 후 UTF-8로 디코딩
+    try:
+        return bytes(broken_string, 'utf-8').decode('unicode_escape')
+    except Exception as e:
+        return broken_string  # 변환 실패 시 원본 문자열 반환
 
-    # JSON 데이터의 첫 번째 키 추출
-    json_key = next(iter(json_data))
-    json_value = json_data[json_key]
+# 함수: YAML 파일을 읽고 문자열을 변환
+def process_yaml_file(file_path):
+    with open(file_path, 'r', encoding='utf-8') as f:
+        data = yaml.safe_load(f)
 
-    # curl 요청 업데이트
-    updated_curl = re.sub(
-        r"(-F '.*?=@.*?\.json;type=application/json'\s*\\\n)(.*)(?=\n----)",
-        f"-F '{json_key}={json_value};type=application/json' \\\n",
-        content
-    )
+    def recursive_decode(data):
+        if isinstance(data, dict):
+            return {key: recursive_decode(value) for key, value in data.items()}
+        elif isinstance(data, list):
+            return [recursive_decode(item) for item in data]
+        elif isinstance(data, str):
+            # 깨진 문자열 처리
+            if re.search(r'\\x[0-9A-Fa-f]{2}', data):  # \x로 시작하는 2자리 16진수 확인
+                return decode_broken_string(data)
+            return data
+        return data
 
-    # 이미지 요청 추가
-    if image_files:
-        updated_curl += "\n" + "\n".join([f"-F 'images=@{img};type=image/png' \\" for img in image_files]) + "\n"
+    # 변환된 데이터
+    decoded_data = recursive_decode(data)
 
-    # 변경된 내용을 파일에 다시 저장
-    with open(curl_file, 'w', encoding='utf-8') as file:
-        file.write(updated_curl)
+    # YAML 파일에 다시 저장
+    with open(file_path, 'w', encoding='utf-8') as f:
+        yaml.dump(decoded_data, f, sort_keys=False, allow_unicode=True)
 
+
+# 메인 실행 함수
 def main():
-    openapi_spec = load_openapi_spec(OPENAPI_FILE)
+    valid_folders = get_valid_adoc_folders(adoc_path)
+    for folder_files in valid_folders:
+        uri, method, parts = None, None, None
+        for adoc_file in folder_files:
+            with open(adoc_file, 'r', encoding='utf-8') as f:
+                content = f.read()
 
-    for folder in find_snippet_directories(SNIPPETS_DIR):
-        curl_file = os.path.join(folder, 'curl-request.adoc')
-        http_file = os.path.join(folder, 'http-request.adoc')
+                # curl-request.adoc 처리
+                if 'curl-request' in adoc_file:
+                    uri, method = extract_curl_request(content)
 
-        # curl-request.adoc에서 경로, 메서드, -F로 시작하는 데이터 추출
-        api_path, method = extract_curl_data(curl_file)
+                # request-parts.adoc 처리
+                if 'request-parts' in adoc_file:
+                    parts = extract_request_parts(content)
 
-        if api_path and method:
-            # openapi3.yaml에서 operationId 값을 찾아서 사용
-            operation_id = find_operation_id(api_path, method, openapi_spec)
+        # 추출된 데이터를 기반으로 OpenAPI YAML 파일 업데이트
+        if uri and method and parts:
+            update_openapi_yaml(uri, method, parts)
 
-            if operation_id:  # operationId가 존재하는 경우에만 진행
-                # openapi3.yaml 업데이트
-                update_openapi_yaml(api_path, method, operation_id, openapi_spec, http_file)
+    process_yaml_file(openapi_path)
 
-                # curl-request.adoc 업데이트
-                json_data = extract_http_data(http_file)
-                image_files = extract_image_data(http_file)
-                update_curl_request(curl_file, json_data, image_files)
+    # YAML 데이터 로드
+    yaml_data = load_yaml(openapi_path)
 
-    # 업데이트된 OpenAPI YAML 파일 저장
-    save_openapi_spec(OPENAPI_FILE, openapi_spec)
+    # YAML 데이터 정렬
+    sorted_data = sort_yaml_data(yaml_data)
 
-if __name__ == '__main__':
+    # 정렬된 데이터 저장
+    save_yaml(openapi_path, sorted_data)
+
+if __name__ == "__main__":
     main()
