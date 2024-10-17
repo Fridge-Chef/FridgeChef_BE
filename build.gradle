@@ -117,7 +117,6 @@ test {
     useJUnitPlatform()
 }
 
-
 openapi3 {
     server = 'https://fridgebe.site'
     title = 'Fridge Chef API Docs'
@@ -132,26 +131,19 @@ task makeOAS(type: Exec) {
 
 
 task openapi3fix(type: Exec) {
-    commandLine 'bash', '-c', 'source venv/bin/activate && python fix-openapi-yaml.py build/api-spec/openapi3.yaml'
-    standardOutput = new ByteArrayOutputStream()
-
-    doLast {
-        def outputStream = new FileOutputStream('openapi-fixed.yaml')
-        outputStream.write(standardOutput.toString().getBytes())
-        outputStream.close()
-
-        def processResult = standardOutput.toString()
-        if (processResult.contains('Traceback') || processResult.contains('Error')) {
-            println "오류가 발생했습니다."
-        } else {
-            println "YAML 파일이 성공적으로 수정되었습니다."
-        }
-    }
+    commandLine 'bash', '-c', 'source venv/bin/activate && ' +
+            ' python fix-openapi-reload.py &&' +
+            ' python fix-openapi-yaml.py build/api-spec/openapi3.yaml > build/api-spec/openapi3_temp.yaml && mv build/api-spec/openapi3_temp.yaml build/api-spec/openapi3.yaml &&'+
+            ' python fix-openapi-reload.py &&' +
+            ' python fix-openapi-required-yaml.py  &&'+
+            ' python fix-openapi-reload.py &&' +
+            ' python fix-openapi-form-yaml.py  &&'+
+            ' python fix-openapi-reload.py '
 }
 
 task redocGenerationIntegration(type: Exec) {
     sleep(1000)
-    commandLine 'bash', '-c', 'source venv/bin/activate && python fix-openapi-required-yaml.py && redoc-cli bundle openapi-fixed.yaml'
+    commandLine 'bash', '-c', 'source venv/bin/activate  &&  redoc-cli bundle build/api-spec/openapi3.yaml'
 
     doLast {
         copy {
