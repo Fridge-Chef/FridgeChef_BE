@@ -25,6 +25,7 @@ import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.domain.UserId;
 import Fridge_Chef.team.user.repository.UserRepository;
 import fixture.UserFixture;
+import jakarta.servlet.http.Part;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,6 +35,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.mock.web.MockPart;
+import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.multipart.MultipartFile;
@@ -51,8 +54,7 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.request.RequestDocumentation.partWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.requestParts;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
 
 
 @DisplayName("나만의 게시판")
@@ -97,29 +99,42 @@ public class BoardControllerTest extends RestDocControllerTests {
         MockMultipartFile mainImage = getMultiFile("mainImage");
         MockMultipartFile instructionImage1 = getMultiFile("instructions[0].image");
 
+        Part namePart = new MockPart("name", "레시피 명".getBytes());
+        Part descriptionPart = new MockPart("description", "레시피 설명".getBytes());
+        Part ingredientNamePart1 = new MockPart("recipeIngredients[0].name", "재료1".getBytes());
+        Part ingredientDetailsPart1 = new MockPart("recipeIngredients[0].details", "상세정보1".getBytes());
+        Part ingredientNamePart2 = new MockPart("recipeIngredients[1].name", "재료2".getBytes());
+        Part ingredientDetailsPart2 = new MockPart("recipeIngredients[1].details", "상세정보3".getBytes());
+        Part instructionContentPart1 = new MockPart("instructions[0].content", "설명1".getBytes());
 
         var requestBuilder =
                 RestDocumentationRequestBuilders.multipart("/api/board")
                         .file(mainImage)
+                        .part(namePart)
+                        .part(descriptionPart)
+                        .part(ingredientNamePart1)
+                        .part(ingredientDetailsPart1)
+                        .part(ingredientNamePart2)
+                        .part(ingredientDetailsPart2)
+                        .part(instructionContentPart1)
                         .file(instructionImage1)
-                        .param("name", "레시피 명")
-                        .param("description", "레시피 설명")
-                        .param("recipeIngredients[0].name", "재료1")
-                        .param("recipeIngredients[0].details", "상세정보1")
-                        .param("recipeIngredients[1].name", "재료2")
-                        .param("recipeIngredients[1].details", "상세정보3")
-                        .param("instructions[0].content", "설명1")
                         .header(AUTHORIZATION, "Bearer ")
                         .contentType(MediaType.MULTIPART_FORM_DATA);
 
         ResultActions actions = mockMvc.perform(requestBuilder);
-
         actions.andExpect(status().isOk())
                 .andDo(document("나만의 레시피 추가",
                         jwtTokenRequest(),
                         requestParts(
-                                partWithName("mainImage").description("레시피의 메인 이미지 파일"),
-                                partWithName("instructions[0].image").description("첫 번째 설명 단계의 이미지 파일")
+                                partWithName("mainImage").description("메인 이미지 파일"),
+                                partWithName("name").description("레시피 명"),
+                                partWithName("description").description("레시피 설명"),
+                                partWithName("recipeIngredients[0].name").description("재료1"),
+                                partWithName("recipeIngredients[0].details").description("상세정보1"),
+                                partWithName("recipeIngredients[1].name").description("재료2"),
+                                partWithName("recipeIngredients[1].details").description("상세정보3"),
+                                partWithName("instructions[0].content").description("설명1"),
+                                partWithName("instructions[0].image").description("설명 단계의 이미지 파일")
                         )
                 ));
     }
@@ -162,12 +177,12 @@ public class BoardControllerTest extends RestDocControllerTests {
         BoardPageRequest boardByRecipeRequest = new BoardPageRequest(0, 50, IssueType.ALL, SortType.RATING);
         Page<BoardMyRecipePageResponse> responsePage = new PageImpl<>(
                 List.of(
-                        new BoardMyRecipePageResponse(SortType.RATING, 1L, "Delicious Recipe", "User1", "null",1L,4.5, 100,true,50, LocalDateTime.now()),
-                        new BoardMyRecipePageResponse(SortType.RATING, 2L, "Another Recipe", "User2", "",22L,4.0, 90, false,50,LocalDateTime.now())
+                        new BoardMyRecipePageResponse(SortType.RATING, 1L, "Delicious Recipe", "User1", "null", 1L, 4.5, 100, true, 50, LocalDateTime.now()),
+                        new BoardMyRecipePageResponse(SortType.RATING, 2L, "Another Recipe", "User2", "", 22L, 4.0, 90, false, 50, LocalDateTime.now())
                 )
         );
 
-        when(boardService.findMyRecipes(any(),any(BoardPageRequest.class)))
+        when(boardService.findMyRecipes(any(), any(BoardPageRequest.class)))
                 .thenReturn(responsePage);
 
         String request = objectMapper.writeValueAsString(boardByRecipeRequest);
