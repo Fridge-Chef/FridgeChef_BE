@@ -59,7 +59,6 @@ public class FridgeService {
                 .orElseThrow(() -> new ApiException(ErrorCode.FRIDGE_NOT_FOUND));
     }
 
-    //냉장고 조회
     public List<FridgeIngredientResponse> getFridgeIngredientResponse(UserId userId) {
 
         Fridge fridge = getFridge(userId);
