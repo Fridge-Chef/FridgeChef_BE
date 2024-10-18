@@ -6,6 +6,7 @@ import Fridge_Chef.team.fridge.domain.Fridge;
 import Fridge_Chef.team.fridge.domain.FridgeIngredient;
 import Fridge_Chef.team.fridge.domain.Storage;
 import Fridge_Chef.team.fridge.repository.FridgeRepository;
+import Fridge_Chef.team.fridge.rest.request.FridgeCreateRequest;
 import Fridge_Chef.team.fridge.rest.request.FridgeIngredientAddRequest;
 import Fridge_Chef.team.fridge.rest.request.FridgeIngredientRequest;
 import Fridge_Chef.team.fridge.rest.response.FridgeIngredientResponse;
@@ -27,12 +28,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class FridgeService {
 
-    private final FridgeRepository fridgeRepository;
     private final UserService userService;
     private final IngredientService ingredientService;
 
+    private final FridgeRepository fridgeRepository;
+
     @Transactional
-    public void createFridge(UserId userId) {
+    public void createFridge(UserId userId, FridgeCreateRequest fridgeCreateRequest) {
 
         User user = userService.findByUser(userId);
 
@@ -42,8 +44,14 @@ public class FridgeService {
 
         fridgeRepository.save(fridge);
 
-        //TODO
-        // - 생성 후 재료 세팅
+        if (!fridgeCreateRequest.getRecipes().isEmpty()) {
+            for (FridgeIngredientAddRequest request : fridgeCreateRequest.getRecipes()) {
+                Ingredient ingredient = ingredientService.getIngredient(request.getIngredientName());
+
+                FridgeIngredient fridgeIngredient = createFridgeIngredient(fridge, ingredient, request.getStorage());
+                addIngredientToFridge(fridge, fridgeIngredient);
+            }
+        }
     }
 
     public Fridge getFridge(UserId userId) {
@@ -56,7 +64,7 @@ public class FridgeService {
 
         Fridge fridge = getFridge(userId);
 
-        List<FridgeIngredientResponse> fridgeIngredientResponses = fridge.getFridgeIngredients().stream()
+        return fridge.getFridgeIngredients().stream()
                 .map(fridgeIngredient -> FridgeIngredientResponse.builder()
                         .ingredientName(fridgeIngredient.getIngredient().getName())
                         .expirationDate(fridgeIngredient.getExpirationDate())
@@ -64,12 +72,10 @@ public class FridgeService {
                         .ingredientCategory(fridgeIngredient.getIngredientCategory())
                         .build())
                 .collect(Collectors.toList());
-
-        return fridgeIngredientResponses;
     }
 
     @Transactional
-    public void addIngredientToFridge(UserId userId, FridgeIngredientAddRequest request) {
+    public void addFridgeIngredient(UserId userId, FridgeIngredientAddRequest request) {
 
         String ingredientName = request.getIngredientName();
         Storage storage = request.getStorage();
@@ -82,15 +88,13 @@ public class FridgeService {
         }
 
         FridgeIngredient fridgeIngredient = createFridgeIngredient(fridge, ingredient, storage);
-        fridge.getFridgeIngredients().add(fridgeIngredient);
-        fridgeRepository.save(fridge);
+        addIngredientToFridge(fridge, fridgeIngredient);
     }
 
     @Transactional
     public void deleteIngredients(UserId userId, String ingredientName) {
 
         Fridge fridge = getFridge(userId);
-
         FridgeIngredient delIngredient = getFridgeIngredient(fridge, ingredientName);
 
         fridge.getFridgeIngredients().remove(delIngredient);
@@ -134,6 +138,21 @@ public class FridgeService {
                 .filter(fridgeIngredient -> fridgeIngredient.getIngredient().getName().equals(IngredientName))
                 .findFirst()
                 .orElseThrow(() -> new ApiException(ErrorCode.INGREDIENT_NOT_FOUND));
+    }
+
+    @Transactional
+    private void addIngredientToFridge(Fridge fridge, FridgeIngredient fridgeIngredient) {
+
+        for (FridgeIngredient ingredient : fridge.getFridgeIngredients()) {
+            String name = ingredient.getIngredient().getName();
+
+            if (name.equals(fridgeIngredient.getIngredient().getName())) {
+                throw new ApiException(ErrorCode.INGREDIENT_ALREADY_EXISTS);
+            }
+        }
+
+        fridge.getFridgeIngredients().add(fridgeIngredient);
+        fridgeRepository.save(fridge);
     }
 
     private boolean isExist(Fridge fridge, String ingredientName) {
