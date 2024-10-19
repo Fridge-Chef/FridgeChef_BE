@@ -6,7 +6,6 @@ import Fridge_Chef.team.exception.ErrorCode;
 import Fridge_Chef.team.image.domain.Image;
 import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.domain.UserId;
-import Fridge_Chef.team.user.repository.UserDslRepository;
 import Fridge_Chef.team.user.repository.UserRepository;
 import Fridge_Chef.team.user.rest.model.AuthenticatedUser;
 import Fridge_Chef.team.user.rest.request.UserProfileNameUpdateRequest;
@@ -20,7 +19,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
-    private  final UserDslRepository userDslRepository;
 
     @Transactional(readOnly = true)
     public Optional<User> findByUserId(AuthenticatedUser userId) {
@@ -43,6 +41,7 @@ public class UserService {
     public User findByUser(UserId userId) {
         User user =  findByUserId(userId);
         user.getImageLink();
+        user.getProfile().getUsername();
         return user;
     }
 
@@ -50,7 +49,6 @@ public class UserService {
     public void updateUserProfilePicture(UserId userId, Image picture) {
         findByUserId(userId).updatePicture(picture);
     }
-
 
     @Transactional
     public void updateUserProfileUsername(UserId userId, UserProfileNameUpdateRequest request) {
