@@ -25,7 +25,7 @@ public class BookDslRepositoryTest extends JpaTest {
     @Test
     void testFindByBoard() {
         userBoardCommentMetaData();
-        BookRecipeRequest request = new BookRecipeRequest(BookType.MYRECIPE, SortType.LATEST, 0, 50);
+        BookRecipeRequest request = new BookRecipeRequest(0, 50,BookType.MYRECIPE, SortType.LATEST);
         User user = userRepository.findAll().get(0);
         PageRequest pageable = PageRequest.of(request.getPage(), request.getSize());
 
