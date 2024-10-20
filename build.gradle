@@ -97,6 +97,11 @@ dependencies {
     implementation group: 'com.oracle.oci.sdk', name: 'oci-java-sdk-common-httpclient-jersey3', version: '3.0.0'
 }
 
+
+compileJava {
+    options.compilerArgs << '-parameters'
+}
+
 ext {
     snippetsDir = file('build/generated-snippets')
 }
