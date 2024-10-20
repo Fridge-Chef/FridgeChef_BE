@@ -43,13 +43,9 @@ public class SecurityLocalConfig {
                 .authorizeHttpRequests(this::configureAuthorization)
                 .logout(logoutConfigurer -> logoutConfigurer.logoutSuccessUrl("/"))
                 .oauth2ResourceServer(this::configureJwt)
-//                .oauth2Login(this::configureOAuth2Login)
                 .build();
     }
 
-//    private void configureOAuth2Login(OAuth2LoginConfigurer<HttpSecurity> oauth2LoginConfigurer) {
-//        oauth2LoginConfigurer.userInfoEndpoint(endpointCustomizer -> endpointCustomizer.userService(customOAuth2UserService));
-//    }
     @Bean
     public JwtDecoder jwtDecoder() {
         return NimbusJwtDecoder.withPublicKey(publicKey).build();
@@ -57,12 +53,7 @@ public class SecurityLocalConfig {
 
     private void configureAuthorization(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry registry) {
         registry
-                .requestMatchers(
-                        "/", "/css/**", "/img/**", "/js/**", "/h2-console/**",
-                        "/docs.html", "/favicon.ico", "/api/auth/**", "/api/cert/email/**","/static/**",
-                        "/api/email/**", "/api/user/signup", "/api/user/login", "/**",
-                        "/api/boards","/api/boards/**","/api/mobile/auth/**"
-                ).permitAll()
+                .requestMatchers("/**","/**/**","/**/**/**").permitAll()
                 .requestMatchers(PathRequest.toH2Console()).permitAll()
                 .anyRequest().authenticated();
     }
@@ -87,5 +78,4 @@ public class SecurityLocalConfig {
             throw new IllegalStateException("Failed to generate RSA key pair", e);
         }
     }
-
 }
