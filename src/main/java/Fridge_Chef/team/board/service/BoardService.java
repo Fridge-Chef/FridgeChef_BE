@@ -59,8 +59,10 @@ public class BoardService {
 
     @Transactional(readOnly = true)
     public Page<BoardMyRecipePageResponse> findMyRecipes(UserId userId, BoardPageRequest request) {
+        if(request.getSize() > 50){
+            throw new ApiException(ErrorCode.VALID_SIZE_50);
+        }
         var page = PageRequest.of(request.getPage(), request.getSize());
-
         return boardDslRepository.findByPageUsers(page, request, userId);
     }
 
