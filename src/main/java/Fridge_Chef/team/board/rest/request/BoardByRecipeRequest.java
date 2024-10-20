@@ -22,6 +22,10 @@ public class BoardByRecipeRequest {
     @Size(max = 200, message = "소개 최대 200자")
     private String description;
 
+    private String dishTime;
+    private String dishLevel;
+    private String dishCategory;
+
     private MultipartFile mainImage;
 
     @Size(min = 2, max = 50, message = "재료는 2~50가지 만 추가 가능합니다.")

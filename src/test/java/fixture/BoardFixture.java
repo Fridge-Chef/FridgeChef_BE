@@ -77,6 +77,9 @@ public class BoardFixture {
         return new BoardByRecipeRequest(
                 recipeTitle,
                 recipeDescription,
+                "time",
+                "level",
+                "cate,gory",
                 mainImage,
                 recipeIngredients,
                 instructions

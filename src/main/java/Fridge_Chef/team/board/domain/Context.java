@@ -21,42 +21,63 @@ public class Context {
     @Column(name = "id", nullable = false)
     private Long id;
 
+    private String dishTime;
+    private String dishLevel;
+    private String dishCategory;
+
     @OneToMany(fetch = FetchType.LAZY)
     private List<RecipeIngredient> boardIngredients;
     @OneToMany(fetch = FetchType.LAZY)
     private List<Description> descriptions;
 
     public Context(List<RecipeIngredient> boardIngredients, List<Description> descriptions) {
+        this.dishTime="";
+        this.dishLevel="";
+        this.dishCategory="";
         this.boardIngredients = boardIngredients;
         this.descriptions = descriptions;
     }
 
-    public static Context formMyUserRecipe(List<RecipeIngredient> boardIngredients, List<Description> descriptions) {
+    public Context(String dishTime, String dishLevel, String dishCategory, List<RecipeIngredient> boardIngredients, List<Description> descriptions) {
+        this.dishLevel = dishLevel;
+        this.dishTime = dishTime;
+        this.dishCategory = dishCategory;
+        this.boardIngredients = boardIngredients;
+        this.descriptions = descriptions;
+    }
 
-        List<RecipeIngredient> copiedIngredients = new ArrayList<>();
-        List<Description> copiedDescriptions = new ArrayList<>();
+    public static Context formMyUserRecipe(
+            List<RecipeIngredient> boardIngredients,
+            List<Description> descriptions) {
+        return new Context(boardIngredients, descriptions);
+    }
 
-        for (RecipeIngredient ingredient : boardIngredients) {
-            copiedIngredients.add(ingredient);
-        }
-
-        for (Description description : descriptions) {
-            copiedDescriptions.add(description);
-        }
-        return new Context(copiedIngredients, copiedDescriptions);
+    public static Context formMyUserRecipe(
+            String dishTime,
+            String dishLevel,
+            String dishCategory,
+            List<RecipeIngredient> boardIngredients,
+            List<Description> descriptions) {
+        return new Context(dishTime,dishLevel,dishCategory,boardIngredients, descriptions);
     }
 
     public void updateIngredients(List<RecipeIngredient> ingredients) {
-        this.boardIngredients=ingredients;
+        this.boardIngredients = ingredients;
     }
 
     public void updateDescriptions(List<Description> descriptions) {
-        this.descriptions=descriptions;
+        this.descriptions = descriptions;
     }
 
-    public List<RecipeDescription> toRecipeDescription(){
+    public List<RecipeDescription> toRecipeDescription() {
         List<RecipeDescription> list = new ArrayList<>();
-        descriptions.forEach(description -> list.add(new RecipeDescription(description.getDescription(),description.getLink())));
+        descriptions.forEach(description -> list.add(new RecipeDescription(description.getDescription(), description.getLink())));
         return list;
+    }
+
+    public void updateDish(String dishTime, String dishLevel, String dishCategory) {
+        this.dishTime= dishTime;
+        this.dishLevel=dishLevel;
+        this.dishCategory=dishCategory;
     }
 }

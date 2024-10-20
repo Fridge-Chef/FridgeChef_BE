@@ -33,7 +33,13 @@ public class BoardRecipeService {
                         List<Description> descriptions,
                         Image image) {
         User user = findByUserId(userId);
-        Context context = contextRepository.save(Context.formMyUserRecipe(recipeIngredient, descriptions));
+
+        Context context = contextRepository.save(
+                Context.formMyUserRecipe(
+                        request.getDishTime(),request.getDishLevel(),request.getDishCategory(),
+                        recipeIngredient, descriptions)
+        );
+
         Board board = boardRepository.save(new Board(user, request.getDescription(),request.getName(), context, image, BoardType.USER));
         BoardUserEvent event = new BoardUserEvent(board, user);
         boardUserEventRepository.save(event);
@@ -54,6 +60,7 @@ public class BoardRecipeService {
         Context context = board.getContext();
         context.updateIngredients(ingredients);
         context.updateDescriptions(descriptions);
+        context.updateDish(request.getDishTime(),request.getDishLevel(),request.getDishCategory());
 
         return board;
 

@@ -1,5 +1,7 @@
 package Fridge_Chef.team.board.rest;
 
+import Fridge_Chef.team.board.repository.model.IssueType;
+import Fridge_Chef.team.board.repository.model.SortType;
 import Fridge_Chef.team.board.rest.request.BoardPageRequest;
 import Fridge_Chef.team.board.rest.request.BoardStarRequest;
 import Fridge_Chef.team.board.service.BoardService;
@@ -7,7 +9,6 @@ import Fridge_Chef.team.board.service.response.BoardMyRecipePageResponse;
 import Fridge_Chef.team.board.service.response.BoardMyRecipeResponse;
 import Fridge_Chef.team.user.domain.UserId;
 import Fridge_Chef.team.user.rest.model.AuthenticatedUser;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -26,9 +27,14 @@ public class BoardsController {
     }
 
     @GetMapping
-    public Page<BoardMyRecipePageResponse> page(@AuthenticationPrincipal AuthenticatedUser user, @Valid @RequestBody BoardPageRequest request) {
+    public Page<BoardMyRecipePageResponse> page(
+            @AuthenticationPrincipal AuthenticatedUser user,
+            @RequestParam(defaultValue = "0", required = false) int page,
+            @RequestParam(defaultValue = "10", required = false) int size,
+            @RequestParam(defaultValue = "ALL", required = false) IssueType issue,
+            @RequestParam(defaultValue = "LATEST", required = false) SortType sort) {
         UserId userId = openUserId(user);
-        return boardService.findMyRecipes(userId, request);
+        return boardService.findMyRecipes(userId, new BoardPageRequest(page, size, issue, sort));
     }
 
     @PostMapping("/{board_id}/hit")

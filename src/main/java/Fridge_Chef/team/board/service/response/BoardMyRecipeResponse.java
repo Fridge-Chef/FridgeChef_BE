@@ -22,6 +22,9 @@ public class BoardMyRecipeResponse {
     private double rating;
     private String mainImage;
     private String issueInfo;
+    private String dishTime;
+    private String dishLevel;
+    private String dishCategory;
 
     private List<OwnedIngredientResponse> ownedIngredients;
     private List<RecipeIngredientResponse> recipeIngredients;
@@ -71,6 +74,9 @@ public class BoardMyRecipeResponse {
                 board.getTotalStar(),
                 board.getMainImageLink(),
                 issueInfo,
+                board.getContext().getDishTime(),
+                board.getContext().getDishLevel(),
+                board.getContext().getDishCategory(),
                 ownedIngredients,
                 recipeIngredients,
                 instructions,

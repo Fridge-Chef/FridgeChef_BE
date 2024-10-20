@@ -37,7 +37,7 @@ public enum ErrorCode {
     EMAIL_SEND(407, "메시지 전송에 실패"),
 
     //signup
-    USER_ACCOUNT_DELETE(405, "탈퇴 요청한 사용자 입니다. "),
+    USER_ACCOUNT_DELETE(405, "탈퇴 요청한 사용자 입니다. (재가입 기간 1주일)"),
     USER_ACCOUNT_DELETE_NAME_INCORRECT(406, "회원탈퇴 요청중 이름을 다르게 입력"),
     SIGNUP_USER_FAIL_SNS_EMAIL_UNIQUE(407,"회원가입 SNS 가입 중복 " ),
     SIGNUP_SNS_NOT_SUPPORT(408, "지원하지 않는 SNS 인증 타입"),
@@ -68,7 +68,8 @@ public enum ErrorCode {
     COMMENT_NOT_FOUND(404, "댓글을 찾을 수 없음"),
     COMMENT_NOT_USER_AUTHOR(406, "댓글 작성자가 아님"),
     COMMENT_NOT_BOARD(407, "댓글의 게시글이 아님"),
-    TEXT_FILTER(490,"비속어 검출" );
+    TEXT_FILTER(490,"비속어 검출" ),
+    VALID_SIZE_50(400, "페이지 사이즈는 50을 초과할 수 없습니다.");
 
     private final int status;
     private final String message;

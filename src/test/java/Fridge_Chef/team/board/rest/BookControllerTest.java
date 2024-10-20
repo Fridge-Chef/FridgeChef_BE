@@ -25,6 +25,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 import java.util.List;
 
@@ -32,6 +34,8 @@ import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.docume
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
 
 @DisplayName("레시피 북 API")
 @WebMvcTest(BookController.class)
@@ -55,50 +59,38 @@ public class BookControllerTest extends RestDocControllerTests {
     @WithMockCustomUser
     @DisplayName("찜하기 페이징 조회")
     void find() throws Exception {
-        BookRecipeRequest bookBoardResponses = new BookRecipeRequest(BookType.LIKE, SortType.LATEST, 1, 50);
-
-        String request = objectMapper.writeValueAsString(bookBoardResponses);
-
         when(bookService.selectBoards(any(UserId.class), any(BookRecipeRequest.class)))
                 .thenReturn(likePagesProvider());
 
-        ResultActions actions = jwtJsonGetWhen("/api/books/recipe", request);
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("page", "0");
+        params.add("size", "50");
+        params.add("book", "MYRECIPE");
+        params.add("sort", "LATEST");
+
+        ResultActions actions = jwtJsonGetParamWhen("/api/books/recipe",params);
 
         actions.andExpect(status().isOk())
                 .andDo(document("좋아요",
                         jwtTokenRequest(),
-                        requestFields(
-                                fieldWithPath("bookType").description("북 타입 : (좋아요,나만의레시피,후기) [LIKE,MYRECIPE,LIKE]"),
-                                fieldWithPath("page").description("페이지 번호 "),
-                                fieldWithPath("size").description("사이즈 크기 "),
-                                fieldWithPath("sortType").description("정렬 타입 :(최신순,별점순,클릭순,좋아요순) [ LATEST, RATING , CLICKS, HIT ] ")
+                        queryParameters(
+                                parameterWithName("page").description("페이지 번호 (0부터 시작)"),
+                                parameterWithName("size").description("한 페이지에 출력할 레시피 개수 (1~50 사이즈 제한)"),
+                                parameterWithName("book").description("북 타입 : (좋아요,나만의레시피,후기) [LIKE,MYRECIPE,LIKE]"),
+                                parameterWithName("sort").description("정렬 방식 (예: WEEKLY_RECIPE, MONTHLY_RECIPE, LATEST ,RATING ,CLICKS ,HIT )").optional()
                         ),
                         responseFields(
-                                fieldWithPath("totalPages").description("총 페이지 수"),
-                                fieldWithPath("totalElements").description("총 요소 수"),
-                                fieldWithPath("size").description("페이지당 요소 수"),
                                 fieldWithPath("content[]").description("책 목록"),
                                 fieldWithPath("content[].id").description("ID 게시글"),
                                 fieldWithPath("content[].mainImageLink").description("이미지 주소"),
                                 fieldWithPath("content[].title").description("레시피 이름"),
                                 fieldWithPath("content[].star").description("별점"),
                                 fieldWithPath("content[].hit").description("하트"),
-                                fieldWithPath("number").description("현재 페이지 번호"),
-                                fieldWithPath("sort.empty").description("정렬이 비었는지 여부"),
-                                fieldWithPath("sort.sorted").description("정렬 여부"),
-                                fieldWithPath("sort.unsorted").description("정렬되지 않은 여부"),
-                                fieldWithPath("pageable.pageNumber").description("페이지 번호"),
-                                fieldWithPath("pageable.pageSize").description("페이지 크기"),
-                                fieldWithPath("pageable.sort.empty").description("페이지 정렬이 비었는지 여부"),
-                                fieldWithPath("pageable.sort.sorted").description("페이지가 정렬되었는지 여부"),
-                                fieldWithPath("pageable.sort.unsorted").description("페이지가 정렬되지 않았는지 여부"),
-                                fieldWithPath("pageable.offset").description("페이지 오프셋"),
-                                fieldWithPath("pageable.paged").description("페이징 여부"),
-                                fieldWithPath("pageable.unpaged").description("페이징되지 않았는지 여부"),
-                                fieldWithPath("numberOfElements").description("현재 페이지의 요소 수"),
-                                fieldWithPath("first").description("첫 번째 페이지 여부"),
-                                fieldWithPath("last").description("마지막 페이지 여부"),
-                                fieldWithPath("empty").description("페이지가 비어 있는지 여부")
+                                fieldWithPath("page").description("페이지"),
+                                fieldWithPath("page.size").description("사이즈"),
+                                fieldWithPath("page.number").description("번호"),
+                                fieldWithPath("page.totalElements").description("총 요소 "),
+                                fieldWithPath("page.totalPages").description("총 페이지 ")
                         )
                 ));
     }
@@ -107,50 +99,38 @@ public class BookControllerTest extends RestDocControllerTests {
     @WithMockCustomUser
     @DisplayName("나의 레시피 페이징 조회")
     void findMyRecipe() throws Exception {
-        BookRecipeRequest bookBoardResponses = new BookRecipeRequest(BookType.MYRECIPE, SortType.LATEST, 1, 50);
-
-        String request = objectMapper.writeValueAsString(bookBoardResponses);
-
         when(bookService.selectBoards(any(UserId.class), any(BookRecipeRequest.class)))
                 .thenReturn(likePagesProvider());
 
-        ResultActions actions = jwtJsonGetWhen("/api/books/recipe", request);
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("page", "0");
+        params.add("size", "50");
+        params.add("book", "MYRECIPE");
+        params.add("sort", "LATEST");
+
+        ResultActions actions = jwtJsonGetParamWhen("/api/books/recipe", params);
 
         actions.andExpect(status().isOk())
                 .andDo(document("나만의 레시피,",
                         jwtTokenRequest(),
-                        requestFields(
-                                fieldWithPath("bookType").description("북 타입 : (좋아요,나만의레시피,후기) [LIKE,MYRECIPE,LIKE]"),
-                                fieldWithPath("page").description("페이지 번호 "),
-                                fieldWithPath("size").description("사이즈 크기 "),
-                                fieldWithPath("sortType").description("정렬 타입 :(최신순,별점순,클릭순,좋아요순) [ LATEST, RATING , CLICKS, HIT ] ")
+                        queryParameters(
+                                parameterWithName("page").description("페이지 번호 "),
+                                parameterWithName("size").description("사이즈 크기 "),
+                                parameterWithName("book").description("북 타입 : (좋아요,나만의레시피,후기) [LIKE,MYRECIPE,LIKE]"),
+                                parameterWithName("sort").description("정렬 타입 :(최신순,별점순,클릭순,좋아요순) [ LATEST, RATING , CLICKS, HIT ] ")
                         ),
                         responseFields(
-                                fieldWithPath("totalPages").description("총 페이지 수"),
-                                fieldWithPath("totalElements").description("총 요소 수"),
-                                fieldWithPath("size").description("페이지당 요소 수"),
                                 fieldWithPath("content[]").description("책 목록"),
                                 fieldWithPath("content[].id").description("ID 게시글"),
                                 fieldWithPath("content[].mainImageLink").description("이미지 주소"),
                                 fieldWithPath("content[].title").description("레시피 이름"),
                                 fieldWithPath("content[].star").description("별점"),
-                                fieldWithPath("content[].hit").description("하트"),
-                                fieldWithPath("number").description("현재 페이지 번호"),
-                                fieldWithPath("sort.empty").description("정렬이 비었는지 여부"),
-                                fieldWithPath("sort.sorted").description("정렬 여부"),
-                                fieldWithPath("sort.unsorted").description("정렬되지 않은 여부"),
-                                fieldWithPath("pageable.pageNumber").description("페이지 번호"),
-                                fieldWithPath("pageable.pageSize").description("페이지 크기"),
-                                fieldWithPath("pageable.sort.empty").description("페이지 정렬이 비었는지 여부"),
-                                fieldWithPath("pageable.sort.sorted").description("페이지가 정렬되었는지 여부"),
-                                fieldWithPath("pageable.sort.unsorted").description("페이지가 정렬되지 않았는지 여부"),
-                                fieldWithPath("pageable.offset").description("페이지 오프셋"),
-                                fieldWithPath("pageable.paged").description("페이징 여부"),
-                                fieldWithPath("pageable.unpaged").description("페이징되지 않았는지 여부"),
-                                fieldWithPath("numberOfElements").description("현재 페이지의 요소 수"),
-                                fieldWithPath("first").description("첫 번째 페이지 여부"),
-                                fieldWithPath("last").description("마지막 페이지 여부"),
-                                fieldWithPath("empty").description("페이지가 비어 있는지 여부")
+                                fieldWithPath("content[].hit").description("하트"), fieldWithPath("page").description("페이지"),
+                                fieldWithPath("page").description("페이지"),
+                                fieldWithPath("page.size").description("사이즈"),
+                                fieldWithPath("page.number").description("번호"),
+                                fieldWithPath("page.totalElements").description("총 요소 "),
+                                fieldWithPath("page.totalPages").description("총 페이지 ")
                         )
                 ));
     }
@@ -159,48 +139,36 @@ public class BookControllerTest extends RestDocControllerTests {
     @WithMockCustomUser
     @DisplayName("레시피 후기 페이징 조회")
     void findComments() throws Exception {
-        BookCommentRequest bookCommentRequest = new BookCommentRequest(SortType.LATEST, 1, 50);  // 페이지 요청 생성
-        String request = objectMapper.writeValueAsString(bookCommentRequest);
-
         when(bookService.selectComment(any(UserId.class), any(BookCommentRequest.class)))
                 .thenReturn(commentPagesProvider());
 
-        ResultActions actions = jwtJsonGetWhen("/api/books/comment", request);
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("page", "0");
+        params.add("size", "50");
+        params.add("sort", "LATEST");
+
+        ResultActions actions = jwtJsonGetParamWhen("/api/books/comment", params);
 
         actions.andExpect(status().isOk())
                 .andDo(document("레시피 후기",
                         jwtTokenRequest(),
-                        requestFields(
-                                fieldWithPath("page").description("페이지 번호 "),
-                                fieldWithPath("size").description("사이즈 크기 "),
-                                fieldWithPath("sortType").description("정렬 타입 :(최신순,별점순,클릭순,좋아요순) [ LATEST, RATING , CLICKS, HIT ] ")
+                        queryParameters(
+                                parameterWithName("page").description("페이지 번호 "),
+                                parameterWithName("size").description("사이즈 크기 "),
+                                parameterWithName("sort").description("정렬 타입 :(최신순,별점순,클릭순,좋아요순) [ LATEST, RATING , CLICKS, HIT ] ")
                         ),
                         responseFields(
-                                fieldWithPath("totalPages").description("총 페이지 수"),
-                                fieldWithPath("totalElements").description("총 요소 수"),
-                                fieldWithPath("size").description("페이지당 요소 수"),
                                 fieldWithPath("content[]").description("코멘트 목록"),
                                 fieldWithPath("content[].boardId").description("게시글 ID"),
                                 fieldWithPath("content[].commentId").description("코멘트 ID"),
                                 fieldWithPath("content[].name").description("작성자 이름"),
                                 fieldWithPath("content[].star").description("별점"),
                                 fieldWithPath("content[].context").description("코멘트 내용"),
-                                fieldWithPath("number").description("현재 페이지 번호"),
-                                fieldWithPath("sort.empty").description("정렬이 비었는지 여부"),
-                                fieldWithPath("sort.sorted").description("정렬 여부"),
-                                fieldWithPath("sort.unsorted").description("정렬되지 않은 여부"),
-                                fieldWithPath("pageable.pageNumber").description("페이지 번호"),
-                                fieldWithPath("pageable.pageSize").description("페이지 크기"),
-                                fieldWithPath("pageable.sort.empty").description("페이지 정렬이 비었는지 여부"),
-                                fieldWithPath("pageable.sort.sorted").description("페이지가 정렬되었는지 여부"),
-                                fieldWithPath("pageable.sort.unsorted").description("페이지가 정렬되지 않았는지 여부"),
-                                fieldWithPath("pageable.offset").description("페이지 오프셋"),
-                                fieldWithPath("pageable.paged").description("페이징 여부"),
-                                fieldWithPath("pageable.unpaged").description("페이징되지 않았는지 여부"),
-                                fieldWithPath("numberOfElements").description("현재 페이지의 요소 수"),
-                                fieldWithPath("first").description("첫 번째 페이지 여부"),
-                                fieldWithPath("last").description("마지막 페이지 여부"),
-                                fieldWithPath("empty").description("페이지가 비어 있는지 여부")
+                                fieldWithPath("page").description("페이지"),
+                                fieldWithPath("page.size").description("사이즈"),
+                                fieldWithPath("page.number").description("번호"),
+                                fieldWithPath("page.totalElements").description("총 요소 "),
+                                fieldWithPath("page.totalPages").description("총 페이지 ")
                         )
                 ));
     }
