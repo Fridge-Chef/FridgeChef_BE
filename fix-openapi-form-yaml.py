@@ -1,6 +1,7 @@
 import os
 import re
 import yaml
+import json
 import uuid
 
 # 경로 설정
@@ -44,20 +45,27 @@ def get_valid_adoc_folders(base_path):
         folder_name = os.path.basename(root)
         if '-' not in folder_name:
             # 'request-parts.adoc' 파일이 있는지 확인
-            if 'request-parts.adoc' in files:
+
+            if 'request-parts.adoc' in files :
                 valid_folders.append([os.path.join(root, file) for file in files if file.endswith('.adoc')])
+                # 'test.json' 파일 경로도 추가
+                json_file = os.path.join(root, 'resource.json')
+                valid_folders[-1].append(json_file)
     return valid_folders
 
 
 
 def extract_curl_request(file_content):
-    match = re.search(r"curl '([^']+)' -i -X (\w+)", file_content)
-    if match:
-        full_uri, method = match.groups()
-        # 'http://localhost:8080'을 제거하고 URI의 경로 부분만 추출
-        uri = re.sub(r'^https?://[^/]+', '', full_uri)
-        return uri, method
-    return None, None
+    # JSON 문자열을 파싱
+    data = json.loads(file_content)
+
+    # 필요한 값 추출
+    uri = data['request']['path']
+    method = data['request']['method']
+
+    # 값 반환 및 출력
+    # print(f"URI: {uri}, Method: {method}")
+    return uri, method
 # 함수: request-parts.adoc에서 part와 description 추출
 def extract_request_parts(file_content):
     parts = re.findall(r"\|`(.+?)`\s*\|\s*(.+)", file_content)
@@ -178,15 +186,12 @@ def main():
             with open(adoc_file, 'r', encoding='utf-8') as f:
                 content = f.read()
 
-                # curl-request.adoc 처리
-                if 'curl-request' in adoc_file:
+                if 'resource' in adoc_file:
                     uri, method = extract_curl_request(content)
 
-                # request-parts.adoc 처리
                 if 'request-parts' in adoc_file:
                     parts = extract_request_parts(content)
 
-        # 추출된 데이터를 기반으로 OpenAPI YAML 파일 업데이트
         if uri and method and parts:
             update_openapi_yaml(uri, method, parts)
 
