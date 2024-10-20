@@ -20,6 +20,11 @@ public class BoardByRecipeUpdateRequest {
     private MultipartFile mainImage;
     private Long mainImageId;
     private boolean isMainImageChange;
+
+    private String dishTime;
+    private String dishLevel;
+    private String dishCategory;
+
     private List<BoardByRecipeUpdateRequest.RecipeIngredient> recipeIngredients;
     private List<BoardByRecipeUpdateRequest.Instructions> instructions;
 
@@ -32,6 +37,7 @@ public class BoardByRecipeUpdateRequest {
         private String name;
         private String details;
     }
+
     @Setter
     @Getter
     @NoArgsConstructor
