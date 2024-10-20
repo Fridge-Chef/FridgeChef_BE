@@ -8,12 +8,14 @@ import Fridge_Chef.team.common.RestDocControllerTests;
 import Fridge_Chef.team.common.auth.WithMockCustomUser;
 import Fridge_Chef.team.image.service.ImageService;
 import Fridge_Chef.team.user.repository.UserRepository;
+import jakarta.servlet.http.Part;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.mock.web.MockPart;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -29,8 +31,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
-import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
 
 @DisplayName("댓글 API")
 @WebMvcTest({CommentsController.class, CommentController.class})
@@ -53,12 +54,14 @@ public class CommentsControllerTest extends RestDocControllerTests {
     void testAddComment() throws Exception {
         MockMultipartFile images1 = getMultiFile("images");
         MockMultipartFile images2 = getMultiFile("images");
+        Part commentPart = new MockPart("comment", "댓글".getBytes());
+        Part starPart = new MockPart("star", "4".getBytes());
         var requestBuilder =
                 RestDocumentationRequestBuilders.multipart("/api/boards/{board_id}/comment", 1)
                         .file(images1)
                         .file(images2)
-                        .param("comment", "댓글")
-                        .param("star", "4.5")
+                        .part(commentPart)
+                        .part(starPart)
                         .header(AUTHORIZATION, "Bearer ")
                         .contentType(MediaType.MULTIPART_FORM_DATA);
 
@@ -69,7 +72,13 @@ public class CommentsControllerTest extends RestDocControllerTests {
                         jwtTokenRequest(),
                         pathParameters(
                                 parameterWithName("board_id").description("게시글 ID")
-                        )));
+                        ),
+                        requestParts(
+                                partWithName("comment").description("댓글"),
+                                partWithName("star").description("별점"),
+                                partWithName("images").description("이미지 파일들 [배열] ")
+                        ))
+                );
     }
 
     @Test
@@ -95,17 +104,21 @@ public class CommentsControllerTest extends RestDocControllerTests {
     @DisplayName("수정")
     void testUpdateComment() throws Exception {
 
-        MockMultipartFile images1 = getMultiFile("image");
-        MockMultipartFile images2 = getMultiFile("image");
+        MockMultipartFile images1 = getMultiFile("images");
+        MockMultipartFile images2 = getMultiFile("images");
+        Part commentPart = new MockPart("comment", "댓글".getBytes());
+        Part starPart = new MockPart("star", "4.5".getBytes());
+        Part isImagePart = new MockPart("isImage", "false".getBytes());
         var requestBuilder =
                 RestDocumentationRequestBuilders.multipart("/api/boards/{board_id}/comments/{comment_id}", 1, 1)
                         .file(images1)
                         .file(images2)
-                        .param("comment", "comment")
-                        .param("isImage", "false")
-                        .param("star", "4.5")
+                        .part(commentPart)
+                        .part(starPart)
+                        .part(isImagePart)
                         .header(AUTHORIZATION, "Bearer ")
                         .contentType(MediaType.MULTIPART_FORM_DATA);
+
         requestBuilder.with(request -> {
             request.setMethod("PUT");
             return request;
@@ -115,11 +128,18 @@ public class CommentsControllerTest extends RestDocControllerTests {
 
         actions.andExpect(status().isOk())
                 .andDo(document("후기 수정",
-                        jwtTokenRequest(),
-                        pathParameters(
-                                parameterWithName("board_id").description("게시글 ID"),
-                                parameterWithName("comment_id").description("댓글 ID")
-                        )));
+                                jwtTokenRequest(),
+                                pathParameters(
+                                        parameterWithName("board_id").description("게시글 ID"),
+                                        parameterWithName("comment_id").description("댓글 ID")
+                                ), requestParts(
+                                        partWithName("comment").description("댓글"),
+                                        partWithName("star").description("별점"),
+                                        partWithName("images").description("이미지 파일들 [배열] "),
+                                        partWithName("isImage").description("이미지 수정 여부")
+                                )
+                        )
+                );
     }
 
 
@@ -157,7 +177,6 @@ public class CommentsControllerTest extends RestDocControllerTests {
                                 fieldWithPath("[].boardId").description("게시판 ID"),
                                 fieldWithPath("[].createdAt").description("작성일")
                         )));
-
     }
 
     @Test
@@ -166,7 +185,7 @@ public class CommentsControllerTest extends RestDocControllerTests {
         when(commentService.getCommentsByBoard(anyLong(), anyLong()))
                 .thenReturn(getAllCommentsProvider().get(0));
 
-        ResultActions result = jwtGetPathWhen("/api/boards/{board_id}/comments/{comment_id}", 1,1);
+        ResultActions result = jwtGetPathWhen("/api/boards/{board_id}/comments/{comment_id}", 1, 1);
 
         result.andExpect(status().isOk())
                 .andDo(document("후기 조회",
@@ -184,7 +203,6 @@ public class CommentsControllerTest extends RestDocControllerTests {
                                 fieldWithPath("boardId").description("게시판 ID"),
                                 fieldWithPath("createdAt").description("작성일")
                         )));
-
     }
 
     private static List<CommentResponse> getAllCommentsProvider() {
