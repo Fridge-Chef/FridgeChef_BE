@@ -49,6 +49,9 @@ public class ImageProdService implements ImageService {
 
     @Transactional
     public Image imageUpload(UserId userId, MultipartFile file) {
+        if(file.isEmpty()){
+            return imageRepository.save(Image.none());
+        }
         String fileName = onlyNameChange(file.getName());
         upload(file, fileName);
         Image image = new Image(imageConfigMeta.getUrl(), imageConfigMeta.getUploadPath(), fileName, ImageType.ORACLE_CLOUD, userId);
@@ -57,6 +60,9 @@ public class ImageProdService implements ImageService {
 
     @Transactional
     public Image imageUploadUserPicture(User user, MultipartFile file) {
+        if(file.isEmpty()){
+            return imageRepository.save(Image.none());
+        }
         String fileName = onlyNameChange(file.getName());
         upload(file, fileName);
         Image image = new Image(imageConfigMeta.getUrl(), imageConfigMeta.getUploadPath(), fileName, ImageType.ORACLE_CLOUD, user.getUserId());
