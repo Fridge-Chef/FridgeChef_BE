@@ -16,16 +16,6 @@ repositories {
     mavenCentral()
 }
 sourceSets {
-    batch{
-        java {
-            srcDir 'src/batch/java'
-        }
-        resources {
-            srcDir 'src/batch/resources'
-        }
-        compileClasspath += sourceSets.main.output + configurations.testRuntimeClasspath
-        runtimeClasspath += output + compileClasspath
-    }
     externalApiTest {
         java {
             srcDir 'src/externalApiTest/java'
@@ -33,9 +23,10 @@ sourceSets {
         resources {
             srcDir 'src/externalApiTest/resources'
         }
-        compileClasspath += sourceSets.main.output + configurations.testRuntimeClasspath
+        compileClasspath += sourceSets.externalApiTest.output + configurations.testRuntimeClasspath
         runtimeClasspath += output + compileClasspath
     }
+
 }
 
 configurations {

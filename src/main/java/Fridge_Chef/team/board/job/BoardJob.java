@@ -1,4 +1,4 @@
-package Fridge_chef.team.board.job;
+package Fridge_Chef.team.board.job;
 
 import Fridge_Chef.team.board.domain.Board;
 import Fridge_Chef.team.board.domain.BoardHistory;
@@ -7,6 +7,7 @@ import Fridge_Chef.team.board.repository.BoardIssueRepository;
 import Fridge_Chef.team.board.repository.BoardRepository;
 import Fridge_Chef.team.user.repository.UserRepository;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,7 +16,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-@Service
+@Component
 public class BoardJob {
     private final BoardRepository boardRepository;
     private final UserRepository userRepository;

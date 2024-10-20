@@ -27,10 +27,13 @@ public class UserService {
 
     @Transactional
     public void accountDelete(UserId userId, String username) {
-        User user = findByUserId(userId);
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
+
         if (user.getDeleteStatus() != null && user.getDeleteStatus().bool()) {
             throw new ApiException(ErrorCode.USER_ACCOUNT_DELETE);
         }
+
         if (!user.getProfile().getUsername().equals(username)) {
             throw new ApiException(ErrorCode.USER_ACCOUNT_DELETE_NAME_INCORRECT);
         }
