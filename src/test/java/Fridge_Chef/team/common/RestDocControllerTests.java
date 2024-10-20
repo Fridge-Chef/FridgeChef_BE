@@ -248,6 +248,25 @@ public class RestDocControllerTests {
         );
     }
 
+    protected ResultActions jsonGetParamWhen(String uri, MultiValueMap<String,String> params) throws Exception {
+        return mockMvc.perform(get(uri)
+                .queryParams(params)
+                .characterEncoding("UTF-8")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+        );
+    }
+
+    protected ResultActions jwtJsonGetParamWhen(String uri, MultiValueMap<String,String> params) throws Exception {
+        return mockMvc.perform(get(uri)
+                .queryParams(params)
+                .header(AUTHORIZATION, "Bearer ")
+                .characterEncoding("UTF-8")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+        );
+    }
+
     protected ResultActions jsonPostWhen(String uri) throws Exception {
         return mockMvc.perform(post(uri)
                 .characterEncoding("UTF-8")
