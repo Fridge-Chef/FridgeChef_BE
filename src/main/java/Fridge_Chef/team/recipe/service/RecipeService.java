@@ -21,6 +21,7 @@ import Fridge_Chef.team.recipe.domain.RecipeIngredient;
 import Fridge_Chef.team.recipe.repository.RecipeDslRepository;
 import Fridge_Chef.team.recipe.repository.RecipeRepository;
 import Fridge_Chef.team.recipe.rest.request.RecipeCreateRequest;
+import Fridge_Chef.team.recipe.rest.request.RecipePageRequest;
 import Fridge_Chef.team.recipe.rest.response.RecipeResponse;
 import Fridge_Chef.team.recipe.rest.response.RecipeSearchResult;
 import Fridge_Chef.team.user.domain.User;
@@ -81,9 +82,10 @@ public class RecipeService {
     }
 
     @Transactional(readOnly = true)
-    public RecipeSearchResult searchRecipe(PageRequest page, List<String> ingredients) {
+    public RecipeSearchResult searchRecipe(RecipePageRequest request, List<String> ingredients) {
 
-        RecipeSearchResult response = recipeDslRepository.findRecipesByIngredients(page, ingredients);
+        PageRequest page = PageRequest.of(request.getPage(), request.getSize());
+        RecipeSearchResult response = recipeDslRepository.findRecipesByIngredients(page, request, ingredients);
 
         if (response.getRecipes().isEmpty()) {
             throw new ApiException(ErrorCode.RECIPE_NOT_FOUND);

@@ -1,14 +1,18 @@
 package Fridge_Chef.team.recipe.repository;
 
 import Fridge_Chef.team.recipe.domain.Recipe;
+import Fridge_Chef.team.recipe.repository.model.RecipeSearchSortType;
+import Fridge_Chef.team.recipe.rest.request.RecipePageRequest;
 import Fridge_Chef.team.recipe.rest.response.RecipeSearchResponse;
 import Fridge_Chef.team.recipe.rest.response.RecipeSearchResult;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,23 +26,24 @@ public class RecipeDslRepository {
 
     private final JPAQueryFactory factory;
 
-    public RecipeSearchResult findRecipesByIngredients(PageRequest page, List<String> ingredients) {
+    public RecipeSearchResult findRecipesByIngredients(PageRequest page, RecipePageRequest request, List<String> ingredients) {
 
         JPAQuery<Recipe> query = createBaseQuery(ingredients);
 
-        int totalCount = query.fetch().size();
+        long totalCount = query.fetchCount();
 
         List<RecipeSearchResponse> recipes = query
                 .offset(page.getOffset())
                 .limit(page.getPageSize())
                 .fetch().stream()
-                .map(recipe -> convertToRecipeSearchResponse(recipe, ingredients)) // ingredients를 파라미터로 전달
-                .sorted((r1, r2) -> Integer.compare(r2.getHave(), r1.getHave()))
+                .map(recipe -> convertToRecipeSearchResponse(recipe, ingredients))
                 .toList();
 
+        List<RecipeSearchResponse> sortedRecipes = applySort(recipes, request.getSortType());
+
         return RecipeSearchResult.builder()
-                .totalCount(totalCount)
-                .recipes(recipes)
+                .totalCount((int) totalCount)
+                .recipes(sortedRecipes)
                 .build();
     }
 
@@ -65,12 +70,27 @@ public class RecipeDslRepository {
 
         int have = recipeIngredientNames.size() - without.size();
 
+        String imageUrl = recipe.getImage() != null ? recipe.getImage().getLink() : "default-image-url";
+
         return RecipeSearchResponse.builder()
                 .name(recipe.getName())
-                .imageUrl(recipe.getImage().getLink())
+                .imageUrl(imageUrl)
                 .totalIngredients(recipeIngredientNames.size())
                 .have(have)
                 .without(without)
                 .build();
+    }
+
+    private List<RecipeSearchResponse> applySort(List<RecipeSearchResponse> recipes, RecipeSearchSortType sortType) {
+
+        List<RecipeSearchResponse> sortedRecipes = new ArrayList<>(recipes); // 가변 리스트 생성
+
+        switch (sortType) {
+            case MATCH -> sortedRecipes.sort((r1, r2) -> Integer.compare(r2.getHave(), r1.getHave()));
+            case LIKE -> sortedRecipes.sort((r1, r2) -> Integer.compare(r2.getHit(), r1.getHit()));
+            case RATING -> sortedRecipes.sort((r1, r2) -> Double.compare(r2.getTotalStar(), r1.getTotalStar()));
+        }
+
+        return sortedRecipes;
     }
 }
