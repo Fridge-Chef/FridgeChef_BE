@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -39,18 +40,26 @@ public class RecipeController {
     //레시피 조회
     @GetMapping("/")
     public RecipeSearchResult search(
-            @RequestParam("ingredients") List<String> ingredients,
+            @RequestParam(required = false) List<String> must,
+            @RequestParam(required = false) List<String> ingredients,
             @RequestParam(defaultValue = "0", required = false) int page,
             @RequestParam(defaultValue = "20", required = false) int size,
             @RequestParam(defaultValue = "MATCH", required = false) RecipeSearchSortType sort) {
 
-        if (ingredients.size() == 0) {
+        if (must == null) {
+            must = new ArrayList<>();
+        }
+        if (ingredients == null) {
+            ingredients = new ArrayList<>();
+        }
+
+        if (must.isEmpty() && ingredients.isEmpty()) {
             throw new ApiException(ErrorCode.INGREDIENT_INVALID);
         }
 
         RecipePageRequest recipePageRequest = new RecipePageRequest(page, size, sort);
 
-        RecipeSearchResult response = recipeService.searchRecipe(recipePageRequest, ingredients);
+        RecipeSearchResult response = recipeService.searchRecipe(recipePageRequest, must, ingredients);
 
         return response;
     }
