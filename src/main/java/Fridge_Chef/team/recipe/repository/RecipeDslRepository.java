@@ -5,7 +5,6 @@ import Fridge_Chef.team.recipe.repository.model.RecipeSearchSortType;
 import Fridge_Chef.team.recipe.rest.request.RecipePageRequest;
 import Fridge_Chef.team.recipe.rest.response.RecipeSearchResponse;
 import Fridge_Chef.team.recipe.rest.response.RecipeSearchResult;
-import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -26,9 +25,9 @@ public class RecipeDslRepository {
 
     private final JPAQueryFactory factory;
 
-    public RecipeSearchResult findRecipesByIngredients(PageRequest page, RecipePageRequest request, List<String> ingredients) {
+    public RecipeSearchResult findRecipesByIngredients(PageRequest page, RecipePageRequest request, List<String> must, List<String> ingredients) {
 
-        JPAQuery<Recipe> query = createBaseQuery(ingredients);
+        JPAQuery<Recipe> query = createBaseQuery(must, ingredients);
 
         long totalCount = query.fetchCount();
 
@@ -36,7 +35,7 @@ public class RecipeDslRepository {
                 .offset(page.getOffset())
                 .limit(page.getPageSize())
                 .fetch().stream()
-                .map(recipe -> convertToRecipeSearchResponse(recipe, ingredients))
+                .map(recipe -> convertToRecipeSearchResponse(recipe, must, ingredients))
                 .toList();
 
         List<RecipeSearchResponse> sortedRecipes = applySort(recipes, request.getSortType());
@@ -47,25 +46,34 @@ public class RecipeDslRepository {
                 .build();
     }
 
-    private JPAQuery<Recipe> createBaseQuery(List<String> ingredients) {
+    private JPAQuery<Recipe> createBaseQuery(List<String> must, List<String> ingredients) {
 
-        return factory
+        JPAQuery<Recipe> query = factory
                 .selectFrom(recipe)
                 .leftJoin(recipe.recipeIngredients, recipeIngredient)
                 .leftJoin(recipe.image, image)
-                .where(recipeIngredient.ingredient.name.in(ingredients))
-                .groupBy(recipe.id)
-                .having(recipe.recipeIngredients.size().goe(1));
+                .groupBy(recipe.id);
+
+        if (must != null && !must.isEmpty()) {
+            query.where(recipeIngredient.ingredient.name.in(must))
+                    .having(recipeIngredient.ingredient.name.countDistinct().goe(must.size()));
+        }
+
+        if (ingredients != null && !ingredients.isEmpty()) {
+            query.where(recipeIngredient.ingredient.name.in(ingredients).or(recipeIngredient.ingredient.name.in(must)));
+        }
+
+        return query;
     }
 
-    private RecipeSearchResponse convertToRecipeSearchResponse(Recipe recipe, List<String> ingredients) {
+    private RecipeSearchResponse convertToRecipeSearchResponse(Recipe recipe, List<String> must, List<String> ingredients) {
 
         List<String> recipeIngredientNames = recipe.getRecipeIngredients().stream()
                 .map(ri -> ri.getIngredient().getName())
                 .toList();
 
         List<String> without = recipeIngredientNames.stream()
-                .filter(ri -> !ingredients.contains(ri))
+                .filter(ri -> !ingredients.contains(ri) && !must.contains(ri))
                 .collect(Collectors.toList());
 
         int have = recipeIngredientNames.size() - without.size();
@@ -83,7 +91,7 @@ public class RecipeDslRepository {
 
     private List<RecipeSearchResponse> applySort(List<RecipeSearchResponse> recipes, RecipeSearchSortType sortType) {
 
-        List<RecipeSearchResponse> sortedRecipes = new ArrayList<>(recipes); // 가변 리스트 생성
+        List<RecipeSearchResponse> sortedRecipes = new ArrayList<>(recipes);
 
         switch (sortType) {
             case MATCH -> sortedRecipes.sort((r1, r2) -> Integer.compare(r2.getHave(), r1.getHave()));

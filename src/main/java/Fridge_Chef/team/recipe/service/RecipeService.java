@@ -82,10 +82,10 @@ public class RecipeService {
     }
 
     @Transactional(readOnly = true)
-    public RecipeSearchResult searchRecipe(RecipePageRequest request, List<String> ingredients) {
+    public RecipeSearchResult searchRecipe(RecipePageRequest request, List<String> must, List<String> ingredients) {
 
         PageRequest page = PageRequest.of(request.getPage(), request.getSize());
-        RecipeSearchResult response = recipeDslRepository.findRecipesByIngredients(page, request, ingredients);
+        RecipeSearchResult response = recipeDslRepository.findRecipesByIngredients(page, request, must, ingredients);
 
         if (response.getRecipes().isEmpty()) {
             throw new ApiException(ErrorCode.RECIPE_NOT_FOUND);
