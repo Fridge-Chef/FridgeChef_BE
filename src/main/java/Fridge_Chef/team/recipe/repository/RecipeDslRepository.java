@@ -1,5 +1,9 @@
 package Fridge_Chef.team.recipe.repository;
 
+import Fridge_Chef.team.board.domain.Board;
+import Fridge_Chef.team.board.repository.BoardRepository;
+import Fridge_Chef.team.exception.ApiException;
+import Fridge_Chef.team.exception.ErrorCode;
 import Fridge_Chef.team.recipe.domain.Recipe;
 import Fridge_Chef.team.recipe.repository.model.RecipeSearchSortType;
 import Fridge_Chef.team.recipe.rest.request.RecipePageRequest;
@@ -24,6 +28,7 @@ import static Fridge_Chef.team.recipe.domain.QRecipeIngredient.recipeIngredient;
 public class RecipeDslRepository {
 
     private final JPAQueryFactory factory;
+    private final BoardRepository boardRepository;
 
     public RecipeSearchResult findRecipesByIngredients(PageRequest page, RecipePageRequest request, List<String> must, List<String> ingredients) {
 
@@ -78,14 +83,20 @@ public class RecipeDslRepository {
 
         int have = recipeIngredientNames.size() - without.size();
 
+        Board board = boardRepository.findByTitle(recipe.getName())
+                .orElseThrow(() -> new ApiException(ErrorCode.BOARD_NOT_FOUND));
+
         String imageUrl = recipe.getImage() != null ? recipe.getImage().getLink() : "default-image-url";
 
         return RecipeSearchResponse.builder()
                 .name(recipe.getName())
                 .imageUrl(imageUrl)
                 .totalIngredients(recipeIngredientNames.size())
+                .hit(board.getHit())
+                .totalStar(board.getTotalStar())
                 .have(have)
                 .without(without)
+                .boardId(board.getId())
                 .build();
     }
 

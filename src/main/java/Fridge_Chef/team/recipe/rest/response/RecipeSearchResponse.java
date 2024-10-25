@@ -20,4 +20,5 @@ public class RecipeSearchResponse {
     private int totalIngredients;
     private int have;
     private List<String> without;
+    private Long boardId;
 }
