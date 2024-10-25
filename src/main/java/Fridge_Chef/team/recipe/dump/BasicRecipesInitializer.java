@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
-@org.springframework.context.annotation.Profile({"prod","dev"})
+@org.springframework.context.annotation.Profile({"prod", "dev"})
 public class BasicRecipesInitializer {
 
     private final ResourceLoader resourceLoader;
