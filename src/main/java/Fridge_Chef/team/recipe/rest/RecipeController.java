@@ -43,15 +43,8 @@ public class RecipeController {
             @RequestParam(required = false) List<String> must,
             @RequestParam(required = false) List<String> ingredients,
             @RequestParam(defaultValue = "0", required = false) int page,
-            @RequestParam(defaultValue = "20", required = false) int size,
+            @RequestParam(defaultValue = "50", required = false) int size,
             @RequestParam(defaultValue = "MATCH", required = false) RecipeSearchSortType sort) {
-
-        if (must == null) {
-            must = new ArrayList<>();
-        }
-        if (ingredients == null) {
-            ingredients = new ArrayList<>();
-        }
 
         if (must.isEmpty() && ingredients.isEmpty()) {
             throw new ApiException(ErrorCode.INGREDIENT_INVALID);
