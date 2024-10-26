@@ -1,6 +1,7 @@
 package Fridge_Chef.team.recipe.repository;
 
 import Fridge_Chef.team.board.domain.Board;
+import Fridge_Chef.team.board.domain.Context;
 import Fridge_Chef.team.board.repository.BoardRepository;
 import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.exception.ErrorCode;
@@ -14,6 +15,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +32,7 @@ public class RecipeDslRepository {
     private final JPAQueryFactory factory;
     private final BoardRepository boardRepository;
 
+    @Transactional(readOnly = true)
     public RecipeSearchResult findRecipesByIngredients(PageRequest page, RecipePageRequest request, List<String> must, List<String> ingredients) {
 
         JPAQuery<Recipe> query = createBaseQuery(must, ingredients);
@@ -71,6 +74,7 @@ public class RecipeDslRepository {
         return query;
     }
 
+    @Transactional(readOnly = true)
     private RecipeSearchResponse convertToRecipeSearchResponse(Recipe recipe, List<String> must, List<String> ingredients) {
 
         List<String> recipeIngredientNames = recipe.getRecipeIngredients().stream()
@@ -82,11 +86,12 @@ public class RecipeDslRepository {
                 .collect(Collectors.toList());
 
         int have = recipeIngredientNames.size() - without.size();
-
-        Board board = boardRepository.findByTitle(recipe.getName())
-                .orElseThrow(() -> new ApiException(ErrorCode.BOARD_NOT_FOUND));
-
         String imageUrl = recipe.getImage() != null ? recipe.getImage().getLink() : "default-image-url";
+
+        Board board = findBoardFromRecipe(recipe);
+        if (board == null) {
+            throw new ApiException(ErrorCode.BOARD_NOT_FOUND);
+        }
 
         return RecipeSearchResponse.builder()
                 .name(recipe.getName())
@@ -111,5 +116,23 @@ public class RecipeDslRepository {
         }
 
         return sortedRecipes;
+    }
+
+    private Board findBoardFromRecipe(Recipe recipe) {
+
+        List<Board> boardList = boardRepository.findByTitle(recipe.getName())
+                .orElseThrow(() -> new ApiException(ErrorCode.BOARD_NOT_FOUND));
+
+        for (Board board : boardList) {
+            Context context = board.getContext();
+
+            if (context.getDishCategory().equals(recipe.getCategory())
+            && context.getDishLevel().equals(String.valueOf(recipe.getDifficult()))
+            && context.getDishTime().equals(String.valueOf(recipe.getCookTime()))) {
+                return board;
+            }
+        }
+
+        return null;
     }
 }
