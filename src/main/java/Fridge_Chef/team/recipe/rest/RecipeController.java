@@ -40,8 +40,8 @@ public class RecipeController {
     //레시피 조회
     @GetMapping("/")
     public RecipeSearchResult search(
-            @RequestParam(required = false) List<String> must,
-            @RequestParam(required = false) List<String> ingredients,
+            @RequestParam List<String> must,
+            @RequestParam List<String> ingredients,
             @RequestParam(defaultValue = "0", required = false) int page,
             @RequestParam(defaultValue = "50", required = false) int size,
             @RequestParam(defaultValue = "MATCH", required = false) RecipeSearchSortType sort) {
