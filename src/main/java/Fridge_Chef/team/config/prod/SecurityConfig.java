@@ -59,6 +59,9 @@ public class SecurityConfig {
 
     public JwtDecoder jwtDecoder() {
         log.info("jwt public value : "+publicKey.getPublicExponent());
+        log.info("jwt public getAlgorithm : "+publicKey.getAlgorithm());
+        log.info("jwt public getModulus : "+publicKey.getModulus());
+        log.info("jwt public getParams : "+publicKey.getParams());
         return NimbusJwtDecoder.withPublicKey(publicKey)
                 .build();
     }
