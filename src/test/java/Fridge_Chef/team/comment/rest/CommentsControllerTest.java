@@ -13,6 +13,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.mock.web.MockPart;
@@ -25,8 +28,7 @@ import java.util.Optional;
 
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
 import static fixture.ImageFixture.getMultiFile;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
@@ -157,25 +159,33 @@ public class CommentsControllerTest extends RestDocControllerTests {
     @Test
     @DisplayName("전체조회")
     void testGetAllComments() throws Exception {
-        when(commentService.getCommentsByBoard(anyLong(), any(Optional.class))).thenReturn(getAllCommentsProvider());
+        when(commentService.getCommentsByBoard(anyLong(), anyInt(), anyInt(), any(Optional.class))).thenReturn(getAllCommentsProvider());
 
-        ResultActions result = jwtGetPathWhen("/api/boards/{board_id}/comments", 1);
+        ResultActions result = jwtGetPathWhen("/api/boards/{board_id}/comments?page=0&size=30", 1);
 
         result.andExpect(status().isOk())
-                .andDo(document("후기 조회",
+                .andDo(document("후기 전체 조회",
                         pathParameters(
                                 parameterWithName("board_id").description("게시글 ID")
                         ),
+                        queryParameters(
+                                parameterWithName("page").description("현재 페이지 번호"),
+                                parameterWithName("size").description("페이지 크기")
+                        ),
                         responseFields(
-                                fieldWithPath("[]").description("후기 리스트"),
-                                fieldWithPath("[].id").description("ID"),
-                                fieldWithPath("[].comments").description("후기 내용"),
-                                fieldWithPath("[].like").description("좋아요 수 "),
-                                fieldWithPath("[].star").description("별점"),
-                                fieldWithPath("[].userName").description("사용자 이름"),
-                                fieldWithPath("[].imageLink[]").description("이미지 주소"),
-                                fieldWithPath("[].boardId").description("게시판 ID"),
-                                fieldWithPath("[].createdAt").description("작성일")
+                                fieldWithPath("content[]").description("후기 리스트"),
+                                fieldWithPath("content[].id").description("ID"),
+                                fieldWithPath("content[].comments").description("후기 내용"),
+                                fieldWithPath("content[].like").description("좋아요 수 "),
+                                fieldWithPath("content[].star").description("별점"),
+                                fieldWithPath("content[].userName").description("사용자 이름"),
+                                fieldWithPath("content[].imageLink[]").description("이미지 주소"),
+                                fieldWithPath("content[].boardId").description("게시판 ID"),
+                                fieldWithPath("content[].createdAt").description("작성일"),
+                                fieldWithPath("page.size").description("페이지 크기"),
+                                fieldWithPath("page.number").description("현재 페이지 번호"),
+                                fieldWithPath("page.totalElements").description("전체 요소 수"),
+                                fieldWithPath("page.totalPages").description("전체 페이지 수")
                         )));
     }
 
@@ -183,12 +193,12 @@ public class CommentsControllerTest extends RestDocControllerTests {
     @DisplayName("단일 조회")
     void getComment() throws Exception {
         when(commentService.getCommentsByBoard(anyLong(), anyLong()))
-                .thenReturn(getAllCommentsProvider().get(0));
+                .thenReturn(getAllCommentsProvider().getContent().get(0));
 
         ResultActions result = jwtGetPathWhen("/api/boards/{board_id}/comments/{comment_id}", 1, 1);
 
         result.andExpect(status().isOk())
-                .andDo(document("후기 조회",
+                .andDo(document("후기 단일 조회",
                         pathParameters(
                                 parameterWithName("board_id").description("게시글 ID"),
                                 parameterWithName("comment_id").description("댓글 ID")
@@ -205,10 +215,10 @@ public class CommentsControllerTest extends RestDocControllerTests {
                         )));
     }
 
-    private static List<CommentResponse> getAllCommentsProvider() {
-        return List.of(
+    private static Page<CommentResponse> getAllCommentsProvider() {
+        return new PageImpl<>(List.of(
                 new CommentResponse(1L, "후기 내용", 4.5, 1, "User1", List.of("test.png"), 1L, LocalDateTime.now()),
                 new CommentResponse(2L, "또 다른 후기", 5.0, 1, "User2", List.of("test.png", "test2.png"), 1L, LocalDateTime.now())
-        );
+        ), PageRequest.of(0, 10), 2);
     }
 }

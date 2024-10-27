@@ -25,6 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -119,10 +120,10 @@ public class CommentServiceTest {
         when(boardRepository.findById(anyLong())).thenReturn(Optional.of(board));
         when(commentRepository.findAllByBoard(any(Board.class))).thenReturn(List.of(comment));
 
-        List<CommentResponse> comments = commentService.getCommentsByBoard(1L, Optional.of(new AuthenticatedUser(UserId.create(), Role.USER)));
+        Page<CommentResponse> comments = commentService.getCommentsByBoard(1L, 0,10,Optional.of(new AuthenticatedUser(UserId.create(), Role.USER)));
 
         assertNotNull(comments);
-        assertEquals(1, comments.size());
+        assertEquals(1, comments.getTotalElements());
     }
 
     @Test

@@ -33,6 +33,7 @@ import java.security.interfaces.RSAPublicKey;
 public class SecurityConfig {
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2SuccessHandler oAuth2AuthenticationSuccessHandler;
+
     @Value("${jwt.secret.public}")
     private RSAPublicKey publicKey;
 
@@ -66,7 +67,6 @@ public class SecurityConfig {
         userMatchers(registry);
         registry.requestMatchers("/", "/static/**", "/docs.html", "/favicon.ico")
                 .permitAll()
-                .requestMatchers(PathRequest.toH2Console()).permitAll()
                 .anyRequest().authenticated();
     }
 
