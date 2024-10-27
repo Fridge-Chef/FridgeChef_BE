@@ -6,10 +6,10 @@ import Fridge_Chef.team.comment.service.CommentService;
 import Fridge_Chef.team.user.rest.model.AuthenticatedUser;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -20,10 +20,12 @@ public class CommentsController {
 
 
     @GetMapping
-    public List<CommentResponse> getAllComments(
+    public Page<CommentResponse> getAllComments(
             @AuthenticationPrincipal AuthenticatedUser user,
-            @PathVariable("board_id") Long boardId) {
-        return commentService.getCommentsByBoard(boardId, Optional.ofNullable(user));
+            @PathVariable("board_id") Long boardId,
+            @RequestParam(defaultValue = "0", required = false) int page,
+            @RequestParam(defaultValue = "30", required = false) int size) {
+        return commentService.getCommentsByBoard(boardId, page, size, Optional.ofNullable(user));
     }
 
     @GetMapping("/{comment_id}")
