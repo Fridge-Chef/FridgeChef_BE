@@ -209,9 +209,7 @@ public class BasicRecipesInitializer {
         recipeIngredientRepository.saveAll(recipe.getRecipeIngredients());
     }
 
-    @Transactional
     private void recipeToBoard(User user, Recipe recipe) {
-
         Context context = Context.formMyUserRecipe(String.valueOf(recipe.getCookTime()), String.valueOf(recipe.getDifficult()), recipe.getCategory(),
                 recipe.getRecipeIngredients(), recipe.getDescriptions());
         contextRepository.save(context);
