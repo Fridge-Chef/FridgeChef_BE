@@ -107,7 +107,7 @@ public class Board extends BaseEntity {
         if (mainImage != null) {
             return mainImage.getLink();
         }
-        return "notfound.png";
+        return "";
     }
 
     public void addUserEvent(BoardUserEvent boardUserEvent) {
