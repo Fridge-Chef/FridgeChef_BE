@@ -86,7 +86,7 @@ public class RecipeDslRepository {
                 .collect(Collectors.toList());
 
         int have = recipeIngredientNames.size() - without.size();
-        String imageUrl = recipe.getImage() != null ? recipe.getImage().getLink() : "default-image-url";
+        String imageUrl = recipe.getImage() != null ? recipe.getImage().getLink() : "";
 
         Board board = findBoardFromRecipe(recipe);
         if (board == null) {

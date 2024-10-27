@@ -44,7 +44,7 @@ public class FridgeService {
 
         fridgeRepository.save(fridge);
 
-        if (!fridgeCreateRequest.getRecipes().isEmpty()) {
+        if (fridgeCreateRequest != null && !fridgeCreateRequest.getRecipes().isEmpty()) {
             for (FridgeIngredientAddRequest request : fridgeCreateRequest.getRecipes()) {
                 Ingredient ingredient = ingredientService.getIngredient(request.getIngredientName());
 
@@ -59,6 +59,7 @@ public class FridgeService {
                 .orElseThrow(() -> new ApiException(ErrorCode.FRIDGE_NOT_FOUND));
     }
 
+    @Transactional(readOnly = true)
     public List<FridgeIngredientResponse> getFridgeIngredientResponse(UserId userId) {
 
         Fridge fridge = getFridge(userId);

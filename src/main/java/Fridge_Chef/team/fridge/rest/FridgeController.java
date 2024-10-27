@@ -23,7 +23,7 @@ public class FridgeController {
 
     @PostMapping("/")
     @ResponseStatus(HttpStatus.CREATED)
-    public void create(@AuthenticationPrincipal AuthenticatedUser user, FridgeCreateRequest request) {
+    public void create(@AuthenticationPrincipal AuthenticatedUser user, @RequestBody(required = false) FridgeCreateRequest request) {
 
         UserId userId = user.userId();
 
