@@ -18,6 +18,9 @@ import Fridge_Chef.team.user.domain.UserId;
 import Fridge_Chef.team.user.repository.UserRepository;
 import Fridge_Chef.team.user.rest.model.AuthenticatedUser;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -103,9 +106,11 @@ public class CommentService {
     }
 
     @Transactional(readOnly = true)
-    public List<CommentResponse> getCommentsByBoard(Long boardId, Optional<AuthenticatedUser> user) {
+    public Page<CommentResponse> getCommentsByBoard(Long boardId, int page, int size, Optional<AuthenticatedUser> user) {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new ApiException(ErrorCode.BOARD_NOT_FOUND));
+
+        PageRequest pageable = PageRequest.of(page,size);
 
         List<Comment> comments = commentRepository.findAllByBoard(board);
 
@@ -116,9 +121,11 @@ public class CommentService {
             comments.add(0, userComment);
         });
 
-        return comments.stream()
+        List<CommentResponse> responses = comments.stream()
                 .map(CommentResponse::fromEntity)
                 .toList();
+
+        return new PageImpl<>(responses,pageable,responses.size());
     }
 
     @Transactional(readOnly = true)
