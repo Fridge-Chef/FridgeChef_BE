@@ -39,7 +39,7 @@ public class JwtProdProvider implements JwtProvider {
             @Value("${jwt.secret.public}") RSAPublicKey rsaPublicKey) {
         this.rsaPrivateKey = rsaPrivateKey;
         this.rsaPublicKey = rsaPublicKey;
-        System.out.println("public key value : "+rsaPublicKey.getPublicExponent());
+        log.info("public key value : "+rsaPublicKey.getPublicExponent());
 
         log.info("Private Key Size: {}", rsaPrivateKey.getModulus().bitLength());
         log.info("Public Key Size: {}", rsaPublicKey.getModulus().bitLength());

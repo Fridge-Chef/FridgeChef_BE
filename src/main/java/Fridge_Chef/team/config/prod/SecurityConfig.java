@@ -6,6 +6,7 @@ import Fridge_Chef.team.security.handler.OAuth2SuccessHandler;
 import Fridge_Chef.team.security.service.CustomOAuth2UserService;
 import Fridge_Chef.team.user.domain.Role;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -25,7 +26,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 import java.security.interfaces.RSAPublicKey;
-
+@Slf4j
 @Profile({"prod"})
 @Configuration
 @EnableWebSecurity
@@ -57,7 +58,9 @@ public class SecurityConfig {
     }
 
     public JwtDecoder jwtDecoder() {
-        return NimbusJwtDecoder.withPublicKey(publicKey).build();
+        log.info("jwt public value : "+publicKey.getPublicExponent());
+        return NimbusJwtDecoder.withPublicKey(publicKey)
+                .build();
     }
 
     private void configureAuthorization(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry registry) {
@@ -73,7 +76,7 @@ public class SecurityConfig {
     private void boardMatchers(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry registry) {
         registry.requestMatchers(HttpMethod.GET, "/api/boards", "/api/boards/{board_id}")
                 .permitAll()
-                .requestMatchers("/api/boards/{board_id}/hit", "/api/board", "/api/books/{board_id}")
+                .requestMatchers( "/api/boards/{board_id}/hit", "/api/board", "/api/books/{board_id}")
                 .hasAnyAuthority(Role.USER.getAuthority(), Role.ADMIN.getAuthority());
     }
 
