@@ -6,6 +6,7 @@ import Fridge_Chef.team.security.handler.OAuth2SuccessHandler;
 import Fridge_Chef.team.security.service.CustomOAuth2UserService;
 import Fridge_Chef.team.user.domain.Role;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -26,6 +27,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import java.security.interfaces.RSAPublicKey;
 
+@Slf4j
 @Profile({"dev"})
 @Configuration
 @EnableWebSecurity
@@ -56,6 +58,9 @@ public class SecurityDevConfig {
     }
 
     public JwtDecoder jwtDecoder() {
+
+        log.info("jwt public getModulus : "+publicKey.getModulus());
+
         return NimbusJwtDecoder.withPublicKey(publicKey).build();
     }
 

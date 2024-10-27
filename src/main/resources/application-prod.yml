@@ -9,8 +9,8 @@ server:
 
 jwt:
   secret:
-    private: fridgejwt.priv
-    public: fridgejwt.pub
+    private: /home/ubuntu/dev/fridgejwt.priv
+    public: /home/ubuntu/dev/fridgejwt.pub
 
 spring:
   config:
