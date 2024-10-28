@@ -1,5 +1,6 @@
 package Fridge_Chef.team.fridge.rest;
 
+import Fridge_Chef.team.fridge.domain.Fridge;
 import Fridge_Chef.team.fridge.rest.request.FridgeCreateRequest;
 import Fridge_Chef.team.fridge.rest.request.FridgeIngredientAddRequest;
 import Fridge_Chef.team.fridge.rest.request.FridgeIngredientRequest;
@@ -43,8 +44,9 @@ public class FridgeController {
     public void add(@AuthenticationPrincipal AuthenticatedUser user, @RequestBody FridgeIngredientAddRequest request) {
 
         UserId userId = user.userId();
+        Fridge fridge = fridgeService.getFridge(userId);
 
-        fridgeService.addFridgeIngredient(userId, request);
+        fridgeService.addFridgeIngredient(fridge, request);
     }
 
     @DeleteMapping("/ingredients")

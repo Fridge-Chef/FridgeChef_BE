@@ -39,6 +39,11 @@ public class IngredientService {
 
     @Transactional(readOnly = true)
     public IngredientSearchResponse searchIngredients(String keyword) {
+
+        if (keyword == null || keyword.isEmpty()) {
+            throw new ApiException(ErrorCode.INGREDIENT_INVALID);
+        }
+
         List<String> ingredientNames = ingredientRepository.findByNameContaining(keyword)
                 .stream()
                 .map(Ingredient::getName)
