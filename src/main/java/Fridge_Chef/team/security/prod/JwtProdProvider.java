@@ -39,6 +39,7 @@ public class JwtProdProvider implements JwtProvider {
             @Value("${jwt.secret.public}") RSAPublicKey rsaPublicKey) {
         this.rsaPrivateKey = rsaPrivateKey;
         this.rsaPublicKey = rsaPublicKey;
+        log.info("public key value : "+rsaPublicKey.getPublicExponent());
 
         log.info("Private Key Size: {}", rsaPrivateKey.getModulus().bitLength());
         log.info("Public Key Size: {}", rsaPublicKey.getModulus().bitLength());
@@ -74,6 +75,7 @@ public class JwtProdProvider implements JwtProvider {
     }
 
     public AuthenticatedUser parse(String jws) {
+        log.info("JWT parse : " + jws);
         Claims claims = Jwts.parser()
                 .verifyWith(rsaPublicKey)
                 .build()
@@ -83,6 +85,7 @@ public class JwtProdProvider implements JwtProvider {
         String userIdClaim = claims.get(TOKEN_USER_ID_PAYLOAD_PARAMETER, String.class);
         String roleClaim = claims.get(TOKEN_USER_ROLE_PAYLOAD_PARAMETER, String.class);
 
+        log.info("JWT claim "+ userIdClaim+","+roleClaim);
         if (userIdClaim == null || roleClaim == null) {
             throw new ApiException(ErrorCode.TOKEN_ACCESS_EXPIRED_FAIL);
         }
