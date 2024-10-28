@@ -41,9 +41,7 @@ public class FridgeService {
     @Transactional
     public void createFridge(UserId userId, FridgeCreateRequest fridgeCreateRequest) {
 
-//        User user = userService.findByUser(userId);
-        User user = new User(userId);
-        userRepository.save(user);
+        User user = userService.findByUser(userId);
 
         Fridge fridge = Fridge.builder()
                 .user(user)

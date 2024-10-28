@@ -26,9 +26,8 @@ public class FridgeController {
     @ResponseStatus(HttpStatus.CREATED)
     public void create(@AuthenticationPrincipal AuthenticatedUser user, @RequestBody(required = false) FridgeCreateRequest request) {
 
-//        UserId userId = user.userId();
+        UserId userId = user.userId();
 
-        UserId userId = UserId.create();
         fridgeService.createFridge(userId, request);
     }
 
