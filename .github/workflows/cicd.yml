@@ -45,9 +45,6 @@ jobs:
         run: |
           echo "${{ secrets.fridgejwtprivate }}" > src/main/resources/fridgejwt.priv
           echo "${{ secrets.fridgejwtpublic }}" > src/main/resources/fridgejwt.pub
-          
-          mv fridgejwt.priv src/main/resources/fridgejwt.priv
-          mv fridgejwt.pub src/main/resources/fridgejwt.pub
 
       - name: Set up Node.js
         uses: actions/setup-node@v2
