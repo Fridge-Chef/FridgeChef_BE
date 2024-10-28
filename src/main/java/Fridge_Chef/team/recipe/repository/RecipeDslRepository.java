@@ -9,11 +9,12 @@ import Fridge_Chef.team.recipe.domain.Recipe;
 import Fridge_Chef.team.recipe.repository.model.RecipeSearchSortType;
 import Fridge_Chef.team.recipe.rest.request.RecipePageRequest;
 import Fridge_Chef.team.recipe.rest.response.RecipeSearchResponse;
-import Fridge_Chef.team.recipe.rest.response.RecipeSearchResult;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,25 +34,20 @@ public class RecipeDslRepository {
     private final BoardRepository boardRepository;
 
     @Transactional(readOnly = true)
-    public RecipeSearchResult findRecipesByIngredients(PageRequest page, RecipePageRequest request, List<String> must, List<String> ingredients) {
+    public Page<RecipeSearchResponse> findRecipesByIngredients(PageRequest pageable, RecipePageRequest request, List<String> must, List<String> ingredients) {
 
         JPAQuery<Recipe> query = createBaseQuery(must, ingredients);
 
-        long totalCount = query.fetchCount();
-
         List<RecipeSearchResponse> recipes = query
-                .offset(page.getOffset())
-                .limit(page.getPageSize())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
                 .fetch().stream()
                 .map(recipe -> convertToRecipeSearchResponse(recipe, must, ingredients))
                 .toList();
 
         List<RecipeSearchResponse> sortedRecipes = applySort(recipes, request.getSortType());
 
-        return RecipeSearchResult.builder()
-                .totalCount((int) totalCount)
-                .recipes(sortedRecipes)
-                .build();
+        return PageableExecutionUtils.getPage(sortedRecipes, pageable, () -> query.fetch().size());
     }
 
     private JPAQuery<Recipe> createBaseQuery(List<String> must, List<String> ingredients) {

@@ -23,11 +23,12 @@ import Fridge_Chef.team.recipe.repository.RecipeRepository;
 import Fridge_Chef.team.recipe.rest.request.RecipeCreateRequest;
 import Fridge_Chef.team.recipe.rest.request.RecipePageRequest;
 import Fridge_Chef.team.recipe.rest.response.RecipeResponse;
-import Fridge_Chef.team.recipe.rest.response.RecipeSearchResult;
+import Fridge_Chef.team.recipe.rest.response.RecipeSearchResponse;
 import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.domain.UserId;
 import Fridge_Chef.team.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -82,12 +83,12 @@ public class RecipeService {
     }
 
     @Transactional(readOnly = true)
-    public RecipeSearchResult searchRecipe(RecipePageRequest request, List<String> must, List<String> ingredients) {
+    public Page<RecipeSearchResponse> searchRecipe(RecipePageRequest request, List<String> must, List<String> ingredients) {
 
         PageRequest page = PageRequest.of(request.getPage(), request.getSize());
-        RecipeSearchResult response = recipeDslRepository.findRecipesByIngredients(page, request, must, ingredients);
+        Page<RecipeSearchResponse> response = recipeDslRepository.findRecipesByIngredients(page, request, must, ingredients);
 
-        if (response.getRecipes().isEmpty()) {
+        if (response.getSize() == 0) {
             throw new ApiException(ErrorCode.RECIPE_NOT_FOUND);
         }
 

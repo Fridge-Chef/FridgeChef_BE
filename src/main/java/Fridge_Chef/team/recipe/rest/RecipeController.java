@@ -6,17 +6,16 @@ import Fridge_Chef.team.recipe.repository.model.RecipeSearchSortType;
 import Fridge_Chef.team.recipe.rest.request.RecipeCreateRequest;
 import Fridge_Chef.team.recipe.rest.request.RecipePageRequest;
 import Fridge_Chef.team.recipe.rest.response.RecipeResponse;
-import Fridge_Chef.team.recipe.rest.response.RecipeSearchResult;
+import Fridge_Chef.team.recipe.rest.response.RecipeSearchResponse;
 import Fridge_Chef.team.recipe.service.RecipeService;
 import Fridge_Chef.team.user.domain.UserId;
 import Fridge_Chef.team.user.rest.model.AuthenticatedUser;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -39,7 +38,7 @@ public class RecipeController {
 
     //레시피 조회
     @GetMapping("/")
-    public RecipeSearchResult search(
+    public Page<RecipeSearchResponse> search(
             @RequestParam List<String> must,
             @RequestParam List<String> ingredients,
             @RequestParam(defaultValue = "0", required = false) int page,
@@ -52,7 +51,7 @@ public class RecipeController {
 
         RecipePageRequest recipePageRequest = new RecipePageRequest(page, size, sort);
 
-        RecipeSearchResult response = recipeService.searchRecipe(recipePageRequest, must, ingredients);
+        Page<RecipeSearchResponse> response = recipeService.searchRecipe(recipePageRequest, must, ingredients);
 
         return response;
     }
