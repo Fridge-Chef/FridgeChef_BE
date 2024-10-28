@@ -43,10 +43,6 @@ jobs:
 
       - name: Setup OpenSSL and Generate Keys
         run: |
-#          openssl genrsa -out fridgejwt.priv 2048
-#          openssl pkcs8 -in fridgejwt.priv -inform PEM -out private_key_pkcs8.pem -outform PEM -topk8 -nocrypt
-#          openssl rsa -in private_key_pkcs8.pem -out fridgejwt.pub -pubout
-
           echo "${{ secrets.fridgejwtprivate }}" > src/main/resources/fridgejwt.priv
           echo "${{ secrets.fridgejwtpublic }}" > src/main/resources/fridgejwt.pub
           
