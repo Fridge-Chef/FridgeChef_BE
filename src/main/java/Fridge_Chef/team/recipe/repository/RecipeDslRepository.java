@@ -74,7 +74,6 @@ public class RecipeDslRepository {
         return query;
     }
 
-    @Transactional(readOnly = true)
     private RecipeSearchResponse convertToRecipeSearchResponse(Recipe recipe, List<String> must, List<String> ingredients) {
 
         List<String> recipeIngredientNames = recipe.getRecipeIngredients().stream()
