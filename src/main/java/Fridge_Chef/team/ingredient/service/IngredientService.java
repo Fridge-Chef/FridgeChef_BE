@@ -5,11 +5,15 @@ import Fridge_Chef.team.exception.ErrorCode;
 import Fridge_Chef.team.ingredient.domain.Ingredient;
 import Fridge_Chef.team.ingredient.domain.IngredientCategory;
 import Fridge_Chef.team.ingredient.repository.IngredientRepository;
+import Fridge_Chef.team.ingredient.rest.response.IngredientSearchResponse;
 import Fridge_Chef.team.recipe.domain.RecipeIngredient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +35,20 @@ public class IngredientService {
     public Ingredient getOrCreate(String ingredientName) {
         return ingredientRepository.findByName(ingredientName)
                 .orElseGet(() -> ingredientRepository.save(new Ingredient(ingredientName)));
+    }
+
+    @Transactional(readOnly = true)
+    public IngredientSearchResponse searchIngredients(String keyword) {
+        List<String> ingredientNames = ingredientRepository.findByNameContaining(keyword)
+                .stream()
+                .map(Ingredient::getName)
+                .collect(Collectors.toList());
+
+        if (ingredientNames.isEmpty()) {
+            throw new ApiException(ErrorCode.INGREDIENT_NOT_FOUND);
+        }
+
+        return new IngredientSearchResponse(ingredientNames);
     }
 
     public boolean exist(String ingredientName) {
