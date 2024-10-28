@@ -34,6 +34,12 @@ public class FridgeIngredient {
     private Storage storage;
     private IngredientCategory ingredientCategory;
 
+    public FridgeIngredient(Fridge fridge, Ingredient ingredient, Storage storage) {
+        this.fridge = fridge;
+        this.ingredient = ingredient;
+        this.storage = storage;
+    }
+
     public void updateExpirationDate(LocalDate exp) {
         this.expirationDate = exp;
     }
