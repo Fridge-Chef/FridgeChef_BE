@@ -1,7 +1,6 @@
 package Fridge_Chef.team.fridge.rest;
 
 import Fridge_Chef.team.fridge.domain.Fridge;
-import Fridge_Chef.team.fridge.rest.request.FridgeCreateRequest;
 import Fridge_Chef.team.fridge.rest.request.FridgeIngredientAddRequest;
 import Fridge_Chef.team.fridge.rest.request.FridgeIngredientRequest;
 import Fridge_Chef.team.fridge.rest.response.FridgeIngredientResponse;
@@ -24,7 +23,7 @@ public class FridgeController {
 
     @PostMapping("/")
     @ResponseStatus(HttpStatus.CREATED)
-    public void create(@AuthenticationPrincipal AuthenticatedUser user, @RequestBody(required = false) FridgeCreateRequest request) {
+    public void create(@AuthenticationPrincipal AuthenticatedUser user, @RequestBody List<FridgeIngredientAddRequest> request) {
 
         UserId userId = user.userId();
 

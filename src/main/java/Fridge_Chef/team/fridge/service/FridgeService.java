@@ -7,7 +7,6 @@ import Fridge_Chef.team.fridge.domain.FridgeIngredient;
 import Fridge_Chef.team.fridge.domain.Storage;
 import Fridge_Chef.team.fridge.repository.FridgeIngredientRepository;
 import Fridge_Chef.team.fridge.repository.FridgeRepository;
-import Fridge_Chef.team.fridge.rest.request.FridgeCreateRequest;
 import Fridge_Chef.team.fridge.rest.request.FridgeIngredientAddRequest;
 import Fridge_Chef.team.fridge.rest.request.FridgeIngredientRequest;
 import Fridge_Chef.team.fridge.rest.response.FridgeIngredientResponse;
@@ -16,7 +15,6 @@ import Fridge_Chef.team.ingredient.domain.IngredientCategory;
 import Fridge_Chef.team.ingredient.service.IngredientService;
 import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.domain.UserId;
-import Fridge_Chef.team.user.repository.UserRepository;
 import Fridge_Chef.team.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -36,10 +34,9 @@ public class FridgeService {
 
     private final FridgeIngredientRepository fridgeIngredientRepository;
     private final FridgeRepository fridgeRepository;
-    private final UserRepository userRepository;
 
     @Transactional
-    public void createFridge(UserId userId, FridgeCreateRequest fridgeCreateRequest) {
+    public void createFridge(UserId userId, List<FridgeIngredientAddRequest> fridgeCreateRequest) {
 
         User user = userService.findByUser(userId);
 
@@ -48,8 +45,8 @@ public class FridgeService {
                 .fridgeIngredients(new ArrayList<>())
                 .build();
 
-        if (!fridgeCreateRequest.getIngredients().isEmpty()) {
-            for (FridgeIngredientAddRequest request : fridgeCreateRequest.getIngredients()) {
+        if (!fridgeCreateRequest.isEmpty()) {
+            for (FridgeIngredientAddRequest request : fridgeCreateRequest) {
                 Ingredient ingredient = ingredientService.getIngredient(request.getIngredientName());
                 FridgeIngredient fridgeIngredient = new FridgeIngredient(fridge, ingredient, request.getStorage());
                 fridge.getFridgeIngredients().add(fridgeIngredient);
