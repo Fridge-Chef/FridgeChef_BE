@@ -1,16 +1,15 @@
 package Fridge_Chef.team.recipe.service;
 
-import Fridge_Chef.team.board.domain.Board;
-import Fridge_Chef.team.board.domain.BoardType;
-import Fridge_Chef.team.board.domain.Context;
-import Fridge_Chef.team.board.domain.Description;
+import Fridge_Chef.team.board.domain.*;
 import Fridge_Chef.team.board.repository.BoardRepository;
+import Fridge_Chef.team.board.repository.BoardUserEventRepository;
 import Fridge_Chef.team.board.repository.ContextRepository;
 import Fridge_Chef.team.board.repository.DescriptionRepository;
 import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.exception.ErrorCode;
 import Fridge_Chef.team.image.domain.Image;
 import Fridge_Chef.team.image.repository.ImageRepository;
+import Fridge_Chef.team.image.service.ImageService;
 import Fridge_Chef.team.ingredient.domain.Ingredient;
 import Fridge_Chef.team.ingredient.repository.RecipeIngredientRepository;
 import Fridge_Chef.team.ingredient.rest.response.IngredientResponse;
@@ -35,44 +34,41 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class RecipeService {
 
-    private final IngredientService ingredientService;
     private final UserService userService;
+    private final ImageService imageService;
+    private final IngredientService ingredientService;
 
     private final RecipeRepository recipeRepository;
     private final RecipeDslRepository recipeDslRepository;
     private final DescriptionRepository descriptionRepository;
-    private final ImageRepository imageRepository;
     private final ContextRepository contextRepository;
     private final BoardRepository boardRepository;
+    private final BoardUserEventRepository boardUserEventRepository;
     private final RecipeIngredientRepository recipeIngredientRepository;
 
     @Transactional
-    public void createMyRecipe(UserId userId, RecipeCreateRequest request) {
+    public void createMyRecipe(UserId userId, RecipeCreateRequest request,
+                                List<RecipeIngredient> recipeIngredients,
+                                List<Description> descriptions) {
 
         User user = userService.findByUser(userId);
 
-        if (recipeRepository.existsByName(request.getName())) {
-            throw new ApiException(ErrorCode.RECIPE_NAME_ALREADY_EXISTS);
-        }
-
-        Image image = Image.outUri(request.getImageUrl());
-        imageRepository.save(image);
-
+        Image mainImage = (request.getMainImage() != null) ? imageService.imageUpload(userId, request.getMainImage()) : null;
         Difficult difficult = Difficult.valueOf(request.getDifficult());
-        List<Description> descriptions = insertDescriptions(request.getDescriptions());
-        List<RecipeIngredient> recipeIngredients = insertRecipeIngredients(request.getRecipeIngredients());
 
         Recipe recipe = Recipe.builder()
                 .name(request.getName())
                 .intro(request.getIntro())
-                .image(image)
-                .cookTime(request.getCookTime())
+                .image(mainImage)
+                .cookTime(Integer.parseInt(request.getCookTime()))
                 .difficult(difficult)
+                .category(request.getCategory())
                 .descriptions(descriptions)
                 .recipeIngredients(recipeIngredients)
                 .build();
@@ -95,25 +91,17 @@ public class RecipeService {
         return response;
     }
 
-    private List<Description> insertDescriptions(List<Description> requestDescriptions) {
+    @Transactional
+    public List<Description> createDescriptions(UserId userId, List<RecipeCreateRequest.Description> request) {
+        List<Description> descriptions = request.stream()
+                .map(description -> {
+                    String manual = description.getContent();
+                    Image image = (description.getImage() != null) ? imageService.imageUpload(userId, description.getImage()) : null;
+                    return new Description(manual, image);
+                })
+                .collect(Collectors.toList());
 
-        List<Description> descriptions = new ArrayList<>();
-
-        for (Description requestDescription : requestDescriptions) {
-            String manual = requestDescription.getDescription();
-            Image image = requestDescription.getImage();
-
-            if (image != null) {
-                imageRepository.save(image);
-            }
-
-            Description description = new Description(manual, image);
-            descriptions.add(description);
-        }
-
-        descriptionRepository.saveAll(descriptions);
-
-        return descriptions;
+        return descriptionRepository.saveAll(descriptions);
     }
 
     private List<RecipeIngredient> insertRecipeIngredients(List<RecipeIngredient> requestRecipeIngredients) {
@@ -136,11 +124,18 @@ public class RecipeService {
 
     private void recipeToBoard(User user, Recipe recipe) {
 
-        Context context = Context.formMyUserRecipe(recipe.getRecipeIngredients(), recipe.getDescriptions());
+        List<RecipeIngredient> ri = new ArrayList<>(recipe.getRecipeIngredients());
+        List<Description> descriptions = new ArrayList<>(recipe.getDescriptions());
+        Context context = Context.formMyUserRecipe(
+                String.valueOf(recipe.getCookTime()), String.valueOf(recipe.getDifficult()), recipe.getCategory(),
+                ri, descriptions);
         contextRepository.save(context);
 
         Board board = new Board(user, recipe.getIntro(), recipe.getName(), context, recipe.getImage(), BoardType.USER);
         boardRepository.save(board);
+
+        BoardUserEvent event = new BoardUserEvent(board, user);
+        boardUserEventRepository.save(event);
     }
 
     private RecipeResponse recipeToDto(Recipe recipe) {
