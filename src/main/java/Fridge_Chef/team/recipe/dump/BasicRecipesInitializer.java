@@ -1,9 +1,11 @@
 package Fridge_Chef.team.recipe.dump;
 
 import Fridge_Chef.team.board.domain.Board;
+import Fridge_Chef.team.board.domain.BoardUserEvent;
 import Fridge_Chef.team.board.domain.Context;
 import Fridge_Chef.team.board.domain.Description;
 import Fridge_Chef.team.board.repository.BoardRepository;
+import Fridge_Chef.team.board.repository.BoardUserEventRepository;
 import Fridge_Chef.team.board.repository.ContextRepository;
 import Fridge_Chef.team.board.repository.DescriptionRepository;
 import Fridge_Chef.team.ingredient.domain.Ingredient;
@@ -49,6 +51,7 @@ public class BasicRecipesInitializer {
     private final RecipeIngredientRepository recipeIngredientRepository;
     private final ContextRepository contextRepository;
     private final BoardRepository boardRepository;
+    private final BoardUserEventRepository boardUserEventRepository;
 
     private static final Pattern CSV_LINE_PATTERN = Pattern.compile("\"([^\"]*)\"|([^,]+)");
     private static final Pattern INGREDIENTS_SPLIT_PATTERN = Pattern.compile("\\s*,\\s*(?=(?:[^()]*\\([^()]*\\))*[^()]*$)");
@@ -217,5 +220,8 @@ public class BasicRecipesInitializer {
         Board board = Board.from(user, recipe);
         board.setContext(context);
         boardRepository.save(board);
+
+        BoardUserEvent event = new BoardUserEvent(board, user);
+        boardUserEventRepository.save(event);
     }
 }
