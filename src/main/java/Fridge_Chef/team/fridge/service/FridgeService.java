@@ -47,7 +47,7 @@ public class FridgeService {
 
         if (!fridgeCreateRequest.isEmpty()) {
             for (FridgeIngredientAddRequest request : fridgeCreateRequest) {
-                Ingredient ingredient = ingredientService.getIngredient(request.getIngredientName());
+                Ingredient ingredient = ingredientService.getOrCreate(request.getIngredientName());
                 FridgeIngredient fridgeIngredient = new FridgeIngredient(fridge, ingredient, request.getStorage());
                 fridge.getFridgeIngredients().add(fridgeIngredient);
             }
