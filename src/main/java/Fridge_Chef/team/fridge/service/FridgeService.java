@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -96,12 +97,13 @@ public class FridgeService {
 
     @Transactional
     public void deleteIngredients(UserId userId, String ingredientName) {
-
         Fridge fridge = getFridge(userId);
-        FridgeIngredient delIngredient = getFridgeIngredient(fridge, ingredientName);
 
-        fridge.getFridgeIngredients().remove(delIngredient);
-        fridgeRepository.save(fridge);
+        Optional<FridgeIngredient> ingredients = fridge.getFridgeIngredients().stream()
+                .filter(fridges -> fridges.getIngredient().getName().equals(ingredientName))
+                .findFirst();
+
+        ingredients.ifPresent(fridge::delete);
     }
 
     @Transactional
