@@ -59,7 +59,6 @@ public class FridgeService {
                 if(ins.isEmpty()){
                     fridge.getFridgeIngredients().add(fridgeIngredient);
                 }
-                fridgeCreateRequest.remove(request);
             }
             fridgeIngredientRepository.saveAll(fridge.getFridgeIngredients());
         }
@@ -115,6 +114,7 @@ public class FridgeService {
         log.info("fridge delete isIngredient :"+ ingredients.isPresent() +","+ingredientName);
 
         if(ingredients.isPresent()){
+            fridgeIngredientRepository.delete(ingredients.get());
             fridge.delete(ingredients.get());
             log.info("fridge-ingredient-delete : "+ ingredientName);
         }
