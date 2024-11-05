@@ -100,7 +100,8 @@ public class FridgeService {
         FridgeIngredient fridgeIngredient = createFridgeIngredient(fridge, ingredient, storage);
         addIngredientToFridge(fridge, fridgeIngredient);
     }
-
+    
+    @Transactional
     public void addFridgeIngredient(Fridge fridge, List<FridgeIngredientAddRequest> request) {
         for(var ingredient : request){
             addFridgeIngredient(fridge,ingredient);
