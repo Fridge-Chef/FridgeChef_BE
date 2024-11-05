@@ -101,6 +101,12 @@ public class FridgeService {
         addIngredientToFridge(fridge, fridgeIngredient);
     }
 
+    public void addFridgeIngredient(Fridge fridge, List<FridgeIngredientAddRequest> request) {
+        for(var ingredient : request){
+            addFridgeIngredient(fridge,ingredient);
+        }
+    }
+
     @Transactional
     public void deleteIngredients(UserId userId, String ingredientName) {
         Fridge fridge = getFridge(userId);
