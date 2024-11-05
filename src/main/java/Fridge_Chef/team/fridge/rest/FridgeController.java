@@ -39,20 +39,17 @@ public class FridgeController {
     @PostMapping("/ingredients")
     @ResponseStatus(HttpStatus.CREATED)
     public void add(@AuthenticationPrincipal AuthenticatedUser user, @RequestBody FridgeIngredientAddRequest request) {
-
         UserId userId = user.userId();
         Fridge fridge = fridgeService.getFridge(userId);
 
         fridgeService.addFridgeIngredient(fridge, request);
     }
 
-    @DeleteMapping("/ingredients")
+    @DeleteMapping("/ingredients/{ingredient}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@AuthenticationPrincipal AuthenticatedUser user, @RequestBody String ingredientName) {
-
+    public void delete(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable(name = "ingredient") String ingredient) {
         UserId userId = user.userId();
-
-        fridgeService.deleteIngredients(userId, ingredientName);
+        fridgeService.deleteIngredients(userId, ingredient);
     }
 
     @PutMapping("/ingredients")
