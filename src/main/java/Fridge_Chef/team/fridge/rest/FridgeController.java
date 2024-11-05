@@ -31,7 +31,6 @@ public class FridgeController {
 
     @GetMapping("/")
     public List<FridgeIngredientResponse> search(@AuthenticationPrincipal AuthenticatedUser user) {
-
         UserId userId = user.userId();
 
         return fridgeService.getFridgeIngredientResponse(userId);
