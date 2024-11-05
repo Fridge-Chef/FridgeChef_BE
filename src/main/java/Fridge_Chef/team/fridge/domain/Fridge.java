@@ -29,4 +29,9 @@ public class Fridge {
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    public Fridge(List<FridgeIngredient> fridgeIngredients, User user) {
+        this.fridgeIngredients = fridgeIngredients;
+        this.user = user;
+    }
 }
