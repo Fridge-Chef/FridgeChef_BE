@@ -29,7 +29,7 @@ public class IngredientService {
 
     public Ingredient getIngredient(String ingredientName) {
         return ingredientRepository.findByName(ingredientName)
-                .orElse(ingredientRepository.save(new Ingredient(ingredientName)));
+                .orElseGet(() -> ingredientRepository.save(new Ingredient(ingredientName)));
     }
 
     public Ingredient getOrCreate(String ingredientName) {
