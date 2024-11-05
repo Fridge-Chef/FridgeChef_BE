@@ -51,11 +51,15 @@ public class FridgeService {
             for (FridgeIngredientAddRequest request : fridgeCreateRequest) {
                 Ingredient ingredient = ingredientService.getOrCreate(request.getIngredientName());
                 FridgeIngredient fridgeIngredient = new FridgeIngredient(fridge, ingredient, request.getStorage());
-                fridge.getFridgeIngredients().add(fridgeIngredient);
+                var ins = fridge.getFridgeIngredients().stream()
+                        .filter(fridges -> fridges.getIngredient().equals(ingredient))
+                        .findFirst();
+                if(ins.isEmpty()){
+                    fridge.getFridgeIngredients().add(fridgeIngredient);
+                }
             }
             fridgeIngredientRepository.saveAll(fridge.getFridgeIngredients());
         }
-
         fridgeRepository.save(fridge);
     }
 
