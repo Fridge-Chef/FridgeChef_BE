@@ -50,9 +50,9 @@ public class IngredientService {
                 .collect(Collectors.toList());
 
         if (ingredientNames.isEmpty()) {
-            throw new ApiException(ErrorCode.INGREDIENT_NOT_FOUND);
+            ingredientRepository.save(new Ingredient(keyword));
+//            throw new ApiException(ErrorCode.INGREDIENT_NOT_FOUND);
         }
-
         return new IngredientSearchResponse(ingredientNames);
     }
 
