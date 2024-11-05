@@ -18,7 +18,7 @@ public class IngredientController {
     private final IngredientService ingredientService;
 
     @GetMapping("/search")
-    public IngredientSearchResponse search(@AuthenticationPrincipal AuthenticatedUser user, @RequestParam String keyword) {
-        return ingredientService.searchIngredients(keyword);
+    public IngredientSearchResponse search() {
+        return ingredientService.findAllIngredients();
     }
 }

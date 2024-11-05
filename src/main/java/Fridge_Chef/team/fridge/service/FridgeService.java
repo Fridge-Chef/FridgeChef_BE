@@ -17,6 +17,7 @@ import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.domain.UserId;
 import Fridge_Chef.team.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +28,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class FridgeService {
 
@@ -51,11 +53,15 @@ public class FridgeService {
             for (FridgeIngredientAddRequest request : fridgeCreateRequest) {
                 Ingredient ingredient = ingredientService.getOrCreate(request.getIngredientName());
                 FridgeIngredient fridgeIngredient = new FridgeIngredient(fridge, ingredient, request.getStorage());
-                fridge.getFridgeIngredients().add(fridgeIngredient);
+                var ins = fridge.getFridgeIngredients().stream()
+                        .filter(fridges -> fridges.getIngredient().equals(ingredient))
+                        .findFirst();
+                if(ins.isEmpty()){
+                    fridge.getFridgeIngredients().add(fridgeIngredient);
+                }
             }
             fridgeIngredientRepository.saveAll(fridge.getFridgeIngredients());
         }
-
         fridgeRepository.save(fridge);
     }
 
@@ -79,31 +85,33 @@ public class FridgeService {
                 .collect(Collectors.toList());
     }
 
+
     @Transactional
-    public void addFridgeIngredient(Fridge fridge, FridgeIngredientAddRequest request) {
-
-        String ingredientName = request.getIngredientName();
-        Storage storage = request.getStorage();
-
-        Ingredient ingredient = ingredientService.getIngredient(ingredientName);
-
-        if (isExist(fridge, ingredient.getName())) {
-            throw new ApiException(ErrorCode.INGREDIENT_ALREADY_EXISTS);
+    public void addFridgeIngredient(UserId userId, List<FridgeIngredientAddRequest> request) {
+        Fridge fridge = fridgeRepository.findByUserId(userId)
+                .orElseThrow(() -> new ApiException(ErrorCode.FRIDGE_NOT_FOUND));
+        for(var ingredient : request){
+            addFridgeIngredient(fridge,ingredient);
         }
-
-        FridgeIngredient fridgeIngredient = createFridgeIngredient(fridge, ingredient, storage);
-        addIngredientToFridge(fridge, fridgeIngredient);
     }
 
     @Transactional
     public void deleteIngredients(UserId userId, String ingredientName) {
         Fridge fridge = getFridge(userId);
+        log.info("fridge delete name " + ingredientName);
 
         Optional<FridgeIngredient> ingredients = fridge.getFridgeIngredients().stream()
                 .filter(fridges -> fridges.getIngredient().getName().equals(ingredientName))
                 .findFirst();
 
-        ingredients.ifPresent(fridge::delete);
+        log.info("fridge ins "+ fridge.getFridgeIngredients().toString());
+        log.info("fridge delete isIngredient :"+ ingredients.isPresent() +","+ingredientName);
+
+        if(ingredients.isPresent()){
+            fridgeIngredientRepository.delete(ingredients.get());
+            fridge.delete(ingredients.get());
+            log.info("fridge-ingredient-delete : "+ ingredientName);
+        }
     }
 
     @Transactional
@@ -128,6 +136,17 @@ public class FridgeService {
         fridgeRepository.save(fridge);
     }
 
+    public void addFridgeIngredient(Fridge fridge, FridgeIngredientAddRequest request) {
+        Ingredient ingredient = ingredientService.getIngredient(request.getIngredientName());
+
+        if (isExist(fridge, ingredient.getName())) {
+            throw new ApiException(ErrorCode.INGREDIENT_ALREADY_EXISTS);
+        }
+
+        FridgeIngredient fridgeIngredient = createFridgeIngredient(fridge, ingredient, request.getStorage());
+        addIngredientToFridge(fridge, fridgeIngredient);
+    }
+
     private FridgeIngredient createFridgeIngredient(Fridge fridge, Ingredient ingredient, Storage storage) {
         return FridgeIngredient.builder()
                 .fridge(fridge)
@@ -146,8 +165,7 @@ public class FridgeService {
     }
 
     private void addIngredientToFridge(Fridge fridge, FridgeIngredient fridgeIngredient) {
-
-        fridge.getFridgeIngredients().add(fridgeIngredient);
+        fridge.getFridgeIngredients().add(fridgeIngredientRepository.save(fridgeIngredient));
     }
 
     private boolean isExist(Fridge fridge, String ingredientName) {

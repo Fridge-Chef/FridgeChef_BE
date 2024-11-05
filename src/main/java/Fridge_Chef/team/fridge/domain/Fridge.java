@@ -23,7 +23,7 @@ public class Fridge {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany(mappedBy = "fridge", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "fridge", fetch = FetchType.LAZY,orphanRemoval = true)
     private List<FridgeIngredient> fridgeIngredients;
 
     @OneToOne
@@ -35,7 +35,8 @@ public class Fridge {
         this.user = user;
     }
 
-    public void delete(FridgeIngredient fridgeIngredient) {
+    public Fridge delete(FridgeIngredient fridgeIngredient) {
         fridgeIngredients.remove(fridgeIngredient);
+        return this;
     }
 }

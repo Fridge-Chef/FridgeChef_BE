@@ -36,14 +36,17 @@ public class IngredientService {
         return ingredientRepository.findByName(ingredientName)
                 .orElseGet(() -> ingredientRepository.save(new Ingredient(ingredientName)));
     }
+    @Transactional(readOnly = true)
+    public IngredientSearchResponse findAllIngredients(){
+        return new IngredientSearchResponse(
+                ingredientRepository.findAll().stream()
+                        .map(Ingredient::getName)
+                        .toList()
+        );
+    }
 
     @Transactional(readOnly = true)
     public IngredientSearchResponse searchIngredients(String keyword) {
-
-        if (keyword == null || keyword.isEmpty()) {
-            throw new ApiException(ErrorCode.INGREDIENT_INVALID);
-        }
-
         List<String> ingredientNames = ingredientRepository.findByNameContaining(keyword)
                 .stream()
                 .map(Ingredient::getName)
