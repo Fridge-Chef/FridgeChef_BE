@@ -29,7 +29,7 @@ public class IngredientService {
 
     public Ingredient getIngredient(String ingredientName) {
         return ingredientRepository.findByName(ingredientName)
-                .orElseThrow(() -> new ApiException(ErrorCode.INGREDIENT_NOT_FOUND));
+                .orElse(new Ingredient(ingredientName));
     }
 
     public Ingredient getOrCreate(String ingredientName) {
@@ -50,9 +50,9 @@ public class IngredientService {
                 .collect(Collectors.toList());
 
         if (ingredientNames.isEmpty()) {
-            ingredientRepository.save(new Ingredient(keyword));
-//            throw new ApiException(ErrorCode.INGREDIENT_NOT_FOUND);
+            throw new ApiException(ErrorCode.INGREDIENT_NOT_FOUND);
         }
+
         return new IngredientSearchResponse(ingredientNames);
     }
 
