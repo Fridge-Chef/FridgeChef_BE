@@ -15,8 +15,10 @@ import Fridge_Chef.team.ingredient.domain.IngredientCategory;
 import Fridge_Chef.team.ingredient.service.IngredientService;
 import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.domain.UserId;
+import Fridge_Chef.team.user.repository.UserRepository;
 import Fridge_Chef.team.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,8 +28,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class FridgeService {
+    private final UserRepository userRepository;
 
     private final UserService userService;
     private final IngredientService ingredientService;
@@ -37,7 +41,6 @@ public class FridgeService {
 
     @Transactional
     public void createFridge(UserId userId, List<FridgeIngredientAddRequest> fridgeCreateRequest) {
-
         User user = userService.findByUser(userId);
 
         Fridge fridge = Fridge.builder()
@@ -51,16 +54,21 @@ public class FridgeService {
                 FridgeIngredient fridgeIngredient = new FridgeIngredient(fridge, ingredient, request.getStorage());
                 fridge.getFridgeIngredients().add(fridgeIngredient);
             }
-
             fridgeIngredientRepository.saveAll(fridge.getFridgeIngredients());
         }
 
+        log.info("냉장고 생성 이름 : "+user.getUsername() +" userid : " + user.getUserId());
         fridgeRepository.save(fridge);
     }
 
     public Fridge getFridge(UserId userId) {
-        return fridgeRepository.findByUserId(userId)
-                .orElseThrow(() -> new ApiException(ErrorCode.FRIDGE_NOT_FOUND));
+        var fridgeOptional =  fridgeRepository.findByUserId(userId);
+        if(fridgeOptional.isPresent()){
+            return fridgeOptional.get();
+        }
+        var user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
+        return fridgeRepository.save(new Fridge(List.of(),user));
     }
 
     @Transactional(readOnly = true)
