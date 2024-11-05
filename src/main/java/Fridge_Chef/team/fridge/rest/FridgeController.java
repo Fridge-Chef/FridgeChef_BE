@@ -24,7 +24,6 @@ public class FridgeController {
     @PostMapping("/")
     @ResponseStatus(HttpStatus.CREATED)
     public void create(@AuthenticationPrincipal AuthenticatedUser user, @RequestBody List<FridgeIngredientAddRequest> request) {
-
         UserId userId = user.userId();
 
         fridgeService.createFridge(userId, request);
