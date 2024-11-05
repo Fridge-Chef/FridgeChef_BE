@@ -136,21 +136,16 @@ public class FridgeService {
         fridgeRepository.save(fridge);
     }
 
-    private void addFridgeIngredient(Fridge fridge, FridgeIngredientAddRequest request) {
-
-        String ingredientName = request.getIngredientName();
-        Storage storage = request.getStorage();
-
-        Ingredient ingredient = ingredientService.getIngredient(ingredientName);
+    public void addFridgeIngredient(Fridge fridge, FridgeIngredientAddRequest request) {
+        Ingredient ingredient = ingredientService.getIngredient(request.getIngredientName());
 
         if (isExist(fridge, ingredient.getName())) {
             throw new ApiException(ErrorCode.INGREDIENT_ALREADY_EXISTS);
         }
 
-        FridgeIngredient fridgeIngredient = createFridgeIngredient(fridge, ingredient, storage);
+        FridgeIngredient fridgeIngredient = createFridgeIngredient(fridge, ingredient, request.getStorage());
         addIngredientToFridge(fridge, fridgeIngredient);
     }
-
 
     private FridgeIngredient createFridgeIngredient(Fridge fridge, Ingredient ingredient, Storage storage) {
         return FridgeIngredient.builder()
@@ -170,8 +165,7 @@ public class FridgeService {
     }
 
     private void addIngredientToFridge(Fridge fridge, FridgeIngredient fridgeIngredient) {
-
-        fridge.getFridgeIngredients().add(fridgeIngredient);
+        fridge.getFridgeIngredients().add(fridgeIngredientRepository.save(fridgeIngredient));
     }
 
     private boolean isExist(Fridge fridge, String ingredientName) {
