@@ -40,9 +40,8 @@ public class FridgeController {
     @ResponseStatus(HttpStatus.CREATED)
     public void add(@AuthenticationPrincipal AuthenticatedUser user, @RequestBody List<FridgeIngredientAddRequest> request) {
         UserId userId = user.userId();
-        Fridge fridge = fridgeService.getFridge(userId);
 
-        fridgeService.addFridgeIngredient(fridge, request);
+        fridgeService.addFridgeIngredient(userId,request);
     }
 
     @PutMapping("/ingredients")
