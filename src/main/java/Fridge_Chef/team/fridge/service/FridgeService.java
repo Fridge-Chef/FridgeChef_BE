@@ -110,12 +110,13 @@ public class FridgeService {
         Optional<FridgeIngredient> ingredients = fridge.getFridgeIngredients().stream()
                 .filter(fridges -> fridges.getIngredient().getName().equals(ingredientName))
                 .findFirst();
+
         log.info("fridge ins "+ fridge.getFridgeIngredients().toString());
         log.info("fridge delete isIngredient :"+ ingredients.isPresent() +","+ingredientName);
+
         if(ingredients.isPresent()){
             fridge.delete(ingredients.get());
-            fridgeRepository.save(fridge);
-            log.info("delete ");
+            log.info("fridge-ingredient-delete : "+ ingredientName);
         }
     }
 
