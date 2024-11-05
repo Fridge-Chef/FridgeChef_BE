@@ -6,6 +6,7 @@ import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.rest.model.AuthenticatedUser;
 import Fridge_Chef.team.user.rest.request.UserAccountDeleteRequest;
 import Fridge_Chef.team.user.rest.request.UserProfileNameUpdateRequest;
+import Fridge_Chef.team.user.rest.response.UserProfileMyPageResponse;
 import Fridge_Chef.team.user.rest.response.UserProfileResponse;
 import Fridge_Chef.team.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,11 @@ public class UserController {
     public UserProfileResponse get(@AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
         User user = userService.findByUser(authenticatedUser.userId());
         return UserProfileResponse.from(user);
+    }
+
+    @GetMapping("/mypage")
+    public UserProfileMyPageResponse sd(@AuthenticationPrincipal AuthenticatedUser authenticatedUser){
+        return userService.findByMyPage(authenticatedUser.userId());
     }
 
     @PatchMapping("/name")
