@@ -34,4 +34,8 @@ public class Fridge {
         this.fridgeIngredients = fridgeIngredients;
         this.user = user;
     }
+
+    public void delete(FridgeIngredient fridgeIngredient) {
+        fridgeIngredients.remove(fridgeIngredient);
+    }
 }
