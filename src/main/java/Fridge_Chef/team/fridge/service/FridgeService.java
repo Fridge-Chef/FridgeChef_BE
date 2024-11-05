@@ -17,6 +17,7 @@ import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.domain.UserId;
 import Fridge_Chef.team.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +28,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class FridgeService {
 
@@ -57,6 +59,7 @@ public class FridgeService {
                 if(ins.isEmpty()){
                     fridge.getFridgeIngredients().add(fridgeIngredient);
                 }
+                fridgeCreateRequest.remove(request);
             }
             fridgeIngredientRepository.saveAll(fridge.getFridgeIngredients());
         }
@@ -102,12 +105,18 @@ public class FridgeService {
     @Transactional
     public void deleteIngredients(UserId userId, String ingredientName) {
         Fridge fridge = getFridge(userId);
+        log.info("fridge delete name " + ingredientName);
 
         Optional<FridgeIngredient> ingredients = fridge.getFridgeIngredients().stream()
                 .filter(fridges -> fridges.getIngredient().getName().equals(ingredientName))
                 .findFirst();
-
-        ingredients.ifPresent(fridge::delete);
+        log.info("fridge ins "+ fridge.getFridgeIngredients().toString());
+        log.info("fridge delete isIngredient :"+ ingredients.isPresent() +","+ingredientName);
+        if(ingredients.isPresent()){
+            fridge.delete(ingredients.get());
+            fridgeRepository.save(fridge);
+            log.info("delete ");
+        }
     }
 
     @Transactional
