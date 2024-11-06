@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,22 +30,19 @@ public class Recipe extends BaseEntity {
     @UuidGenerator
     @Column(name = "recipe_id", columnDefinition = "VARCHAR2(36)")
     private UUID id;
-
     private String name;
     private String category;
     private String intro;
     private String cookTime;
     @Enumerated(EnumType.STRING)
     private Difficult difficult;
-
     @OneToOne(fetch = FetchType.LAZY)
     private Image image;
 
-    @Column(name = "recipe_description")
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.PERSIST)
     private List<Description> descriptions;
 
-    @OneToMany(mappedBy = "recipe", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "recipe", fetch = FetchType.LAZY,  orphanRemoval = true, cascade = CascadeType.PERSIST)
     private List<RecipeIngredient> recipeIngredients;
 
     public Recipe(String name, String category, String intro, String cookTime, Difficult difficult, Image image, List<Description> descriptions, List<RecipeIngredient> recipeIngredients) {
@@ -59,6 +57,14 @@ public class Recipe extends BaseEntity {
     }
 
     public static Recipe ofBoard(Board board) {
+        List<Description> descriptions = new ArrayList<>();
+        for (var description : board.getContext().getDescriptions()) {
+            descriptions.add(new Description(description.getDescription(), description.getImage()));
+        }
+        List<RecipeIngredient> recipeIngredients = new ArrayList<>();
+        for (var recipeIngredient : board.getContext().getBoardIngredients()) {
+            recipeIngredients.add(new RecipeIngredient(recipeIngredient.getIngredient(), recipeIngredient.getQuantity()));
+        }
         return new Recipe(
                 board.getTitle(),
                 board.getContext().getDishCategory(),
@@ -66,8 +72,8 @@ public class Recipe extends BaseEntity {
                 board.getContext().getDishTime(),
                 Difficult.of(board.getContext().getDishLevel()),
                 board.getMainImage(),
-                board.getContext().getDescriptions(),
-                board.getContext().getBoardIngredients()
+                descriptions,
+                recipeIngredients
         );
     }
 }

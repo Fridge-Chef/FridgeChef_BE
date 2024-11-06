@@ -3,15 +3,13 @@ package Fridge_Chef.team.recipe.domain;
 import Fridge_Chef.team.board.domain.Context;
 import Fridge_Chef.team.ingredient.domain.Ingredient;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table
 @Getter
 @Builder
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class RecipeIngredient {
@@ -34,9 +32,6 @@ public class RecipeIngredient {
 
     private String quantity;
 
-    public void setRecipe(Recipe recipe) {
-        this.recipe = recipe;
-    }
 
     public RecipeIngredient(Ingredient ingredient, String detail) {
         this.ingredient = ingredient;
@@ -51,9 +46,5 @@ public class RecipeIngredient {
         this.ingredient=ingredient;
         this.quantity=details;
         return this;
-    }
-
-    public void setIngredient(Ingredient ingredient) {
-        this.ingredient = ingredient;
     }
 }
