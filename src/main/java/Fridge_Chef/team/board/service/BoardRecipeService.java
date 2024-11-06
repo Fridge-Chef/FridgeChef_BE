@@ -57,19 +57,19 @@ public class BoardRecipeService {
         findByUserId(userId);
         Board board = boardRepository.findById(request.getId())
                 .orElseThrow(() -> new ApiException(ErrorCode.BOARD_NOT_FOUND));
-        validBoardUser(board,userId);
+        validBoardUser(board, userId);
 
         board.updateMainImage(mainImage);
         board.updateTitle(request.getTitle());
 
         Context context = board.getContext();
-        context.update(ingredients,descriptions,request.getDishTime(),request.getDishLevel(),request.getDishCategory());
+        context.update(ingredients, descriptions, request.getDishTime(), request.getDishLevel(), request.getDishCategory());
 
         return board;
     }
 
     private void validBoardUser(Board board, UserId userId) {
-        if(!board.getUser().getUserId().equals(userId)){
+        if (!board.getUser().getUserId().equals(userId)) {
             throw new ApiException(ErrorCode.BOARD_NOT_USER_CREATE);
         }
     }
