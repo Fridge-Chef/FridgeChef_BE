@@ -16,7 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 public class BoardByRecipeRequest {
     @Size(max = 50, message = "이름 중복, 최대 50자 ")
-    @NotBlank(message = "이름은 필수입니다.")
+    @NotBlank(message = "레시피 이름은 필수입니다.")
     private String name;
 
     @Size(max = 200, message = "소개 최대 200자")
