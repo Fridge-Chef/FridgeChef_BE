@@ -69,15 +69,4 @@ public class RecipeController {
         return response;
     }
 
-    //레시피 이름 조회 api
-    //이름 -> 레시피 이름들
-
-    //특정 레시피 상세 조회 api
-    @GetMapping("/details")
-    public RecipeResponse recipeInfo(@RequestParam("recipe_name") String recipeName) {
-
-        RecipeResponse response = null;
-
-        return response;
-    }
 }

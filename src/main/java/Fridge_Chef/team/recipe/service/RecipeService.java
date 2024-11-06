@@ -66,7 +66,7 @@ public class RecipeService {
                 .name(request.getName())
                 .intro(request.getIntro())
                 .image(mainImage)
-                .cookTime(Integer.parseInt(request.getCookTime()))
+                .cookTime(request.getCookTime())
                 .difficult(difficult)
                 .category(request.getCategory())
                 .descriptions(descriptions)
@@ -104,31 +104,13 @@ public class RecipeService {
         return descriptionRepository.saveAll(descriptions);
     }
 
-    private List<RecipeIngredient> insertRecipeIngredients(List<RecipeIngredient> requestRecipeIngredients) {
-
-        List<RecipeIngredient> recipeIngredients = new ArrayList<>();
-
-        for (RecipeIngredient requestIngredient : requestRecipeIngredients) {
-            String ingredientName = requestIngredient.getIngredient().getName();
-            String quantity = requestIngredient.getQuantity();
-
-            Ingredient ingredient = ingredientService.getOrCreate(ingredientName);
-            RecipeIngredient recipeIngredient = RecipeIngredient.ofMyRecipe(ingredient, quantity);
-            recipeIngredients.add(recipeIngredient);
-        }
-
-        recipeIngredientRepository.saveAll(recipeIngredients);
-
-        return recipeIngredients;
-    }
-
     private void recipeToBoard(User user, Recipe recipe) {
+        var ingredients = new ArrayList<>(recipe.getRecipeIngredients());
+        var descriptions = new ArrayList<>(recipe.getDescriptions());
 
-        List<RecipeIngredient> ri = new ArrayList<>(recipe.getRecipeIngredients());
-        List<Description> descriptions = new ArrayList<>(recipe.getDescriptions());
         Context context = Context.formMyUserRecipe(
-                String.valueOf(recipe.getCookTime()), String.valueOf(recipe.getDifficult()), recipe.getCategory(),
-                ri, descriptions);
+                recipe.getCookTime(), recipe.getDifficult().name(), recipe.getCategory(),
+                ingredients, descriptions);
         contextRepository.save(context);
 
         Board board = new Board(user, recipe.getIntro(), recipe.getName(), context, recipe.getImage(), BoardType.USER);
@@ -136,22 +118,5 @@ public class RecipeService {
 
         BoardUserEvent event = new BoardUserEvent(board, user);
         boardUserEventRepository.save(event);
-    }
-
-    private RecipeResponse recipeToDto(Recipe recipe) {
-
-        List<IngredientResponse> ingredients = recipe.getRecipeIngredients().stream()
-                .map(recipeIngredient -> IngredientResponse.builder()
-                        .name(recipeIngredient.getIngredient().getName())
-                        .quantity(recipeIngredient.getQuantity())
-                        .build())
-                .toList();
-
-        return RecipeResponse.builder()
-                .name(recipe.getName())
-//                .ingredients(ingredients)
-//                .manuals(recipe.getManuals())
-//                .imageUrl(recipe.getImage().getLink())
-                .build();
     }
 }
