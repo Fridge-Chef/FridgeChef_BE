@@ -16,6 +16,9 @@ public enum Difficult {
     }
 
     public static Difficult of(String value) {
+        if(value == null){
+            return EASY;
+        }
         for (Difficult difficult : values()) {
             if (difficult.value.equals(value)) {
                 return difficult;
