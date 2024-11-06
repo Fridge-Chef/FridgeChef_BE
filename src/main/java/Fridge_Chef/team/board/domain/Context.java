@@ -80,4 +80,12 @@ public class Context {
         this.dishLevel=dishLevel;
         this.dishCategory=dishCategory;
     }
+
+    public void update(List<RecipeIngredient> ingredients, List<Description> descriptions, String dishTime, String dishLevel, String dishCategory) {
+        this.boardIngredients=ingredients;
+        this.descriptions=descriptions;
+        this.dishTime=dishTime;
+        this.dishLevel=dishLevel;
+        this.dishCategory=dishCategory;
+    }
 }
