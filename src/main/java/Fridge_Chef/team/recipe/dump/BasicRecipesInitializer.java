@@ -116,7 +116,7 @@ public class BasicRecipesInitializer {
 
         String name = fields.get(0);
         String category = fields.get(1);
-        int cookTime = Integer.parseInt(fields.get(2).replace("분", ""));
+        String cookTime =fields.get(2);
         Difficult difficult = Difficult.of(fields.get(3));
         String intro = fields.get(4);
 
