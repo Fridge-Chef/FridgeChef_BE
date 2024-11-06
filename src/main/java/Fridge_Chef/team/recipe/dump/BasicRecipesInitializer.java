@@ -22,6 +22,7 @@ import Fridge_Chef.team.user.domain.UserId;
 import Fridge_Chef.team.user.repository.UserRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @org.springframework.context.annotation.Profile({"prod", "dev"})
@@ -62,6 +64,7 @@ public class BasicRecipesInitializer {
 
     @PostConstruct
     public void init() throws IOException{
+        log.info("recipe init()");
         String email ="recipeUser@fridge.chef";
         if(!userRepository.existsByProfileEmail(email)){
             User user = createAdminUser(email);
@@ -159,9 +162,6 @@ public class BasicRecipesInitializer {
 
             recipeIngredients.add(recipeIngredient);
         }
-
-        recipeIngredientRepository.saveAll(recipeIngredients);
-
         return recipeIngredients;
     }
 
@@ -175,8 +175,6 @@ public class BasicRecipesInitializer {
             Description description = new Description(manual, null);
             descriptions.add(description);
         }
-
-        descriptionRepository.saveAll(descriptions);
 
         return descriptions;
     }
@@ -213,15 +211,31 @@ public class BasicRecipesInitializer {
     }
 
     private void recipeToBoard(User user, Recipe recipe) {
-        Context context = Context.formMyUserRecipe(String.valueOf(recipe.getCookTime()), String.valueOf(recipe.getDifficult()), recipe.getCategory(),
-                recipe.getRecipeIngredients(), recipe.getDescriptions());
+        Context context = Context.formMyUserRecipe(recipe.getCookTime(), String.valueOf(recipe.getDifficult()), recipe.getCategory(),
+                toRecipeIngredient(recipe.getRecipeIngredients()), toDescriptions(recipe.getDescriptions()));
         contextRepository.save(context);
 
         Board board = Board.from(user, recipe);
-        board.setContext(context);
+        board.updateContext(context);
         boardRepository.save(board);
 
         BoardUserEvent event = new BoardUserEvent(board, user);
         boardUserEventRepository.save(event);
+    }
+
+    public List<Description> toDescriptions(List<Description> descriptions){
+        List<Description>  result = new ArrayList<>();
+        for(Description  description : descriptions){
+            result.add(new Description(description.getDescription(),description.getImage()));
+        }
+        return result;
+    }
+
+    public List<RecipeIngredient> toRecipeIngredient (List<RecipeIngredient> recipeIngredients) {
+        List<RecipeIngredient>  result = new ArrayList<>();
+        for(RecipeIngredient  value : recipeIngredients){
+            result.add(new RecipeIngredient(value.getIngredient(),value.getQuantity()));
+        }
+        return result;
     }
 }
