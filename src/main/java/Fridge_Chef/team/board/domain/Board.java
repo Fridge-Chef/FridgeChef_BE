@@ -24,20 +24,20 @@ public class Board extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
-    @OneToMany(mappedBy = "board", fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToMany(mappedBy = "board", fetch = FetchType.LAZY, orphanRemoval = true,cascade = CascadeType.PERSIST)
     private List<BoardUserEvent> boardUserEvent;
-    @OneToMany(mappedBy = "board", fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToMany(mappedBy = "board", fetch = FetchType.LAZY, orphanRemoval = true,cascade = CascadeType.PERSIST)
     private List<BoardIssue> boardIssues;
-    @OneToMany(mappedBy = "board", fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToMany(mappedBy = "board", fetch = FetchType.LAZY, orphanRemoval = true,cascade = CascadeType.PERSIST)
     private List<BoardHistory> historys;
-    @OneToMany(mappedBy = "board", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "board", fetch = FetchType.LAZY, orphanRemoval = true,cascade = CascadeType.PERSIST)
     private List<Comment> comments;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
     private String title;
     private String introduction;
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, orphanRemoval = true,cascade = CascadeType.PERSIST)
     private Context context;
     @Enumerated(EnumType.STRING)
     private BoardType type;
@@ -118,7 +118,7 @@ public class Board extends BaseEntity {
         this.id = id;
     }
 
-    public void setContext(Context context) {
+    public void updateContext(Context context) {
         this.context = context;
     }
 
