@@ -42,6 +42,6 @@ public class Description {
         if (image != null) {
             return image.getLink();
         }
-        return "notfound.png";
+        return "";
     }
 }
