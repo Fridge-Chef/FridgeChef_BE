@@ -80,7 +80,7 @@ public class FridgeService {
                         .ingredientName(fridgeIngredient.getIngredient().getName())
                         .expirationDate(fridgeIngredient.getExpirationDate())
                         .storage(fridgeIngredient.getStorage())
-                        .ingredientCategory(fridgeIngredient.getIngredientCategory())
+                        .ingredientCategory(fridgeIngredient.getIngredientCategory().getValue())
                         .build())
                 .collect(Collectors.toList());
     }
