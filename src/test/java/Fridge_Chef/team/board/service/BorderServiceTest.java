@@ -15,7 +15,9 @@ import Fridge_Chef.team.board.service.response.BoardMyRecipeResponse;
 import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.image.domain.Image;
 import Fridge_Chef.team.image.service.ImageLocalService;
+import Fridge_Chef.team.recipe.domain.Recipe;
 import Fridge_Chef.team.recipe.domain.RecipeIngredient;
+import Fridge_Chef.team.recipe.repository.RecipeRepository;
 import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.domain.UserId;
 import Fridge_Chef.team.user.repository.UserRepository;
@@ -55,6 +57,8 @@ public class BorderServiceTest {
     private BoardRepository boardRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private RecipeRepository recipeRepository;
     @Autowired
     private BoardUserEventRepository boardUserEventRepository;
     @Autowired
@@ -102,7 +106,7 @@ public class BorderServiceTest {
         givenBoardContexts();
         executionTime(() -> {
             BoardPageRequest request = new BoardPageRequest(0, 20, IssueType.ALL, SortType.HIT);
-            Page<BoardMyRecipePageResponse> result = boardService.findMyRecipes(user.getUserId(),request);
+            Page<BoardMyRecipePageResponse> result = boardService.findMyRecipes(user.getUserId(), request);
             int left = result.getContent().get(0).getHit();
             int right = result.getContent().get(result.getSize() - 1).getHit();
             assertThat(left > right)
@@ -111,8 +115,8 @@ public class BorderServiceTest {
             return result;
         });
         executionTime(() -> {
-            BoardPageRequest request = new BoardPageRequest(0, 20,IssueType.ALL, SortType.CLICKS);
-            Page<BoardMyRecipePageResponse> result = boardService.findMyRecipes(user.getUserId(),request);
+            BoardPageRequest request = new BoardPageRequest(0, 20, IssueType.ALL, SortType.CLICKS);
+            Page<BoardMyRecipePageResponse> result = boardService.findMyRecipes(user.getUserId(), request);
             int left = result.getContent().get(0).getClick();
             int right = result.getContent().get(result.getSize() - 1).getClick();
             assertThat(left > right)
@@ -121,8 +125,8 @@ public class BorderServiceTest {
             return result;
         });
         executionTime(() -> {
-            BoardPageRequest request = new BoardPageRequest(0, 20, IssueType.ALL,SortType.LATEST);
-            Page<BoardMyRecipePageResponse> result = boardService.findMyRecipes(user.getUserId(),request);
+            BoardPageRequest request = new BoardPageRequest(0, 20, IssueType.ALL, SortType.LATEST);
+            Page<BoardMyRecipePageResponse> result = boardService.findMyRecipes(user.getUserId(), request);
             LocalDateTime left = result.getContent().get(0).getCreateTime();
             LocalDateTime right = result.getContent().get(result.getSize() - 1).getCreateTime();
             assertThat(left.isAfter(right))
@@ -263,7 +267,6 @@ public class BorderServiceTest {
 
             Board board = boardRecipeService.create(user.getUserId(), request, ingredients, descriptions, mainImage);
             assignRandomValues(board);
-            boardRepository.save(board);
         }
     }
 
@@ -278,6 +281,7 @@ public class BorderServiceTest {
         Board board = boardRecipeService.create(user.getUserId(), request, ingredients, descriptions, mainImage);
         assignRandomValues(board);
         boardRepository.save(board);
+        recipeRepository.save(Recipe.ofBoard(board));
     }
 
     private void assignRandomValues(Board board) {

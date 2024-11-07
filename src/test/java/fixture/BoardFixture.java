@@ -78,7 +78,7 @@ public class BoardFixture {
                 recipeTitle,
                 recipeDescription,
                 "time",
-                "level",
+                "보통",
                 "cate,gory",
                 mainImage,
                 recipeIngredients,

@@ -32,7 +32,6 @@ public class BookController {
         return bookService.selectBoards(user.userId(), new BookRecipeRequest(page, size, book, sort));
     }
 
-
     @GetMapping("/comment")
     public Page<BookCommentResponse> selectComment(
             @AuthenticationPrincipal AuthenticatedUser user,

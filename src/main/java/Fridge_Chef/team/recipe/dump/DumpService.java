@@ -105,7 +105,7 @@ public class DumpService {
             context = contextRepository.save(context);
 
             Board board = Board.from(user, recipe);
-            board.setContext(context);
+            board.updateContext(context);
             boardRepository.save(board);
         }
     }

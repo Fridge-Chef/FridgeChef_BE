@@ -10,6 +10,7 @@ import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.domain.UserId;
 import com.oracle.bmc.objectstorage.ObjectStorage;
 import com.oracle.bmc.objectstorage.transfer.UploadManager;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +21,7 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-
+@Slf4j
 @Service
 @Profile({"prod", "dev"})
 public class ImageProdService implements ImageService {
@@ -49,12 +50,13 @@ public class ImageProdService implements ImageService {
 
     @Transactional
     public Image imageUpload(UserId userId, MultipartFile file) {
-        if(file.isEmpty()){
+        if(file == null){
             return imageRepository.save(Image.none());
         }
         String fileName = onlyNameChange(file.getName());
         upload(file, fileName);
         Image image = new Image(imageConfigMeta.getUrl(), imageConfigMeta.getUploadPath(), fileName, ImageType.ORACLE_CLOUD, userId);
+        log.info("image upload success User : "+userId +" _ , "+fileName);
         return imageRepository.save(image);
     }
 
@@ -66,6 +68,7 @@ public class ImageProdService implements ImageService {
         String fileName = onlyNameChange(file.getName());
         upload(file, fileName);
         Image image = new Image(imageConfigMeta.getUrl(), imageConfigMeta.getUploadPath(), fileName, ImageType.ORACLE_CLOUD, user.getUserId());
+        log.info("image upload success User : "+user.getUserId() +" _ , "+fileName);
         imageRepository.save(image);
         user.updatePicture(image);
         return image;
@@ -91,6 +94,8 @@ public class ImageProdService implements ImageService {
 
         FileRemoveManager manager = new FileRemoveManager(objectStorageClient, imageConfigMeta, image);
         manager.remove();
+        imageRepository.delete(image);
+        log.info("image remove success User : "+userId +" _ , "+image.getName());
     }
 
     @Transactional
@@ -100,6 +105,8 @@ public class ImageProdService implements ImageService {
 
         FileRemoveManager file = new FileRemoveManager(objectStorageClient, imageConfigMeta, image);
         file.remove();
+        log.info("image.id remove success : "+image.getName());
+        imageRepository.delete(image);
     }
 
     public void upload(MultipartFile multipartFile, String fileName) {

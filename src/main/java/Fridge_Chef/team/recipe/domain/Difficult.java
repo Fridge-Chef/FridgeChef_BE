@@ -4,10 +4,11 @@ import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.exception.ErrorCode;
 
 public enum Difficult {
-
     EASY("쉬움"),
-    NORMAL("중간"),
-    HARD("어려움");
+    NORMAL_1("중간"),
+    NORMAL_2("보통"),
+    HARD("어려움"),
+    NONE("");
 
     private final String value;
 
@@ -16,12 +17,14 @@ public enum Difficult {
     }
 
     public static Difficult of(String value) {
+        if(value == null){
+            return NONE;
+        }
         for (Difficult difficult : values()) {
             if (difficult.value.equals(value)) {
                 return difficult;
             }
         }
-
         throw new ApiException(ErrorCode.RECIPE_DIFFICULT_INVALID);
     }
 

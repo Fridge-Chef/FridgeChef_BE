@@ -20,8 +20,4 @@ public class RecipeDescription extends BaseEntity {
     private String description;
     private String uri;
 
-    public RecipeDescription(String description, String uri) {
-        this.description = description;
-        this.uri = uri;
-    }
 }
