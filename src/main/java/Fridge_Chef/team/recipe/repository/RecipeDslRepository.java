@@ -9,6 +9,7 @@ import Fridge_Chef.team.recipe.domain.Recipe;
 import Fridge_Chef.team.recipe.repository.model.RecipeSearchSortType;
 import Fridge_Chef.team.recipe.rest.request.RecipePageRequest;
 import Fridge_Chef.team.recipe.rest.response.RecipeSearchResponse;
+import Fridge_Chef.team.user.domain.UserId;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static Fridge_Chef.team.board.domain.QBoard.board;
@@ -37,7 +39,7 @@ public class RecipeDslRepository {
     private final BoardRepository boardRepository;
 
     @Transactional(readOnly = true)
-    public Page<RecipeSearchResponse> findRecipesByIngredients(PageRequest pageable, RecipePageRequest request, List<String> must, List<String> ingredients) {
+    public Page<RecipeSearchResponse> findRecipesByIngredients(PageRequest pageable, RecipePageRequest request, List<String> must, List<String> ingredients, Optional<UserId> userId) {
         var query = factory
                 .select(board)
                 .from(board)
@@ -50,9 +52,11 @@ public class RecipeDslRepository {
         query.where(mustConditions);
 
         query.groupBy(board.id);
-        query.having(ingredient.name.countDistinct().eq((long) must.size()));
 
-        applySort(query, request.getSortType());
+        if (must != null && !must.isEmpty()) {
+            query.having(ingredient.name.countDistinct().eq((long) must.size()));
+            applySort(query, request.getSortType());
+        }
 
         if (ingredients != null && !ingredients.isEmpty()) {
             query.where(ingredient.name.in(must).or(ingredient.name.in(ingredients)));
@@ -67,7 +71,7 @@ public class RecipeDslRepository {
 
         List<RecipeSearchResponse> responses = query.fetch()
                 .stream()
-                .map(value -> RecipeSearchResponse.of(value, search))
+                .map(value -> RecipeSearchResponse.of(value, search,userId))
                 .toList();
 
         var commit = factory

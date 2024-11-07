@@ -10,13 +10,13 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class RecipeSearchResponse {
-
     private Long id;
     private String title;
     private String userName;
@@ -31,7 +31,7 @@ public class RecipeSearchResponse {
     private long withoutCount;
     private List<String> without;
 
-    public static RecipeSearchResponse of(Board board, List<String> pick) {
+    public static RecipeSearchResponse of(Board board, List<String> pick, Optional<UserId> userId) {
         List<RecipeIngredient> ingredients = board.getContext().getBoardIngredients();
         List<String> without = ingredients.stream()
                 .map(pi -> pi.getIngredient().getName())
@@ -44,7 +44,7 @@ public class RecipeSearchResponse {
                 board.getMainImageLink(),
                 board.getTotalStar(),
                 board.getHit(),
-                board.getIsMyHit(UserId.create()),
+                userId.isEmpty() ? false : board.getIsMyHit(userId.get()),
                 board.getCount(),
                 board.getCreateTime(),
                 ingredients.size() - without.size(),
