@@ -38,6 +38,7 @@ public class FridgeIngredient {
         this.fridge = fridge;
         this.ingredient = ingredient;
         this.storage = storage;
+        this.ingredientCategory = IngredientCategory.UNCATEGORIZED;
     }
 
     public void updateExpirationDate(LocalDate exp) {
