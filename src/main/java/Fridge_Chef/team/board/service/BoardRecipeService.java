@@ -44,7 +44,7 @@ public class BoardRecipeService {
         Board board = boardRepository.save(new Board(user, request.getDescription(), request.getName(), context, image, BoardType.USER));
         BoardUserEvent event = new BoardUserEvent(board, user);
         boardUserEventRepository.save(event);
-        recipeRepository.save(Recipe.ofBoard(board));
+//        recipeRepository.save(Recipe.ofBoard(board));
         return board;
     }
 
