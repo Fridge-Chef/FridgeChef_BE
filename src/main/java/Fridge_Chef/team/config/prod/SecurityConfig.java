@@ -105,8 +105,9 @@ public class SecurityConfig {
                 .hasAnyAuthority(Role.USER.getAuthority(), Role.ADMIN.getAuthority());
     }
 
+
     private void ingredientsMatchers(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry registry) {
-        registry.requestMatchers("/api/fridge/ingredients", "/api/ingredients/**", "/api/fridge/ingredients", "/api/recipes/", "/api/recipes/**")
+        registry.requestMatchers("/api/ingredient/search","/api/fridge/ingredients", "/api/ingredients/**", "/api/fridge/ingredients", "/api/recipes/", "/api/recipes/**")
                 .permitAll();
     }
 
