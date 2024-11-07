@@ -2,6 +2,8 @@ package Fridge_Chef.team.security.service;
 
 import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.exception.ErrorCode;
+import Fridge_Chef.team.fridge.domain.Fridge;
+import Fridge_Chef.team.fridge.repository.FridgeRepository;
 import Fridge_Chef.team.image.domain.Image;
 import Fridge_Chef.team.image.repository.ImageRepository;
 import Fridge_Chef.team.security.service.dto.OAuthAttributes;
@@ -36,6 +38,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     private final UserRepository userRepository;
     private final ImageRepository imageRepository;
     private final UserHistoryRepository userHistoryRepository;
+    private final FridgeRepository fridgeRepository;
 
 
     private final OAuthAttributesAdapterFactory oAuthAttributesAdapterFactory;
@@ -87,7 +90,9 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         user.updatePicture(image);
 
         try {
-            return userRepository.save(user);
+            User signup = userRepository.save(user);
+            fridgeRepository.save(Fridge.setup(signup));
+            return signup;
         } catch (DataIntegrityViolationException e) {
             throw new ApiException(ErrorCode.SIGNUP_USER_FAIL_SNS_EMAIL_UNIQUE);
         }
