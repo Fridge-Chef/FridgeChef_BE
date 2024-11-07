@@ -49,7 +49,6 @@ public class RecipeController {
         recipeService.createMyRecipe(userId, request, recipeIngredients, descriptions);
     }
 
-    //레시피 조회
     @GetMapping("/")
     public Page<RecipeSearchResponse> search(
             @RequestParam List<String> must,

@@ -51,12 +51,12 @@ public class RecipeDslRepository {
     }
 
     private JPAQuery<Recipe> createBaseQuery(List<String> must, List<String> ingredients) {
-
         JPAQuery<Recipe> query = factory
                 .selectFrom(recipe)
                 .leftJoin(recipe.recipeIngredients, recipeIngredient)
                 .leftJoin(recipe.image, image)
-                .groupBy(recipe.id);
+                .groupBy(recipe.id, recipe.category, recipe.cookTime, recipe.difficult, recipe.createTime,
+                        recipe.deleteStatus, recipe.image.id, recipe.intro, recipe.name, recipe.updateTime);
 
         if (must != null && !must.isEmpty()) {
             query.where(recipeIngredient.ingredient.name.in(must))
