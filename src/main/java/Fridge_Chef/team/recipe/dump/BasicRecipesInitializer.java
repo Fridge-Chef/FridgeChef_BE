@@ -213,14 +213,9 @@ public class BasicRecipesInitializer {
     private void recipeToBoard(User user, Recipe recipe) {
         Context context = Context.formMyUserRecipe(recipe.getCookTime(), String.valueOf(recipe.getDifficult()), recipe.getCategory(),
                 toRecipeIngredient(recipe.getRecipeIngredients()), toDescriptions(recipe.getDescriptions()));
-        contextRepository.save(context);
-
-        Board board = Board.from(user, recipe);
-        board.updateContext(context);
+        Board board = Board.from(user, recipe.getIntro(),recipe.getName(),context,recipe.getImage());
         boardRepository.save(board);
-
-        BoardUserEvent event = new BoardUserEvent(board, user);
-        boardUserEventRepository.save(event);
+        boardUserEventRepository.save(new BoardUserEvent(board, user));
     }
 
     public List<Description> toDescriptions(List<Description> descriptions){
