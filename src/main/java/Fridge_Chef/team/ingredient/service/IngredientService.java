@@ -36,6 +36,7 @@ public class IngredientService {
         return ingredientRepository.findByName(ingredientName)
                 .orElseGet(() -> ingredientRepository.save(new Ingredient(ingredientName)));
     }
+
     @Transactional(readOnly = true)
     public IngredientSearchResponse findAllIngredients(){
         return new IngredientSearchResponse(
