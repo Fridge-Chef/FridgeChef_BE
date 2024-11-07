@@ -79,7 +79,6 @@ public class IngredientService {
         } catch (Exception e) {
             throw new ApiException(ErrorCode.INGREDIENT_CATEGORY_INVALID);
         }
-
     }
 
     private RecipeIngredient createRecipeIngredient(String ingredientName, String quantity) {

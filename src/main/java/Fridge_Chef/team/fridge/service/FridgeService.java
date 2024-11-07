@@ -128,8 +128,7 @@ public class FridgeService {
         LocalDate exp = request.getExpirationDate();
         Fridge fridge = getFridge(userId);
         FridgeIngredient updateIngredient = getFridgeIngredient(fridge, ingredientName);
-
-        updateIngredient.updateCategory( IngredientCategory.valueOf(category));
+        updateIngredient.updateCategory( IngredientCategory.of(category));
         if (exp != null) {
             updateIngredient.updateExpirationDate(exp);
         }

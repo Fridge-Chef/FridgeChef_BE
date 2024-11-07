@@ -3,7 +3,6 @@ package Fridge_Chef.team.ingredient.domain;
 import java.util.Arrays;
 
 public enum IngredientCategory {
-
     UNCATEGORIZED("미분류"),
     VEGETABLES("채소류"),
     MEATS("육류"),

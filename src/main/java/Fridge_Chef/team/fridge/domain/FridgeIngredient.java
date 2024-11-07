@@ -49,10 +49,6 @@ public class FridgeIngredient {
         this.ingredientCategory = category;
     }
 
-    public void updateStorage(Storage storage) {
-        this.storage = storage;
-    }
-
     public IngredientCategory getIngredientCategory() {
         return ingredientCategory == null ? IngredientCategory.UNCATEGORIZED : ingredientCategory;
     }
