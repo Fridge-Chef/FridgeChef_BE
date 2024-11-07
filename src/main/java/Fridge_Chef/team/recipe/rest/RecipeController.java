@@ -1,15 +1,11 @@
 package Fridge_Chef.team.recipe.rest;
 
 import Fridge_Chef.team.board.domain.Description;
-import Fridge_Chef.team.exception.ApiException;
-import Fridge_Chef.team.exception.ErrorCode;
-import Fridge_Chef.team.image.domain.Image;
 import Fridge_Chef.team.image.service.ImageService;
 import Fridge_Chef.team.recipe.domain.RecipeIngredient;
 import Fridge_Chef.team.recipe.repository.model.RecipeSearchSortType;
 import Fridge_Chef.team.recipe.rest.request.RecipeCreateRequest;
 import Fridge_Chef.team.recipe.rest.request.RecipePageRequest;
-import Fridge_Chef.team.recipe.rest.response.RecipeResponse;
 import Fridge_Chef.team.recipe.rest.response.RecipeSearchResponse;
 import Fridge_Chef.team.recipe.service.RecipeIngredientService;
 import Fridge_Chef.team.recipe.service.RecipeService;
@@ -22,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -49,23 +46,20 @@ public class RecipeController {
         recipeService.createMyRecipe(userId, request, recipeIngredients, descriptions);
     }
 
+
     @GetMapping("/")
     public Page<RecipeSearchResponse> search(
-            @RequestParam List<String> must,
+            @AuthenticationPrincipal AuthenticatedUser user,
+            @RequestParam(defaultValue = "", required = false) String[] must,
             @RequestParam List<String> ingredients,
             @RequestParam(defaultValue = "0", required = false) int page,
             @RequestParam(defaultValue = "50", required = false) int size,
             @RequestParam(defaultValue = "MATCH", required = false) RecipeSearchSortType sort) {
 
-        if (must.isEmpty() && ingredients.isEmpty()) {
-            throw new ApiException(ErrorCode.INGREDIENT_INVALID);
-        }
+        List<String> mustList = Arrays.asList(must);
 
-        RecipePageRequest recipePageRequest = new RecipePageRequest(page, size, sort);
+        RecipePageRequest request = new RecipePageRequest(page, size, sort);
 
-        Page<RecipeSearchResponse> response = recipeService.searchRecipe(recipePageRequest, must, ingredients);
-
-        return response;
+        return recipeService.searchRecipe(request, mustList, ingredients, AuthenticatedUser.anonymousUser(user));
     }
-
 }

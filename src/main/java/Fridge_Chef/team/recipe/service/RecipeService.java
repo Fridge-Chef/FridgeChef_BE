@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -72,10 +73,10 @@ public class RecipeService {
     }
 
     @Transactional(readOnly = true)
-    public Page<RecipeSearchResponse> searchRecipe(RecipePageRequest request, List<String> must, List<String> ingredients) {
+    public Page<RecipeSearchResponse> searchRecipe(RecipePageRequest request, List<String> must, List<String> ingredients, Optional<UserId>userId) {
 
         PageRequest page = PageRequest.of(request.getPage(), request.getSize());
-        Page<RecipeSearchResponse> response = recipeDslRepository.findRecipesByIngredients(page, request, must, ingredients);
+        Page<RecipeSearchResponse> response = recipeDslRepository.findRecipesByIngredients(page, request, must, ingredients,userId);
 
         if (response.getSize() == 0) {
             throw new ApiException(ErrorCode.RECIPE_NOT_FOUND);
