@@ -1,5 +1,7 @@
 package Fridge_Chef.team.ingredient.domain;
 
+import java.util.Arrays;
+
 public enum IngredientCategory {
 
     UNCATEGORIZED("미분류"),
@@ -14,7 +16,8 @@ public enum IngredientCategory {
     DAIRY("유제품"),
     BREADS("빵류"),
     PROCESSED_FOODS("가공식품"),
-    KIMCHI("김치류");
+    KIMCHI("김치류"),
+    NONE("카테고리 없음");
 
     private final String value;
 
@@ -24,5 +27,16 @@ public enum IngredientCategory {
 
     public String getValue() {
         return value;
+    }
+
+    public static IngredientCategory of(String category){
+        if (category == null){
+            return UNCATEGORIZED;
+        }
+        return Arrays.stream(IngredientCategory.values())
+                .filter(categorys -> categorys.getValue().equals(category))
+                .findFirst()
+                .orElse(UNCATEGORIZED);
+
     }
 }
