@@ -15,6 +15,7 @@ import Fridge_Chef.team.ingredient.domain.IngredientCategory;
 import Fridge_Chef.team.ingredient.service.IngredientService;
 import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.domain.UserId;
+import Fridge_Chef.team.user.repository.UserRepository;
 import Fridge_Chef.team.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 public class FridgeService {
+    private final UserRepository userRepository;
 
     private final UserService userService;
     private final IngredientService ingredientService;
@@ -66,8 +68,13 @@ public class FridgeService {
     }
 
     public Fridge getFridge(UserId userId) {
-        return fridgeRepository.findByUserId(userId)
-                .orElseThrow(() -> new ApiException(ErrorCode.FRIDGE_NOT_FOUND));
+        Optional<Fridge> fridge = fridgeRepository.findByUserId(userId);
+        if(fridge.isEmpty()){
+            var user = userRepository.findByUserId(userId)
+                    .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
+            return fridgeRepository.save(Fridge.setup(user));
+        }
+        return fridge.get();
     }
 
     @Transactional(readOnly = true)
@@ -116,19 +123,16 @@ public class FridgeService {
 
     @Transactional
     public void updateIngredient(UserId userId, FridgeIngredientRequest request) {
-
         String ingredientName = request.getIngredientName();
         String category = request.getIngredientCategory();
         LocalDate exp = request.getExpirationDate();
-
         Fridge fridge = getFridge(userId);
         FridgeIngredient updateIngredient = getFridgeIngredient(fridge, ingredientName);
-        updateIngredient.updateCategory( IngredientCategory.valueOf(category));
 
+        updateIngredient.updateCategory( IngredientCategory.valueOf(category));
         if (exp != null) {
             updateIngredient.updateExpirationDate(exp);
         }
-
         fridgeRepository.save(fridge);
     }
 
