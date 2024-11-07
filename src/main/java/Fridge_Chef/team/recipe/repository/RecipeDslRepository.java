@@ -47,22 +47,24 @@ public class RecipeDslRepository {
                 .join(recipeIngredient.ingredient, ingredient)
                 .leftJoin(board.mainImage, image);
 
-        BooleanBuilder mustConditions = new BooleanBuilder();
-        mustConditions.and(ingredient.name.in(must));
-        query.where(mustConditions);
+        System.out.println(" query join size : " + query.fetch().size());
+        query.groupBy(board, ingredient.name);
 
-        query.groupBy(board.id);
+        System.out.println(" groupBy join size : " + query.fetch().size());
 
         if (must != null && !must.isEmpty()) {
+            BooleanBuilder mustConditions = new BooleanBuilder();
+            mustConditions.and(ingredient.name.in(must));
+            query.where(mustConditions);
             query.having(ingredient.name.countDistinct().eq((long) must.size()));
-            applySort(query, request.getSortType());
+        } else {
+            query.where((ingredient.name.in(ingredients)));
         }
 
-        if (ingredients != null && !ingredients.isEmpty()) {
-            query.where(ingredient.name.in(must).or(ingredient.name.in(ingredients)));
-        }
+        System.out.println(" ingredients _ must  join size : " + query.fetch().size());
 
         applySort(query, request.getSortType());
+
         query.offset(pageable.getOffset())
                 .limit(pageable.getPageSize());
 
@@ -71,7 +73,7 @@ public class RecipeDslRepository {
 
         List<RecipeSearchResponse> responses = query.fetch()
                 .stream()
-                .map(value -> RecipeSearchResponse.of(value, search,userId))
+                .map(value -> RecipeSearchResponse.of(value, search, userId))
                 .toList();
 
         var commit = factory
@@ -88,7 +90,7 @@ public class RecipeDslRepository {
     private void applySort(JPAQuery<Board> query, RecipeSearchSortType sortType) {
 
         switch (sortType) {
-            case MATCH -> query.groupBy(ingredient.name).orderBy(ingredient.name.count().desc());
+            case MATCH -> query.orderBy(ingredient.name.count().desc());
             case RATING -> query.orderBy(board.totalStar.desc());
             case LIKE -> query.orderBy(board.hit.desc());
             default -> query.orderBy(board.createTime.desc());
