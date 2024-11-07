@@ -9,6 +9,7 @@ import Fridge_Chef.team.recipe.domain.Recipe;
 import Fridge_Chef.team.recipe.repository.model.RecipeSearchSortType;
 import Fridge_Chef.team.recipe.rest.request.RecipePageRequest;
 import Fridge_Chef.team.recipe.rest.response.RecipeSearchResponse;
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static Fridge_Chef.team.board.domain.QBoard.board;
 import static Fridge_Chef.team.image.domain.QImage.image;
+import static Fridge_Chef.team.ingredient.domain.QIngredient.ingredient;
 import static Fridge_Chef.team.recipe.domain.QRecipe.recipe;
 import static Fridge_Chef.team.recipe.domain.QRecipeIngredient.recipeIngredient;
 
@@ -35,13 +38,69 @@ public class RecipeDslRepository {
 
     @Transactional(readOnly = true)
     public Page<RecipeSearchResponse> findRecipesByIngredients(PageRequest pageable, RecipePageRequest request, List<String> must, List<String> ingredients) {
+        var query = factory
+                .select(board)
+                .from(board)
+                .leftJoin(board.context.boardIngredients, recipeIngredient)
+                .join(recipeIngredient.ingredient, ingredient)
+                .leftJoin(board.mainImage, image);
+
+        BooleanBuilder mustConditions = new BooleanBuilder();
+        mustConditions.and(ingredient.name.in(must));
+        query.where(mustConditions);
+
+        query.groupBy(board.id);
+        query.having(ingredient.name.countDistinct().eq((long) must.size()));
+
+        applySort(query, request.getSortType());
+
+        if (ingredients != null && !ingredients.isEmpty()) {
+            query.where(ingredient.name.in(must).or(ingredient.name.in(ingredients)));
+        }
+
+        applySort(query, request.getSortType());
+        query.offset(pageable.getOffset())
+                .limit(pageable.getPageSize());
+
+        List<String> search = new ArrayList<>(must);
+        search.addAll(ingredients);
+
+        List<RecipeSearchResponse> responses = query.fetch()
+                .stream()
+                .map(value -> RecipeSearchResponse.of(value, search))
+                .toList();
+
+        var commit = factory
+                .selectFrom(board)
+                .join(board.context.boardIngredients, recipeIngredient)
+                .join(recipeIngredient.ingredient, ingredient)
+                .where(ingredient.name.in(must))
+                .groupBy(board.id);
+
+        return PageableExecutionUtils.getPage(responses, pageable, () -> commit.fetch().size());
+    }
+
+
+    private void applySort(JPAQuery<Board> query, RecipeSearchSortType sortType) {
+
+        switch (sortType) {
+            case MATCH -> query.groupBy(ingredient.name).orderBy(ingredient.name.count().desc());
+            case RATING -> query.orderBy(board.totalStar.desc());
+            case LIKE -> query.orderBy(board.hit.desc());
+            default -> query.orderBy(board.createTime.desc());
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public Page<RecipeSearchResponse> findRecipesByIngredient(PageRequest pageable, RecipePageRequest request, List<String> must, List<String> ingredients) {
 
         JPAQuery<Recipe> query = createBaseQuery(must, ingredients);
 
         List<RecipeSearchResponse> recipes = query
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .fetch().stream()
+                .fetch()
+                .stream()
                 .map(recipe -> convertToRecipeSearchResponse(recipe, must, ingredients))
                 .toList();
 
@@ -84,32 +143,16 @@ public class RecipeDslRepository {
         String imageUrl = recipe.getImage() != null ? recipe.getImage().getLink() : "";
 
         Board board = findBoardFromRecipe(recipe);
+
         if (board == null) {
             throw new ApiException(ErrorCode.BOARD_NOT_FOUND);
         }
 
-        return RecipeSearchResponse.builder()
-                .name(recipe.getName())
-                .imageUrl(imageUrl)
-                .totalIngredients(recipeIngredientNames.size())
-                .hit(board.getHit())
-                .totalStar(board.getTotalStar())
-                .have(have)
-                .without(without)
-                .boardId(board.getId())
-                .build();
+        return null;
     }
 
     private List<RecipeSearchResponse> applySort(List<RecipeSearchResponse> recipes, RecipeSearchSortType sortType) {
-
         List<RecipeSearchResponse> sortedRecipes = new ArrayList<>(recipes);
-
-        switch (sortType) {
-            case MATCH -> sortedRecipes.sort((r1, r2) -> Integer.compare(r2.getHave(), r1.getHave()));
-            case LIKE -> sortedRecipes.sort((r1, r2) -> Integer.compare(r2.getHit(), r1.getHit()));
-            case RATING -> sortedRecipes.sort((r1, r2) -> Double.compare(r2.getTotalStar(), r1.getTotalStar()));
-        }
-
         return sortedRecipes;
     }
 
@@ -122,8 +165,8 @@ public class RecipeDslRepository {
             Context context = board.getContext();
 
             if (context.getDishCategory().equals(recipe.getCategory())
-            && context.getDishLevel().equals(String.valueOf(recipe.getDifficult()))
-            && context.getDishTime().equals(String.valueOf(recipe.getCookTime()))) {
+                    && context.getDishLevel().equals(String.valueOf(recipe.getDifficult()))
+                    && context.getDishTime().equals(String.valueOf(recipe.getCookTime()))) {
                 return board;
             }
         }
