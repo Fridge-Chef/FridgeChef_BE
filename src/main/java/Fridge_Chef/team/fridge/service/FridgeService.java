@@ -123,14 +123,15 @@ public class FridgeService {
 
     @Transactional
     public void updateIngredient(UserId userId, FridgeIngredientRequest request) {
-        String ingredientName = request.getIngredientName();
-        String category = request.getIngredientCategory();
-        LocalDate exp = request.getExpirationDate();
+        log.info("fridge update req - name : "+request.getName() +", category : "+request.getCategory()+", date :"+request.getDate());
+
         Fridge fridge = getFridge(userId);
-        FridgeIngredient updateIngredient = getFridgeIngredient(fridge, ingredientName);
-        updateIngredient.updateCategory( IngredientCategory.of(category));
-        if (exp != null) {
-            updateIngredient.updateExpirationDate(exp);
+        FridgeIngredient updateIngredient = getFridgeIngredient(fridge, request.getName());
+        updateIngredient.updateCategory( IngredientCategory.of(request.getCategory()));
+        log.info("fridge category :"+updateIngredient.getIngredientCategory());
+
+        if (request.getDate() != null) {
+            updateIngredient.updateExpirationDate(request.getDate());
         }
         fridgeRepository.save(fridge);
     }
