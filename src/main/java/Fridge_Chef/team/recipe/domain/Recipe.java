@@ -39,13 +39,15 @@ public class Recipe extends BaseEntity {
     @OneToOne(fetch = FetchType.LAZY)
     private Image image;
 
+    @OneToOne(fetch = FetchType.LAZY,orphanRemoval = true, cascade = CascadeType.PERSIST)
+    private Board board;
     @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.PERSIST)
     private List<Description> descriptions;
 
     @OneToMany(mappedBy = "recipe", fetch = FetchType.LAZY,  orphanRemoval = true, cascade = CascadeType.PERSIST)
     private List<RecipeIngredient> recipeIngredients;
 
-    public Recipe(String name, String category, String intro, String cookTime, Difficult difficult, Image image, List<Description> descriptions, List<RecipeIngredient> recipeIngredients) {
+    public Recipe(String name, String category, String intro, String cookTime, Difficult difficult, Image image, List<Description> descriptions, List<RecipeIngredient> recipeIngredients,Board board) {
         this.name = name;
         this.category = category;
         this.intro = intro;
@@ -54,6 +56,7 @@ public class Recipe extends BaseEntity {
         this.image = image;
         this.descriptions = descriptions;
         this.recipeIngredients = recipeIngredients;
+        this.board =board;
     }
 
     public static Recipe ofBoard(Board board) {
@@ -73,7 +76,12 @@ public class Recipe extends BaseEntity {
                 Difficult.of(board.getContext().getDishLevel()),
                 board.getMainImage(),
                 descriptions,
-                recipeIngredients
+                recipeIngredients,
+                board
         );
+    }
+
+    public void updateBoard(Board board) {
+        this.board=board;
     }
 }

@@ -32,7 +32,8 @@ public class BookDslRepository {
     public Page<BookBoardResponse> findByBoard(PageRequest pageable, UserId userId, BookRecipeRequest request) {
         JPAQuery<Board> query = factory.selectFrom(board)
                 .offset(pageable.getOffset())
-                .limit(pageable.getPageSize());
+                .limit(pageable.getPageSize())
+                .leftJoin(board.boardUserEvent,boardUserEvent);
 
         if (request.getBookType().equals(BookType.MYRECIPE)) {
             query.where(board.user.userId.eq(userId));

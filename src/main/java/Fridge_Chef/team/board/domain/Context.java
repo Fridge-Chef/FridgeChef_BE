@@ -18,6 +18,8 @@ public class Context {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
+    @OneToOne(fetch = FetchType.LAZY)
+    private Board board;
     private String dishTime;
     private String dishLevel;
     private String dishCategory;

@@ -9,7 +9,6 @@ import Fridge_Chef.team.board.rest.request.BoardByRecipeUpdateRequest;
 import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.exception.ErrorCode;
 import Fridge_Chef.team.image.domain.Image;
-import Fridge_Chef.team.recipe.domain.Recipe;
 import Fridge_Chef.team.recipe.domain.RecipeIngredient;
 import Fridge_Chef.team.recipe.repository.RecipeRepository;
 import Fridge_Chef.team.user.domain.User;
@@ -44,7 +43,6 @@ public class BoardRecipeService {
         Board board = boardRepository.save(new Board(user, request.getDescription(), request.getName(), context, image, BoardType.USER));
         BoardUserEvent event = new BoardUserEvent(board, user);
         boardUserEventRepository.save(event);
-        recipeRepository.save(Recipe.ofBoard(board));
         return board;
     }
 

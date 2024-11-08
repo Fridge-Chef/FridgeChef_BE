@@ -69,7 +69,8 @@ public enum ErrorCode {
     COMMENT_NOT_USER_AUTHOR(406, "댓글 작성자가 아님"),
     COMMENT_NOT_BOARD(407, "댓글의 게시글이 아님"),
     TEXT_FILTER(490,"비속어 검출" ),
-    VALID_SIZE_50(400, "페이지 사이즈는 50을 초과할 수 없습니다.");
+    VALID_SIZE_50(400, "페이지 사이즈는 50을 초과할 수 없습니다."),
+    RECIPE_INGREDIENT_NULL(405,"한개 이상 재료가 필요합니다." );
 
     private final int status;
     private final String message;

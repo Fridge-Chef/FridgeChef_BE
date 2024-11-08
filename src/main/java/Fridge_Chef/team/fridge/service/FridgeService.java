@@ -15,6 +15,7 @@ import Fridge_Chef.team.ingredient.domain.IngredientCategory;
 import Fridge_Chef.team.ingredient.service.IngredientService;
 import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.domain.UserId;
+import Fridge_Chef.team.user.repository.UserRepository;
 import Fridge_Chef.team.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 public class FridgeService {
+    private final UserRepository userRepository;
 
     private final UserService userService;
     private final IngredientService ingredientService;
@@ -56,7 +58,7 @@ public class FridgeService {
                 var ins = fridge.getFridgeIngredients().stream()
                         .filter(fridges -> fridges.getIngredient().equals(ingredient))
                         .findFirst();
-                if(ins.isEmpty()){
+                if (ins.isEmpty()) {
                     fridge.getFridgeIngredients().add(fridgeIngredient);
                 }
             }
@@ -66,8 +68,13 @@ public class FridgeService {
     }
 
     public Fridge getFridge(UserId userId) {
-        return fridgeRepository.findByUserId(userId)
-                .orElseThrow(() -> new ApiException(ErrorCode.FRIDGE_NOT_FOUND));
+        Optional<Fridge> fridge = fridgeRepository.findByUserId(userId);
+        if(fridge.isEmpty()){
+            var user = userRepository.findByUserId(userId)
+                    .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
+            return fridgeRepository.save(Fridge.setup(user));
+        }
+        return fridge.get();
     }
 
     @Transactional(readOnly = true)
@@ -80,7 +87,7 @@ public class FridgeService {
                         .ingredientName(fridgeIngredient.getIngredient().getName())
                         .expirationDate(fridgeIngredient.getExpirationDate())
                         .storage(fridgeIngredient.getStorage())
-                        .ingredientCategory(fridgeIngredient.getIngredientCategory())
+                        .ingredientCategory(fridgeIngredient.getIngredientCategory().getValue())
                         .build())
                 .collect(Collectors.toList());
     }
@@ -90,8 +97,8 @@ public class FridgeService {
     public void addFridgeIngredient(UserId userId, List<FridgeIngredientAddRequest> request) {
         Fridge fridge = fridgeRepository.findByUserId(userId)
                 .orElseThrow(() -> new ApiException(ErrorCode.FRIDGE_NOT_FOUND));
-        for(var ingredient : request){
-            addFridgeIngredient(fridge,ingredient);
+        for (var ingredient : request) {
+            addFridgeIngredient(fridge, ingredient);
         }
     }
 
@@ -104,35 +111,28 @@ public class FridgeService {
                 .filter(fridges -> fridges.getIngredient().getName().equals(ingredientName))
                 .findFirst();
 
-        log.info("fridge ins "+ fridge.getFridgeIngredients().toString());
-        log.info("fridge delete isIngredient :"+ ingredients.isPresent() +","+ingredientName);
+        log.info("fridge ins " + fridge.getFridgeIngredients().toString());
+        log.info("fridge delete isIngredient :" + ingredients.isPresent() + "," + ingredientName);
 
-        if(ingredients.isPresent()){
+        if (ingredients.isPresent()) {
             fridgeIngredientRepository.delete(ingredients.get());
             fridge.delete(ingredients.get());
-            log.info("fridge-ingredient-delete : "+ ingredientName);
+            log.info("fridge-ingredient-delete : " + ingredientName);
         }
     }
 
     @Transactional
     public void updateIngredient(UserId userId, FridgeIngredientRequest request) {
-
-        String ingredientName = request.getIngredientName();
-        String category = request.getIngredientCategory();
-        LocalDate exp = request.getExpirationDate();
+        log.info("fridge update req - name : "+request.getName() +", category : "+request.getCategory()+", date :"+request.getDate());
 
         Fridge fridge = getFridge(userId);
-        FridgeIngredient updateIngredient = getFridgeIngredient(fridge, ingredientName);
+        FridgeIngredient updateIngredient = getFridgeIngredient(fridge, request.getName());
+        updateIngredient.updateCategory( IngredientCategory.of(request.getCategory()));
+        log.info("fridge category :"+updateIngredient.getIngredientCategory());
 
-        if (category != null) {
-            IngredientCategory ingredientCategory = ingredientService.getIngredientCategory(category);
-            updateIngredient.updateCategory(ingredientCategory);
+        if (request.getDate() != null) {
+            updateIngredient.updateExpirationDate(request.getDate());
         }
-
-        if (exp != null) {
-            updateIngredient.updateExpirationDate(exp);
-        }
-
         fridgeRepository.save(fridge);
     }
 

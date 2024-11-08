@@ -23,6 +23,7 @@ public class BoardsController {
     @GetMapping("/{board_id}")
     public BoardMyRecipeResponse targetFind(@PathVariable("board_id") Long boardId) {
         boardService.counting(boardId);
+
         return boardService.findMyRecipeId(boardId);
     }
 
@@ -42,7 +43,7 @@ public class BoardsController {
         boardService.updateUserHit(user.userId(), boardId);
     }
 
-    @PostMapping("/{board_id}/star")
+    @PostMapping("/{board_id}/star?")
     public void star(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable("board_id") Long boardId, BoardStarRequest request) {
         boardService.updateUserStar(user.userId(), boardId, request);
     }

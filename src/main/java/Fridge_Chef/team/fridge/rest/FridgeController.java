@@ -1,6 +1,5 @@
 package Fridge_Chef.team.fridge.rest;
 
-import Fridge_Chef.team.fridge.domain.Fridge;
 import Fridge_Chef.team.fridge.rest.request.FridgeIngredientAddRequest;
 import Fridge_Chef.team.fridge.rest.request.FridgeIngredientRequest;
 import Fridge_Chef.team.fridge.rest.response.FridgeIngredientResponse;

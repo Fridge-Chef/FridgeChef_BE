@@ -42,8 +42,10 @@ public class CommentService {
     public Comment addComment(Long boardId, UserId userId, CommentCreateRequest request) {
         Board board = findByBoard(boardId);
         User user = findByUser(userId);
-        List<Image> images = imageService.imageUploads(userId,request.images());
-
+        List<Image> images = new ArrayList<>();
+        if(request.images() == null){
+            images = imageService.imageUploads(userId,request.images());
+        }
         Optional<Comment> existingComment = board.getComments()
                 .stream()
                 .filter(comment -> comment.getUsers().getUserId().equals(userId))

@@ -106,7 +106,7 @@ public class SecurityDevConfig {
 
 
     private void ingredientsMatchers(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry registry) {
-        registry.requestMatchers("/api/ingredient/search","/api/fridge/ingredients", "/api/ingredients/**", "/api/fridge/ingredients", "/api/recipes/", "/api/recipes/**")
+        registry.requestMatchers("/api/ingredient/search","/api/fridge/ingredients", "/api/ingredients/**", "/api/fridge/ingredients", "/api/recipes/", "/api/recipes/**","/api/purch")
                 .permitAll();
     }
     private void configureJwt(OAuth2ResourceServerConfigurer<HttpSecurity> configurer) {

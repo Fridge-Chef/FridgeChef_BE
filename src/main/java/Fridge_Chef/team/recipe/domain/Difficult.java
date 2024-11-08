@@ -25,6 +25,9 @@ public enum Difficult {
                 return difficult;
             }
         }
+        try {
+            return Difficult.valueOf(value);
+        }catch (IllegalArgumentException ignored){}
         throw new ApiException(ErrorCode.RECIPE_DIFFICULT_INVALID);
     }
 

@@ -38,7 +38,7 @@ public class Board extends BaseEntity {
     private User user;
     private String title;
     private String introduction;
-    @OneToOne(fetch = FetchType.LAZY, orphanRemoval = true,cascade = CascadeType.PERSIST)
+    @OneToOne(mappedBy = "board", fetch = FetchType.LAZY, orphanRemoval = true,cascade = CascadeType.PERSIST)
     private Context context;
     @Enumerated(EnumType.STRING)
     private BoardType type;
@@ -143,5 +143,15 @@ public class Board extends BaseEntity {
 
     public void updateContext(List<RecipeIngredient> ingredients, List<Description> descriptions, String dishTime, String dishLevel, String dishCategory){
         context.update(ingredients, descriptions,dishTime,dishLevel,dishCategory);
+    }
+
+    public int hitTotalCount() {
+        return boardUserEvent.stream()
+                .mapToInt(event -> event.getHit())
+                .sum();
+    }
+
+    public int starTotalCount() {
+        return comments.size();
     }
 }

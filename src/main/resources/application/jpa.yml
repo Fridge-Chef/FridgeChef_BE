@@ -11,5 +11,5 @@ spring:
           pool_size: 70
         jdbc:
           batch_size: 1000
-        show_sql: true
-        format_sql: true
+        show_sql:
+        format_sql:

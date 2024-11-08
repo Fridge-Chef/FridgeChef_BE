@@ -95,7 +95,8 @@ public class BasicRecipesInitializer {
 
             Recipe recipe = createRecipe(fields);
             saveRecipeWithIngredients(recipe);
-            recipeToBoard(user, recipe);
+            Board board = recipeToBoard(user, recipe);
+            recipe.updateBoard(board);
         }
     }
 
@@ -210,12 +211,13 @@ public class BasicRecipesInitializer {
         recipeIngredientRepository.saveAll(recipe.getRecipeIngredients());
     }
 
-    private void recipeToBoard(User user, Recipe recipe) {
+    private Board recipeToBoard(User user, Recipe recipe) {
         Context context = Context.formMyUserRecipe(recipe.getCookTime(), String.valueOf(recipe.getDifficult()), recipe.getCategory(),
                 toRecipeIngredient(recipe.getRecipeIngredients()), toDescriptions(recipe.getDescriptions()));
         Board board = Board.from(user, recipe.getIntro(),recipe.getName(),context,recipe.getImage());
         boardRepository.save(board);
         boardUserEventRepository.save(new BoardUserEvent(board, user));
+        return board;
     }
 
     public List<Description> toDescriptions(List<Description> descriptions){

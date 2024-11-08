@@ -280,8 +280,8 @@ public class BorderServiceTest {
 
         Board board = boardRecipeService.create(user.getUserId(), request, ingredients, descriptions, mainImage);
         assignRandomValues(board);
+//        recipeRepository.save(Recipe.ofBoard(board));
         boardRepository.save(board);
-        recipeRepository.save(Recipe.ofBoard(board));
     }
 
     private void assignRandomValues(Board board) {

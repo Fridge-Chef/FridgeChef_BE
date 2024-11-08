@@ -2,6 +2,7 @@ package Fridge_Chef.team.board.service.response;
 
 import Fridge_Chef.team.board.domain.Board;
 import Fridge_Chef.team.board.domain.BoardIssue;
+import Fridge_Chef.team.recipe.domain.Difficult;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,11 +16,14 @@ import java.util.stream.Collectors;
 
 
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor
 public class BoardMyRecipeResponse {
     private String title;
+    private String username;
+    private String intro;
     private double rating;
+    private int hitTotal;
+    private int starTotal;
     private String mainImage;
     private String issueInfo;
     private String dishTime;
@@ -54,6 +58,24 @@ public class BoardMyRecipeResponse {
         private String imageLink;
     }
 
+    public BoardMyRecipeResponse(String title, String username, String intro,double rating, int hitTotal, int starTotal, String mainImage, String issueInfo, String dishTime, String dishLevel, String dishCategory, List<OwnedIngredientResponse> ownedIngredients, List<RecipeIngredientResponse> recipeIngredients, List<StepResponse> instructions, Long boardId) {
+        this.title = title;
+        this.username = username;
+        this.rating = rating;
+        this.intro=intro;
+        this.hitTotal = hitTotal;
+        this.starTotal = starTotal;
+        this.mainImage = mainImage;
+        this.issueInfo = issueInfo;
+        this.dishTime = dishTime;
+        this.dishLevel = dishLevel;
+        this.dishCategory = dishCategory;
+        this.ownedIngredients = ownedIngredients;
+        this.recipeIngredients = recipeIngredients;
+        this.instructions = instructions;
+        this.boardId = boardId;
+    }
+
     public static BoardMyRecipeResponse of(Board board) {
         var ownedIngredients = board.getContext().getBoardIngredients().stream()
                 .map(ingredient -> new OwnedIngredientResponse(ingredient.getId(), ingredient.getIngredient().getName()))
@@ -71,11 +93,15 @@ public class BoardMyRecipeResponse {
         String issueInfo = generateIssueInfo(boardIssues);
 
         return new BoardMyRecipeResponse(board.getTitle(),
+                board.getUser().getUsername(),
+                board.getIntroduction(),
                 board.getTotalStar(),
+                board.hitTotalCount(),
+                board.starTotalCount(),
                 board.getMainImageLink(),
                 issueInfo,
                 board.getContext().getDishTime(),
-                board.getContext().getDishLevel(),
+                level(board.getContext().getDishLevel()),
                 board.getContext().getDishCategory(),
                 ownedIngredients,
                 recipeIngredients,
@@ -83,6 +109,10 @@ public class BoardMyRecipeResponse {
                 board.getId());
     }
 
+    private static String level(String level){
+        Difficult difficult = Difficult.of(level);
+        return difficult.getValue();
+    }
     private static String generateIssueInfo(List<BoardIssue> boardIssues) {
         if (boardIssues == null || boardIssues.isEmpty()) {
             return "";

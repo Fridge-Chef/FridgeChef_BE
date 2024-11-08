@@ -164,6 +164,10 @@ public class BoardControllerTest extends RestDocControllerTests {
                         responseFields(
                                 fieldWithPath("boardId").description("레시피 ID"),
                                 fieldWithPath("title").description("레시피 제목"),
+                                fieldWithPath("username").description("작성자 명"),
+                                fieldWithPath("intro").description("레시피 소개"),
+                                fieldWithPath("hitTotal").description("총 좋아요 "),
+                                fieldWithPath("starTotal").description("총 별점 개수"),
                                 fieldWithPath("rating").description("레시피 평점"),
                                 fieldWithPath("mainImage").description("레시피 메인 이미지 URL"),
                                 fieldWithPath("dishTime").description("조리 시간"),
@@ -426,7 +430,11 @@ public class BoardControllerTest extends RestDocControllerTests {
     public static BoardMyRecipeResponse createBoardMyRecipeResponse() {
         return new BoardMyRecipeResponse(
                 "Delicious Recipe",
+                "username",
+                "intro",
                 4.5,
+                20,
+                20,
                 "https://objectstorage.ap-chuncheon-1.oraclecloud.com/p/RO5Ur4yw-jzifHvgLdMG4nkUmU_UJpzy3YQnWXaJnTIAygJO3qDzSwMy0ulHEwxt/n/axqoa2bp7wqg/b/fridge/o/notfound.png",
                 "이번주 레시피",
                 "4분",

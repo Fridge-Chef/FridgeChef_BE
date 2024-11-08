@@ -13,7 +13,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class FridgeIngredientRequest {
 
-    private String ingredientName;
-    private String IngredientCategory;
-    private LocalDate expirationDate;
+    private String name;
+    private String category;
+    private LocalDate date;
 }
