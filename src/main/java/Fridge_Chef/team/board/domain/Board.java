@@ -38,7 +38,7 @@ public class Board extends BaseEntity {
     private User user;
     private String title;
     private String introduction;
-    @OneToOne(fetch = FetchType.LAZY, orphanRemoval = true,cascade = CascadeType.PERSIST)
+    @OneToOne(mappedBy = "board", fetch = FetchType.LAZY, orphanRemoval = true,cascade = CascadeType.PERSIST)
     private Context context;
     @Enumerated(EnumType.STRING)
     private BoardType type;
