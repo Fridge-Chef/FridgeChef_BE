@@ -1,6 +1,5 @@
 ### 추천 레시피 조회
 GET {{http-api}}/api/recipes/?must=달걀&ingredients=대파&page=0&size=50&sort=MATCH
-Authorization: Bearer {{token}}
 
 
 ### 레시피 단일 id 조회
