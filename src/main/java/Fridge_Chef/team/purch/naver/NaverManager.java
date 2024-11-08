@@ -1,6 +1,7 @@
 package Fridge_Chef.team.purch.naver;
 
 
+import Fridge_Chef.team.purch.service.response.PurchResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
@@ -15,20 +16,20 @@ public class NaverManager {
     private final RestClient config;
 
 
-    public Optional<String> search(String search) {
+    public Optional<PurchResponse> search(String search) {
         return Optional.of(getNaverSearchLink(search));
     }
 
     @Retryable(backoff = @Backoff)
-    public String getNaverSearchLink(String path) {
+    public PurchResponse getNaverSearchLink(String path) {
         try {
             NaverSearchResponse response = config.get()
                     .uri(path)
                     .retrieve()
                     .body(NaverSearchResponse.class);
-            return response.firstItemLink();
+            return new PurchResponse("naver",response.firstItemLink());
         } catch (Exception e) {
-            return "";
+            return new PurchResponse("","");
         }
     }
 }

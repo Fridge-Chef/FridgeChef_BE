@@ -2,6 +2,7 @@ package Fridge_Chef.team.purch.service;
 
 import Fridge_Chef.team.purch.coupang.CouPangManager;
 import Fridge_Chef.team.purch.naver.NaverManager;
+import Fridge_Chef.team.purch.service.response.PurchResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,17 +14,17 @@ public class PurchService {
     private final NaverManager naverManager;
     private final CouPangManager couPangManager;
 
-    public String searchToShopLink(String search){
+    public PurchResponse searchToShopLink(String search){
         return coupangSearchLink(search)
                 .orElse(naverShopSearchLink(search));
     }
 
-    private Optional<String> coupangSearchLink(String search) {
+    private Optional<PurchResponse> coupangSearchLink(String search) {
         return couPangManager.search(search);
     }
 
-    private String naverShopSearchLink(String search) {
+    private PurchResponse naverShopSearchLink(String search) {
         return naverManager.search(search)
-                .orElse("");
+                .orElse(new PurchResponse("",""));
     }
 }
