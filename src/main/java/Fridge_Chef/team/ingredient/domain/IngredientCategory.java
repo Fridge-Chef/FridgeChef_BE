@@ -1,7 +1,10 @@
 package Fridge_Chef.team.ingredient.domain;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.Arrays;
 
+@Slf4j
 public enum IngredientCategory {
     UNCATEGORIZED("미분류"),
     VEGETABLES("채소류"),
@@ -29,6 +32,7 @@ public enum IngredientCategory {
     }
 
     public static IngredientCategory of(String category){
+        log.info("category of "+category);
         if (category == null){
             return UNCATEGORIZED;
         }
