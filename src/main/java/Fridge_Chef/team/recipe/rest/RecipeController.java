@@ -28,15 +28,12 @@ public class RecipeController {
     public Page<RecipeSearchResponse> search(
             @AuthenticationPrincipal AuthenticatedUser user,
             @RequestParam(defaultValue = "", required = false) String[] must,
-            @RequestParam List<String> ingredients,
+            @RequestParam(defaultValue = "", required = false) String[] ingredients,
             @RequestParam(defaultValue = "0", required = false) int page,
             @RequestParam(defaultValue = "50", required = false) int size,
             @RequestParam(defaultValue = "MATCH", required = false) RecipeSearchSortType sort) {
-
-        List<String> mustList = Arrays.asList(must);
-
         RecipePageRequest request = new RecipePageRequest(page, size, sort);
 
-        return recipeService.searchRecipe(request, mustList, ingredients, AuthenticatedUser.anonymousUser(user));
+        return recipeService.searchRecipe(request,  Arrays.asList(must), Arrays.asList(ingredients), AuthenticatedUser.anonymousUser(user));
     }
 }

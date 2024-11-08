@@ -37,14 +37,23 @@ public class RecipeService {
 
     private final UserService userService;
     private final ImageService imageService;
-    private final IngredientService ingredientService;
-
     private final RecipeRepository recipeRepository;
     private final RecipeDslRepository recipeDslRepository;
     private final DescriptionRepository descriptionRepository;
     private final ContextRepository contextRepository;
     private final BoardRepository boardRepository;
     private final BoardUserEventRepository boardUserEventRepository;
+
+    @Transactional(readOnly = true)
+    public Page<RecipeSearchResponse> searchRecipe(RecipePageRequest request, List<String> must, List<String> ingredients, Optional<UserId>userId) {
+
+        if(must.size() + ingredients.size() == 0){
+            throw new ApiException(ErrorCode.RECIPE_INGREDIENT_NULL);
+        }
+
+        PageRequest page = PageRequest.of(request.getPage(), request.getSize());
+        return recipeDslRepository.findRecipesByIngredients(page, request, must, ingredients,userId);
+    }
 
     @Transactional
     public void createMyRecipe(UserId userId, RecipeCreateRequest request,
@@ -70,19 +79,6 @@ public class RecipeService {
         recipeRepository.save(recipe);
 
         recipeToBoard(user, recipe);
-    }
-
-    @Transactional(readOnly = true)
-    public Page<RecipeSearchResponse> searchRecipe(RecipePageRequest request, List<String> must, List<String> ingredients, Optional<UserId>userId) {
-
-        PageRequest page = PageRequest.of(request.getPage(), request.getSize());
-        Page<RecipeSearchResponse> response = recipeDslRepository.findRecipesByIngredients(page, request, must, ingredients,userId);
-
-        if (response.getSize() == 0) {
-            throw new ApiException(ErrorCode.RECIPE_NOT_FOUND);
-        }
-
-        return response;
     }
 
     @Transactional
