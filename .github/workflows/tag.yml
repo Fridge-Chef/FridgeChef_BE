@@ -111,13 +111,17 @@ jobs:
 
       - name: Create missing labels
         run: |
-          IFS=',' read -r -a LABEL_ARRAY <<< "${{ env.FINAL_LABELS }}"
+          IFS=',' read -r -a LABEL_ARRAY <<< "recipe,book,api,레시피"
           for LABEL in "${LABEL_ARRAY[@]}"; do
             if ! gh label list | grep -q "$LABEL"; then
-              echo "Creating label: $LABEL"
-              gh label create "$LABEL" --color "$(printf '#%06X\n' $((RANDOM%16777215)))"
+          echo "Creating label: $LABEL"
+            gh label create "$LABEL" --color "$(printf '#%06X\n' $((RANDOM%16777215)))"
+            else
+            echo "Label '$LABEL' already exists, updating..."
+            gh label edit "$LABEL" --force --color "$(printf '#%06X\n' $((RANDOM%16777215)))"
             fi
-          done
+            done
+
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub Actions에서 제공하는 토큰
 
