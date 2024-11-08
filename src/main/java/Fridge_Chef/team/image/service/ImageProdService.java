@@ -42,33 +42,33 @@ public class ImageProdService implements ImageService {
     @Transactional
     public Image uploadImageWithId(UserId userId, boolean isImage, Long imageId, MultipartFile file) {
         if (isImage) {
-            return imageUpload(userId,file);
+            return imageUpload(userId, file);
         }
         return imageRepository.findById(imageId)
-                .orElse(imageUpload(userId,file));
+                .orElse(imageUpload(userId, file));
     }
 
     @Transactional
     public Image imageUpload(UserId userId, MultipartFile file) {
-        if(file == null){
+        if (file == null) {
             return imageRepository.save(Image.none());
         }
         String fileName = onlyNameChange(file.getName());
         upload(file, fileName);
         Image image = new Image(imageConfigMeta.getUrl(), imageConfigMeta.getUploadPath(), fileName, ImageType.ORACLE_CLOUD, userId);
-        log.info("image upload success User : "+userId +" _ , "+fileName);
+        log.info("image upload success User : " + userId + " _ , " + fileName);
         return imageRepository.save(image);
     }
 
     @Transactional
     public Image imageUploadUserPicture(User user, MultipartFile file) {
-        if(file.isEmpty()){
+        if (file.isEmpty()) {
             return imageRepository.save(Image.none());
         }
         String fileName = onlyNameChange(file.getName());
         upload(file, fileName);
         Image image = new Image(imageConfigMeta.getUrl(), imageConfigMeta.getUploadPath(), fileName, ImageType.ORACLE_CLOUD, user.getUserId());
-        log.info("image upload success User : "+user.getUserId() +" _ , "+fileName);
+        log.info("image upload success User : " + user.getUserId() + " _ , " + fileName);
         imageRepository.save(image);
         user.updatePicture(image);
         return image;
@@ -95,7 +95,7 @@ public class ImageProdService implements ImageService {
         FileRemoveManager manager = new FileRemoveManager(objectStorageClient, imageConfigMeta, image);
         manager.remove();
         imageRepository.delete(image);
-        log.info("image remove success User : "+userId +" _ , "+image.getName());
+        log.info("image remove success User : " + userId + " _ , " + image.getName());
     }
 
     @Transactional
@@ -105,7 +105,7 @@ public class ImageProdService implements ImageService {
 
         FileRemoveManager file = new FileRemoveManager(objectStorageClient, imageConfigMeta, image);
         file.remove();
-        log.info("image.id remove success : "+image.getName());
+        log.info("image.id remove success : " + image.getName());
         imageRepository.delete(image);
     }
 
@@ -126,6 +126,9 @@ public class ImageProdService implements ImageService {
     }
 
     public List<Image> imageUploads(UserId userId, List<MultipartFile> files) {
+        if (files == null) {
+            return List.of();
+        }
         filters(files);
         return files.stream()
                 .map(file -> imageUpload(userId, file))
