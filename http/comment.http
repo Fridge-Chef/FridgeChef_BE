@@ -1,0 +1,11 @@
+
+### 특정 레시피 댓글조회
+GET {{http-api}}/api/boards/{{board_id}}/comments
+
+### 특정 레시피 댓글조회 [ 내 댓글 우선순위 ]
+GET {{http-api}}/api/boards/{{board_id}}/comments
+Authorization: Bearer {{token}}
+
+### 레시피에 댓글 등록
+POST {{http-api}}/api/boards/{{board_id}}/comment?commit=댓글&star=1.5
+Authorization: Bearer {{token}}

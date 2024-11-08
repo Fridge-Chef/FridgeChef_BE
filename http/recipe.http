@@ -1,0 +1,27 @@
+### 추천 레시피 조회
+GET {{http-api}}/api/recipes/?must=달걀&ingredients=대파&page=0&size=50&sort=MATCH
+Authorization: Bearer {{token}}
+
+
+### 레시피 단일 id 조회
+GET {{http-api}}/api/boards/1
+
+### ===== 레시피 북
+### 레시피북 댓글 조회
+GET {{http-api}}/api/books/comment
+Authorization: Bearer {{token}}
+
+### 레시피 북(찜하기) 레시피 조회
+GET {{http-api}}/api/books/recipe?book=LIKE
+Authorization: Bearer {{token}}
+
+### 나의 레시피 보기
+GET {{http-api}}/api/books/recipe?book=MYRECIPE
+Authorization: Bearer {{token}}
+
+### 찜하기 클릭
+POST {{http-api}}/api/boards/1/hit
+Authorization: Bearer {{token}}
+
+### 구매 버튼
+GET {{http-api}}/api/purch?search=계란
