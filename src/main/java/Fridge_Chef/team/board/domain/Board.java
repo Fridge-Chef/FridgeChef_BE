@@ -144,4 +144,14 @@ public class Board extends BaseEntity {
     public void updateContext(List<RecipeIngredient> ingredients, List<Description> descriptions, String dishTime, String dishLevel, String dishCategory){
         context.update(ingredients, descriptions,dishTime,dishLevel,dishCategory);
     }
+
+    public int hitTotalCount() {
+        return boardUserEvent.stream()
+                .mapToInt(event -> event.getHit())
+                .sum();
+    }
+
+    public int starTotalCount() {
+        return comments.size();
+    }
 }
