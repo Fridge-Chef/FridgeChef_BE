@@ -41,16 +41,12 @@ public class RecipeDslRepository {
     @Transactional(readOnly = true)
     public Page<RecipeSearchResponse> findRecipesByIngredients(PageRequest pageable, RecipePageRequest request, List<String> must, List<String> ingredients, Optional<UserId> userId) {
         var query = factory
-                .select(board)
-                .from(board)
+                .selectFrom(board)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
                 .leftJoin(board.context.boardIngredients, recipeIngredient)
-                .join(recipeIngredient.ingredient, ingredient)
-                .leftJoin(board.mainImage, image);
-
-        System.out.println(" query join size : " + query.fetch().size());
-        query.groupBy(board, ingredient.name);
-
-        System.out.println(" groupBy join size : " + query.fetch().size());
+                .leftJoin(board.mainImage, image)
+                .groupBy(board, ingredient.name);
 
         if (must != null && !must.isEmpty()) {
             BooleanBuilder mustConditions = new BooleanBuilder();
@@ -58,34 +54,19 @@ public class RecipeDslRepository {
             query.where(mustConditions);
             query.having(ingredient.name.countDistinct().eq((long) must.size()));
         } else {
-            query.where((ingredient.name.in(ingredients)));
+            query.where(ingredient.name.in(ingredients));
         }
 
-        System.out.println(" ingredients _ must  join size : " + query.fetch().size());
-
+        long totalPage = query.fetch().size();
         applySort(query, request.getSortType());
-
-        query.offset(pageable.getOffset())
-                .limit(pageable.getPageSize());
-
-        List<String> search = new ArrayList<>(must);
-        search.addAll(ingredients);
 
         List<RecipeSearchResponse> responses = query.fetch()
                 .stream()
-                .map(value -> RecipeSearchResponse.of(value, search, userId))
+                .map(value -> RecipeSearchResponse.of(value, mergeList(must,ingredients), userId))
                 .toList();
 
-        var commit = factory
-                .selectFrom(board)
-                .join(board.context.boardIngredients, recipeIngredient)
-                .join(recipeIngredient.ingredient, ingredient)
-                .where(ingredient.name.in(must))
-                .groupBy(board.id);
-
-        return PageableExecutionUtils.getPage(responses, pageable, () -> commit.fetch().size());
+        return PageableExecutionUtils.getPage(responses, pageable, () -> totalPage);
     }
-
 
     private void applySort(JPAQuery<Board> query, RecipeSearchSortType sortType) {
 
@@ -178,5 +159,11 @@ public class RecipeDslRepository {
         }
 
         return null;
+    }
+
+    private List<String> mergeList(List<String> left,List<String> right){
+        List<String> list = new ArrayList<>(left);
+        list.addAll(right);
+        return list;
     }
 }
