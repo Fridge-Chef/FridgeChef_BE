@@ -1,0 +1,86 @@
+name: 'CI Pipeline'
+
+on:
+  pull_request:
+    branches:
+      - "!main"
+
+jobs:
+  pr_merge_job:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
+    steps:
+      - name: Run on merged pull request
+        run: echo "PR was merged!"
+
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      DISCORD_WEBHOOK_URL: 'https://discord.com/api/webhooks/1278777100089688126/hsP6gXaao8MtyX7Q4-GVJu3zCImksi_u6UCAaYgPmUzeZhtkqdgRzxeq_ZjkIF0z30aZ'
+      BACKUP_DIR: '/home/ubuntu/dev/backup'
+      REMOTE_USER: 'ubuntu'
+      REMOTE_HOST:  ${{ secrets.APP_SERVER_IP }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Cache Gradle packages
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper/
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup OpenSSL and Generate Keys
+        run: |
+          openssl genrsa -out fridgejwt.priv 2048
+          openssl pkcs8 -in fridgejwt.priv -inform PEM -out private_key_pkcs8.pem -outform PEM -topk8 -nocrypt
+          openssl rsa -in private_key_pkcs8.pem -out fridgejwt.pub -pubout
+          
+          mv fridgejwt.priv src/main/resources/fridgejwt.priv
+          mv fridgejwt.pub src/main/resources/fridgejwt.pub
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16' # 원하는 Node.js 버전 설정
+
+      - name: Install Dependencies
+        run: |
+          npm install redoc-cli --save-dev 
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+      - name: Create and activate virtual environment
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          python -m pip install --upgrade pip
+          python -m pip install pyyaml
+
+      - name: Install redoc-cli
+        run: |
+          npm install -g redoc-cli
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+
+      - name: Set Jasypt Password
+        run: echo "JASYPT_PASSWORD=${{ secrets.JASYPT_PASSWORD }}" >> $GITHUB_ENV
+
+      - name: Test build
+        run: |
+            ./gradlew redocGenerationIntegration --info
