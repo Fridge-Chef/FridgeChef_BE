@@ -11,6 +11,6 @@ public class CouPangManager {
     public Optional<PurchResponse> search(String search) {
         // externalApiTest/java/fridge_chef/team/shop/ClickEventTest 참고
         /// error code 검출시 null 리턴
-        return Optional.of(new PurchResponse("",""));
+        return Optional.empty();
     }
 }
