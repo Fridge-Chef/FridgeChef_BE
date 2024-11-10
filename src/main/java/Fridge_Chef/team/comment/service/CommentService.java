@@ -54,6 +54,7 @@ public class CommentService {
                 .filter(comment -> comment.getUsers().getUserId().equals(userId))
                 .findFirst();
 
+        log.info("댓글 등록 board:"+boardId +" , userid:"+userId +", message :"+request.comment());
         if (existingComment.isPresent()) {
             Comment commentToUpdate = existingComment.get();
             commentToUpdate.updateComment(request.comment());
