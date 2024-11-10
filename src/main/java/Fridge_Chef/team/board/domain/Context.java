@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static lombok.AccessLevel.PROTECTED;
 
@@ -24,25 +25,24 @@ public class Context {
     private String dishLevel;
     private String dishCategory;
 
-    @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.PERSIST)
+    @Column(length = 500)
+    private String pathIngredient;
+    @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
     private List<RecipeIngredient> boardIngredients;
-    @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.PERSIST)
+    @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Description> descriptions;
 
-    public Context(List<RecipeIngredient> boardIngredients, List<Description> descriptions) {
-        this.dishTime = "";
-        this.dishLevel = "";
-        this.dishCategory = "";
-        this.boardIngredients = boardIngredients;
-        this.descriptions = descriptions;
-    }
-
-    public Context(String dishTime, String dishLevel, String dishCategory, List<RecipeIngredient> boardIngredients, List<Description> descriptions) {
+    private Context(String dishTime, String dishLevel, String dishCategory, List<RecipeIngredient> boardIngredients, List<Description> descriptions) {
         this.dishLevel = dishLevel;
         this.dishTime = dishTime;
         this.dishCategory = dishCategory;
         this.boardIngredients = boardIngredients;
         this.descriptions = descriptions;
+        slicePathIngredient();
+    }
+
+    public Context(List<RecipeIngredient> boardIngredients, List<Description> descriptions) {
+        this("", "", "", boardIngredients, descriptions);
     }
 
     public static Context formMyUserRecipe(
@@ -66,5 +66,11 @@ public class Context {
         this.dishTime = dishTime;
         this.dishLevel = dishLevel;
         this.dishCategory = dishCategory;
+    }
+
+    public void slicePathIngredient(){
+        pathIngredient = boardIngredients.stream()
+                .map(ingredient -> ingredient.getIngredient().getName())
+                .collect(Collectors.joining(","));
     }
 }
