@@ -59,7 +59,7 @@ public class CommentsControllerTest extends RestDocControllerTests {
         Part commentPart = new MockPart("comment", "댓글".getBytes());
         Part starPart = new MockPart("star", "4".getBytes());
         var requestBuilder =
-                RestDocumentationRequestBuilders.multipart("/api/boards/{board_id}/comment", 1)
+                RestDocumentationRequestBuilders.multipart("/api/boards/{board_id}", 1)
                         .file(images1)
                         .file(images2)
                         .part(commentPart)
