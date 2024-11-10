@@ -35,7 +35,6 @@ public class BoardController {
             @AuthenticationPrincipal AuthenticatedUser user,
             @Valid @ModelAttribute BoardByRecipeRequest request
     ) {
-        boardService.textFilterPolicy(request);
         boardRecipeService.create(user.userId(), request);
     }
 
