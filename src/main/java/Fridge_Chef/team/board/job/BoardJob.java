@@ -30,35 +30,26 @@ public class BoardJob {
         this.boardIssueRepository = boardIssueRepository;
     }
 
-    /**
-     * 추천 레시피 등록 조건
-     * 1. 저번주 보다 이번주 조회수가 증가하였는가
-     * 2. 저번주 보다 이번주 별점이 증가하였는가
-     * ====
-     * - 회원 가입수 비례해서 추가
-     */
     @Transactional
     @Scheduled(cron = "0 0/10 * * * ?")
-    // 10분마다 실행
     void recipeIssueUp() {
-        log.info("추천 레시피 스케줄러 ");
+        log.info("추천 레시피 스케줄러 run()");
         List<Board> boards = boardRepository.findAll();
         int userSize = userRepository.findAll().size();
-        for (Board board : boards) {
 
-            // 조회수가 10 미만이면 탈락
+        // 오늘의 시작과 끝 시각 계산
+        LocalDateTime startOfDay = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
+        LocalDateTime endOfDay = startOfDay.plusDays(1).minusNanos(1);
+
+
+        for (Board board : boards) {
             if (board.getCount() <= 10) {
                 return;
             }
-
-            // 현재 가입된 유저수 반 이상 클릭시
-            // 별점 3.5 이상 등급
-            if (!(
-                    board.getCount() >= (userSize / 2) &&
-                            board.getTotalStar() >= 3.5)) {
+            if (!(board.getCount() >= (userSize / 2) &&
+                    (board.getTotalStar() >= 3.5))) {
                 return;
             }
-
             var thisWeekStart = LocalDateTime.now()
                     .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
                     .truncatedTo(ChronoUnit.DAYS);
@@ -83,13 +74,32 @@ public class BoardJob {
                     .sum();
 
             int countDifference = thisWeekCount - lastWeekCount;
-            if (countDifference >= userSize / 2) {
+
+            if (countDifference == 0) {
+                return;
+            }
+
+            boolean shouldSave = isShouldSave(userSize,countDifference);
+            if (shouldSave &&! boardIssueRepository.existsByBoardAndCreateTimeBetween(board,startOfDay,endOfDay)) {
+                log.info(" 이슈 등록 "+ board.getTitle() +","+board.getId());
                 boardIssueRepository.save(new BoardIssue(board));
             }
         }
     }
 
-    private LocalDateTime getStartOfWeek(LocalDateTime now) {
-        return now.with(DayOfWeek.MONDAY).toLocalDate().atStartOfDay();
+    private boolean isShouldSave(int userSize,int size){
+        if (userSize <= 10) {
+            return true;
+        } else if (userSize <= 100 && size >= 10) {
+            return true;
+        } else if (userSize <= 1000 && size >= 100) {
+            return true;
+        } else if (userSize <= 10000 && size >= 100) {
+            return true;
+        } else if (size >= (userSize % 10) / 2) {
+            return true;
+        }
+        return false;
     }
+
 }
