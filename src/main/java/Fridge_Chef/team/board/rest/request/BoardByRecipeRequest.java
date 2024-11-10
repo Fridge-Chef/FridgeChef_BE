@@ -34,6 +34,13 @@ public class BoardByRecipeRequest {
     @Size(min = 1, max = 30, message = "설명은 1~30개 까지 가능합니다.")
     private List<Instructions> instructions;
 
+//    public String toRecipeIngredients() {
+//        String src
+//    }
+//
+//    public String totInstructions() {
+//    }
+
     @Getter
     @Setter
     @AllArgsConstructor

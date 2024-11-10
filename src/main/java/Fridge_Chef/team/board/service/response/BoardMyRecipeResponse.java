@@ -77,7 +77,6 @@ public class BoardMyRecipeResponse {
     }
 
     public static BoardMyRecipeResponse of(Board board) {
-        System.out.println("---of "+board.toString());
         var ownedIngredients = board.getContext().getBoardIngredients().stream()
                 .map(ingredient -> new OwnedIngredientResponse(ingredient.getId(), ingredient.getIngredient().getName()))
                 .collect(Collectors.toList());
@@ -86,9 +85,15 @@ public class BoardMyRecipeResponse {
                 .map(ingredient -> new RecipeIngredientResponse(ingredient.getIngredient().getId(), ingredient.getIngredient().getName(), ingredient.getQuantity()))
                 .collect(Collectors.toList());
 
-        var instructions = board.getContext().getDescriptions().stream()
-                .map(step -> new StepResponse(step.getDescription(), step.getLink()))
+
+        var instructions = board.getContext().getDescriptions()
+                .stream()
+                .map(step -> {
+                    System.out.println("ins " +step.getDescription() +","+step.getLink());
+                    return new StepResponse(step.getDescription(), step.getLink());
+                })
                 .collect(Collectors.toList());
+
 
         List<BoardIssue> boardIssues = board.getBoardIssues();
         String issueInfo = generateIssueInfo(boardIssues);

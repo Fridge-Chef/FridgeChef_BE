@@ -42,10 +42,10 @@ public class BoardIngredientService {
 
     @Transactional
     public List<Description> uploadInstructionImages(UserId userId, BoardByRecipeRequest request) {
-        return request.getRecipeIngredients()
+        return request.getInstructions()
                 .stream().map(instruction -> {
-                    Image instructionImage = imageService.imageUpload(userId, request.getMainImage());
-                    Description description = descriptionRepository.save(new Description(instruction.getDetails(), instructionImage));
+                    Image instructionImage = imageService.imageUpload(userId, instruction.getImage());
+                    Description description = descriptionRepository.save(new Description(instruction.getContent(), instructionImage));
                     return descriptionRepository.save(description);
                 }).collect(Collectors.toList());
     }
