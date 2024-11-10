@@ -25,6 +25,7 @@ public class BoardMyRecipePageResponse {
 
     public static BoardMyRecipePageResponse ofEntity(SortType sortType, Board entity,UserId userId) {
 
+
         return new BoardMyRecipePageResponse(
                 sortType,
                 entity.getId(),

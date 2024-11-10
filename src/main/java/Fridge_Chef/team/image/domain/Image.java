@@ -62,9 +62,6 @@ public class Image extends BaseEntity {
     public static Image none() {
         return new Image();
     }
-    public static Image outUri(String imageUrl,UUID userId) {
-        return new Image(imageUrl, ImageType.OUT_URI,userId);
-    }
 
     public void updateOutUri(String path) {
         this.type=ImageType.OUT_URI;
@@ -74,10 +71,10 @@ public class Image extends BaseEntity {
     }
 
     public String getLink() {
-        if(type == null){
+        if(type ==null){
             return "";
         }
-        if(type.equals(ImageType.OUT_URI)){
+        if(type == ImageType.OUT_URI){
             return path;
         }
         return uri + path + name;
