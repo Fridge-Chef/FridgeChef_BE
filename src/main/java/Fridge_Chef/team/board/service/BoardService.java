@@ -162,13 +162,17 @@ public class BoardService {
         List<String> filters = new ArrayList<>();
         filters.add(request.getName());
         filters.add(request.getDescription());
-        request.getInstructions().forEach(text -> {
-            filters.add(text.getContent());
-        });
-        request.getRecipeIngredients().forEach(text -> {
-            filters.add(text.getName());
-            filters.add(text.getDetails());
-        });
+        if(request.getInstructions() != null){
+            request.getInstructions().forEach(text -> {
+                filters.add(text.getContent());
+            });
+        }
+        if(request.getRecipeIngredients() != null){
+            request.getRecipeIngredients().forEach(text -> {
+                filters.add(text.getName());
+                filters.add(text.getDetails());
+            });
+        }
         BadWordFiltering filtering = new BadWordFiltering();
         filters.stream()
                 .filter(filtering::check)
