@@ -42,13 +42,15 @@ public class BoardIngredientService {
 
     @Transactional
     public List<Description> uploadInstructionImages(UserId userId, BoardByRecipeRequest request) {
+        if(request.getInstructions() == null){
+            return List.of();
+        }
         return request.getInstructions()
                 .stream().map(instruction -> {
-                    Image instructionImage;
-                    instructionImage = imageService.imageUpload(userId, instruction.getImage());
                     if(instruction.getImage() == null){
                         return  descriptionRepository.save(new Description(instruction.getContent(), null));
                     }
+                    Image instructionImage = imageService.imageUpload(userId, instruction.getImage());
                     return descriptionRepository.save(new Description(instruction.getContent(), instructionImage));
                 }).collect(Collectors.toList());
     }
