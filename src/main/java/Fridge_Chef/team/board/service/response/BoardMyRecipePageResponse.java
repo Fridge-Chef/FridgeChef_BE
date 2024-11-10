@@ -24,14 +24,16 @@ public class BoardMyRecipePageResponse {
     private LocalDateTime createTime;
 
     public static BoardMyRecipePageResponse ofEntity(SortType sortType, Board entity,UserId userId) {
-
-
+        String link="";
+        if(entity.getMainImage() != null && entity.getMainImage().getType() != null){
+            link=entity.getMainImageLink();
+        }
         return new BoardMyRecipePageResponse(
                 sortType,
                 entity.getId(),
                 entity.getTitle(),
                 entity.getUser().getUsername(),
-                entity.getMainImageLink(),
+                link,
                 entity.getMainImageId(),
                 entity.getTotalStar(),
                 entity.getHit(),

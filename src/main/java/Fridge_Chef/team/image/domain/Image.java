@@ -71,7 +71,7 @@ public class Image extends BaseEntity {
     }
 
     public String getLink() {
-        if(type ==null){
+        if(type == null || type.name().equals(ImageType.NONE.name())){
             return "";
         }
         if(type == ImageType.OUT_URI){
