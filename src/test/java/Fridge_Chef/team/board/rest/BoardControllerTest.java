@@ -97,7 +97,7 @@ public class BoardControllerTest extends RestDocControllerTests {
                 .thenReturn(Collections.emptyList());
 
         MockMultipartFile mainImage = getMultiFile("mainImage");
-        MockMultipartFile instructionImage1 = getMultiFile("instructions[0].image");
+        MockMultipartFile instructionImage1 = getMultiFile("instructions[0].images");
 
         Part namePart = new MockPart("name", "레시피 명".getBytes());
         Part descriptionPart = new MockPart("description", "레시피 설명".getBytes());

@@ -44,7 +44,12 @@ public class BoardIngredientService {
     public List<Description> uploadInstructionImages(UserId userId, BoardByRecipeRequest request) {
         return request.getInstructions()
                 .stream().map(instruction -> {
-                    Image instructionImage = imageService.imageUpload(userId, instruction.getImage());
+                    Image instructionImage;
+                    if(instruction.getImages() == null){
+                        instructionImage = Image.none();
+                    }else{
+                        instructionImage = imageService.imageUpload(userId, instruction.getImages());
+                    }
                     Description description = descriptionRepository.save(new Description(instruction.getContent(), instructionImage));
                     return descriptionRepository.save(description);
                 }).collect(Collectors.toList());

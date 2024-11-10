@@ -58,6 +58,6 @@ public class BoardByRecipeRequest {
     public static class Instructions {
         @NotBlank(message = "설명 내용은 필수입니다.")
         private String content;
-        private MultipartFile image;
+        private MultipartFile images;
     }
 }
