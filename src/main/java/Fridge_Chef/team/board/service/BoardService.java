@@ -162,8 +162,8 @@ public class BoardService {
         List<String> filters = new ArrayList<>();
         filters.add(request.getName());
         filters.add(request.getDescription());
-        if(request.getInstructions() != null){
-            request.getInstructions().forEach(text -> {
+        if(request.getDescriptions() != null){
+            request.getDescriptions().forEach(text -> {
                 if(text.getContent() != null){
                     filters.add(text.getContent());
                 }

@@ -42,10 +42,10 @@ public class BoardIngredientService {
 
     @Transactional
     public List<Description> uploadInstructionImages(UserId userId, BoardByRecipeRequest request) {
-        if(request.getInstructions() == null){
+        if(request.getDescriptions() == null){
             return List.of();
         }
-        return request.getInstructions()
+        return request.getDescriptions()
                 .stream().map(instruction -> {
                     if(instruction.getImage() == null){
                         return  descriptionRepository.save(new Description(instruction.getContent(), null));
