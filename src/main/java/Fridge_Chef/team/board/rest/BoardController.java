@@ -36,13 +36,7 @@ public class BoardController {
             @Valid @ModelAttribute BoardByRecipeRequest request
     ) {
         boardService.textFilterPolicy(request);
-
-        Image image = imageService.imageUpload(user.userId(), request.getMainImage());
-
-        List<Description> descriptions = boardIngredientService.uploadInstructionImages(user.userId(), request);
-        List<RecipeIngredient> ingredients = boardIngredientService.findOrCreate(request);
-
-        boardRecipeService.create(user.userId(), request, ingredients, descriptions, image);
+        boardRecipeService.create(user.userId(), request);
     }
 
     @PutMapping

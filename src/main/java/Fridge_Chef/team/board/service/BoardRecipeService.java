@@ -9,6 +9,7 @@ import Fridge_Chef.team.board.rest.request.BoardByRecipeUpdateRequest;
 import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.exception.ErrorCode;
 import Fridge_Chef.team.image.domain.Image;
+import Fridge_Chef.team.image.service.ImageService;
 import Fridge_Chef.team.ingredient.domain.Ingredient;
 import Fridge_Chef.team.ingredient.repository.IngredientRepository;
 import Fridge_Chef.team.ingredient.repository.RecipeIngredientRepository;
@@ -31,32 +32,22 @@ public class BoardRecipeService {
     private final BoardRepository boardRepository;
     private final BoardUserEventRepository boardUserEventRepository;
     private final ContextRepository contextRepository;
-    private final RecipeRepository recipeRepository;
-    private final RecipeIngredientRepository recipeIngredientRepository;
     private final IngredientRepository ingredientRepository;
+    private final ImageService imageService;
+    private final BoardIngredientService boardIngredientService;
 
     @Transactional
-    public Board create(UserId userId, BoardByRecipeRequest request,
-                        List<RecipeIngredient> recipeIngredient,
-                        List<Description> descriptions,
-                        Image image) {
+    public Board create(UserId userId, BoardByRecipeRequest request) {
         User user = findByUserId(userId);
-        List<RecipeIngredient> recipeIngredients = new ArrayList<>();
 
-        for(var search : recipeIngredient){
-            Ingredient ingredient =getIngredient(search.getIngredient().getName());
-            recipeIngredients.add(new RecipeIngredient(ingredient,search.getQuantity()));
-        }
+        Image image = imageService.imageUpload(user.getUserId(), request.getMainImage());
 
-        List<Description> descriptionList = new ArrayList<>();
-
-        for(var search: descriptions){
-            descriptionList.add(new Description(search.getDescription(),search.getImage()));
-        }
+        List<Description> descriptions = boardIngredientService.uploadInstructionImages(user.getUserId(), request);
+        List<RecipeIngredient> ingredients = boardIngredientService.findOrCreate(request);
 
         Context context = contextRepository.save(Context.formMyUserRecipe(
                 request.getDishTime(), request.getDishLevel(), request.getDishCategory(),
-                recipeIngredients, descriptionList));
+                ingredients, descriptions));
 
         Board board = boardRepository.save(new Board(user, request.getDescription(), request.getName(), context, image, BoardType.USER));
         BoardUserEvent event = new BoardUserEvent(board, user);

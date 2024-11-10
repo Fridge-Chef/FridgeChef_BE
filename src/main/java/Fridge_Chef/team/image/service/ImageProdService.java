@@ -51,10 +51,13 @@ public class ImageProdService implements ImageService {
     @Transactional
     public Image imageUpload(UserId userId, MultipartFile file) {
         if (file == null) {
+            log.info("image null");
             return imageRepository.save(Image.none());
         }
         String fileName = onlyNameChange(file.getName());
         upload(file, fileName);
+        log.info("test");
+        log.info(imageConfigMeta.getUrl(), imageConfigMeta.getUploadPath(), fileName, ImageType.ORACLE_CLOUD, userId);
         Image image = new Image(imageConfigMeta.getUrl(), imageConfigMeta.getUploadPath(), fileName, ImageType.ORACLE_CLOUD, userId);
         log.info("image upload success User : " + userId + " _ , " + fileName);
         return imageRepository.save(image);
@@ -112,6 +115,8 @@ public class ImageProdService implements ImageService {
     public void upload(MultipartFile multipartFile, String fileName) {
         FileUploadManager file = new FileUploadManager(uploadManager, imageConfigMeta, multipartFile, fileName);
         file.upload();
+        System.out.println(fileName+"image update ");
+        System.out.println("image update sucess");
     }
 
     public void filter(MultipartFile file) {
