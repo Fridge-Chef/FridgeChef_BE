@@ -43,7 +43,8 @@ public class CommentService {
         Board board = findByBoard(boardId);
         User user = findByUser(userId);
         List<Image> images = new ArrayList<>();
-        if(request.images() == null){
+
+        if(request.images() != null){
             images = imageService.imageUploads(userId,request.images());
         }
         Optional<Comment> existingComment = board.getComments()
