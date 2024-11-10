@@ -10,9 +10,8 @@ import Fridge_Chef.team.recipe.repository.model.RecipeSearchSortType;
 import Fridge_Chef.team.recipe.rest.request.RecipePageRequest;
 import Fridge_Chef.team.recipe.rest.response.RecipeSearchResponse;
 import Fridge_Chef.team.user.domain.UserId;
-import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.dsl.CaseBuilder;
-import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static Fridge_Chef.team.board.domain.QBoard.board;
 import static Fridge_Chef.team.image.domain.QImage.image;
@@ -36,10 +34,8 @@ import static Fridge_Chef.team.recipe.domain.QRecipe.recipe;
 import static Fridge_Chef.team.recipe.domain.QRecipeIngredient.recipeIngredient;
 
 /**
- *
  * 100개 레시피 단어 검색 [ 성능 최적화 기록 ]
-     * 기존 단어만 검색시 Time: 1262ms (1 s 262 ms) ~ 1294ms (1 s 294 ms);
- *
+ * 기존 단어만 검색시 Time: 1262ms (1 s 262 ms) ~ 1294ms (1 s 294 ms);
  */
 @Slf4j
 @Repository
@@ -48,11 +44,11 @@ public class RecipeDslRepository {
 
     private final JPAQueryFactory factory;
     private final BoardRepository boardRepository;
+
     /**
-
-        must=필수재료, 선택재료
-
-        정렬 = 검색된 재료카운트에서 내림차순
+     * must=필수재료, 선택재료
+     * <p>
+     * 정렬 = 검색된 재료카운트에서 내림차순
      */
     @Transactional(readOnly = true)
     public Page<RecipeSearchResponse> findRecipesByIngredients(PageRequest pageable, RecipePageRequest request, List<String> must, List<String> ingredients, Optional<UserId> userId) {
@@ -62,22 +58,22 @@ public class RecipeDslRepository {
                 .limit(pageable.getPageSize())
                 .leftJoin(board.context.boardIngredients, recipeIngredient)
                 .leftJoin(recipeIngredient.ingredient, ingredient)
-                .groupBy(board, ingredient.name);
+                .groupBy(board);
+
 
         List<String> pick = new ArrayList<>(ingredients);
         pick.addAll(must);
-        query.where(ingredient.name.in(pick));
-
-        if (must != null && !must.isEmpty()) {
-            BooleanBuilder mustConditions = new BooleanBuilder();
-            query.where(mustConditions.and(ingredient.name.in(must)));
-            query.having(ingredient.name.countDistinct().eq((long) must.size()));
-            log.info("where ");
-        }
+        query.where(recipeIngredient.ingredient.name.in(pick));
 
         long totalPage = query.fetch().size();
-        applySort(query,request.getSortType(),pick);
 
+        if (must != null && !must.isEmpty()) {
+            for (String mu : must) {
+                query.where(recipeIngredient.ingredient.name.in(mu));
+            }
+        }
+
+        applySort(query, request.getSortType());
         List<RecipeSearchResponse> responses = query.fetch()
                 .stream()
                 .map(value -> RecipeSearchResponse.of(value, mergeList(must, ingredients), userId))
@@ -86,25 +82,19 @@ public class RecipeDslRepository {
         return PageableExecutionUtils.getPage(responses, pageable, () -> totalPage);
     }
 
-    private void applySort(JPAQuery<Board> query, RecipeSearchSortType sortType,List<String> pick) {
-
+    private void applySort(JPAQuery<Board> query, RecipeSearchSortType sortType) {
         switch (sortType) {
-            case MATCH -> {
-                var recipeCountSubquery = JPAExpressions
-                        .select(recipeIngredient.count())
-                        .from(recipeIngredient)
-                        .where(recipeIngredient.context.board.eq(board)
-                                .and(recipeIngredient.ingredient.name.in(pick)));
-                query.orderBy(
-                        new CaseBuilder()
-                                .when(recipeCountSubquery.gt(0L)).then(1)
-                                .otherwise(0).desc()
-                );
-            }
+            case MATCH -> query.orderBy(recipeIngredient.ingredient.countDistinct().desc());
             case RATING -> query.orderBy(board.totalStar.desc());
             case LIKE -> query.orderBy(board.hit.desc());
             default -> query.orderBy(board.createTime.desc());
         }
+    }
+
+    private OrderSpecifier[] createOrderSpecifier() {
+        List<OrderSpecifier> orderSpecifiers = new ArrayList<>();
+        orderSpecifiers.add(new OrderSpecifier(Order.DESC, recipeIngredient.ingredient.name.count()));
+        return orderSpecifiers.toArray(new OrderSpecifier[orderSpecifiers.size()]);
     }
 
     @Transactional(readOnly = true)
