@@ -23,13 +23,8 @@ public class RecipeIngredient {
     private Context context;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "recipe_id")
-    private Recipe recipe;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ingredient_id")
     private Ingredient ingredient;
-
     private String quantity;
 
 
