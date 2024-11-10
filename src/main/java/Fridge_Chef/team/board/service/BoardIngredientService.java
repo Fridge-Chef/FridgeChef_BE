@@ -45,13 +45,11 @@ public class BoardIngredientService {
         return request.getInstructions()
                 .stream().map(instruction -> {
                     Image instructionImage;
-                    if(instruction.getImages() == null){
-                        instructionImage = Image.none();
-                    }else{
-                        instructionImage = imageService.imageUpload(userId, instruction.getImages());
+                    instructionImage = imageService.imageUpload(userId, instruction.getImage());
+                    if(instruction.getImage() == null){
+                        return  descriptionRepository.save(new Description(instruction.getContent(), null));
                     }
-                    Description description = descriptionRepository.save(new Description(instruction.getContent(), instructionImage));
-                    return descriptionRepository.save(description);
+                    return descriptionRepository.save(new Description(instruction.getContent(), instructionImage));
                 }).collect(Collectors.toList());
     }
 

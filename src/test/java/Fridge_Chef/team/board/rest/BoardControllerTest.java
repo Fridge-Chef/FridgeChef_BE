@@ -97,7 +97,7 @@ public class BoardControllerTest extends RestDocControllerTests {
                 .thenReturn(Collections.emptyList());
 
         MockMultipartFile mainImage = getMultiFile("mainImage");
-        MockMultipartFile instructionImage1 = getMultiFile("instructions[0].images");
+        MockMultipartFile instructionImage1 = getMultiFile("instructions[0].image");
 
         Part namePart = new MockPart("name", "레시피 명".getBytes());
         Part descriptionPart = new MockPart("description", "레시피 설명".getBytes());
@@ -108,8 +108,7 @@ public class BoardControllerTest extends RestDocControllerTests {
         Part ingredientDetailsPart1 = new MockPart("recipeIngredients[0].details", "상세정보1".getBytes());
         Part ingredientNamePart2 = new MockPart("recipeIngredients[1].name", "재료2".getBytes());
         Part ingredientDetailsPart2 = new MockPart("recipeIngredients[1].details", "상세정보3".getBytes());
-        Part instructionContentPart1 = new MockPart("instruction" +
-                "s[0].content", "설명1".getBytes());
+        Part instructionContentPart1 = new MockPart("instructions[0].content", "설명1".getBytes());
 
         var requestBuilder =
                 RestDocumentationRequestBuilders.multipart("/api/board")

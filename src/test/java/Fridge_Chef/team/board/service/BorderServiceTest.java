@@ -14,8 +14,8 @@ import Fridge_Chef.team.board.service.response.BoardMyRecipePageResponse;
 import Fridge_Chef.team.board.service.response.BoardMyRecipeResponse;
 import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.image.domain.Image;
+import Fridge_Chef.team.image.repository.ImageRepository;
 import Fridge_Chef.team.image.service.ImageLocalService;
-import Fridge_Chef.team.recipe.domain.Recipe;
 import Fridge_Chef.team.recipe.domain.RecipeIngredient;
 import Fridge_Chef.team.recipe.repository.RecipeRepository;
 import Fridge_Chef.team.user.domain.User;
@@ -68,6 +68,8 @@ public class BorderServiceTest {
     @Autowired
     private BoardService boardService;
     private User user;
+    @Autowired
+    private ImageRepository imageRepository;
 
     @BeforeEach
     void setup() {
@@ -260,12 +262,12 @@ public class BorderServiceTest {
         List<BoardByRecipeRequest> requests = provideBoardFindsRequests().toList();
         for (BoardByRecipeRequest request : requests) {
 
-            Image mainImage = imageService.imageUpload(user.getUserId(), request.getMainImage());
-
+            Image mainImage = imageRepository.save(Image.none());
             List<Description> descriptions = boardIngredientService.uploadInstructionImages(user.getUserId(), request);
             List<RecipeIngredient> ingredients = boardIngredientService.findOrCreate(request);
 
             Board board = boardRecipeService.create(user.getUserId(), request);
+            board.updateContext(ingredients, descriptions, "", "", "");
             assignRandomValues(board);
         }
     }
@@ -273,14 +275,14 @@ public class BorderServiceTest {
     private void givenBoardContext() {
         BoardByRecipeRequest request = provideBoardFindsRequests().toList().get(1);
 
-        Image mainImage = imageService.imageUpload(user.getUserId(), request.getMainImage());
-
+        Image mainImage = imageRepository.save(Image.none());
         List<Description> descriptions = boardIngredientService.uploadInstructionImages(user.getUserId(), request);
         List<RecipeIngredient> ingredients = boardIngredientService.findOrCreate(request);
 
         Board board = boardRecipeService.create(user.getUserId(), request);
+        board.updateContext(ingredients, descriptions, "", "", "");
+
         assignRandomValues(board);
-//        recipeRepository.save(Recipe.ofBoard(board));
         boardRepository.save(board);
     }
 

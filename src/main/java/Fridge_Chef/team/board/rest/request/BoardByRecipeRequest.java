@@ -1,5 +1,7 @@
 package Fridge_Chef.team.board.rest.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -32,14 +34,9 @@ public class BoardByRecipeRequest {
     private List<RecipeIngredient> recipeIngredients;
 
     @Size(min = 1, max = 30, message = "설명은 1~30개 까지 가능합니다.")
+    @JsonProperty("descriptions")
     private List<Instructions> instructions;
 
-//    public String toRecipeIngredients() {
-//        String src
-//    }
-//
-//    public String totInstructions() {
-//    }
 
     @Getter
     @Setter
@@ -58,6 +55,6 @@ public class BoardByRecipeRequest {
     public static class Instructions {
         @NotBlank(message = "설명 내용은 필수입니다.")
         private String content;
-        private MultipartFile images;
+        private MultipartFile image;
     }
 }
