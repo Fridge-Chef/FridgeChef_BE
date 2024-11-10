@@ -84,7 +84,7 @@ public class BorderServiceTest {
         List<Description> descriptions = boardIngredientService.uploadInstructionImages(user.getUserId(), request);
         List<RecipeIngredient> ingredients = boardIngredientService.findOrCreate(request);
 
-        boardRecipeService.create(user.getUserId(), request, ingredients, descriptions, mainImage);
+        boardRecipeService.create(user.getUserId(), request);
     }
 
 
@@ -265,7 +265,7 @@ public class BorderServiceTest {
             List<Description> descriptions = boardIngredientService.uploadInstructionImages(user.getUserId(), request);
             List<RecipeIngredient> ingredients = boardIngredientService.findOrCreate(request);
 
-            Board board = boardRecipeService.create(user.getUserId(), request, ingredients, descriptions, mainImage);
+            Board board = boardRecipeService.create(user.getUserId(), request);
             assignRandomValues(board);
         }
     }
@@ -278,7 +278,7 @@ public class BorderServiceTest {
         List<Description> descriptions = boardIngredientService.uploadInstructionImages(user.getUserId(), request);
         List<RecipeIngredient> ingredients = boardIngredientService.findOrCreate(request);
 
-        Board board = boardRecipeService.create(user.getUserId(), request, ingredients, descriptions, mainImage);
+        Board board = boardRecipeService.create(user.getUserId(), request);
         assignRandomValues(board);
 //        recipeRepository.save(Recipe.ofBoard(board));
         boardRepository.save(board);
