@@ -47,16 +47,23 @@ public class CommentService {
         List<Image> images = new ArrayList<>();
 
         if(request.images() != null){
+            log.info("comment image size :"+request.images().size());
             images = imageService.imageUploads(userId,request.images());
         }
+
         Optional<Comment> existingComment = board.getComments()
                 .stream()
                 .filter(comment -> comment.getUsers().getUserId().equals(userId))
                 .findFirst();
 
+        for(var img : images ){
+            log.info("add comment img :"+img.getId()+" "+ img.getLink());
+        }
+
         log.info("댓글 등록 board:"+boardId +" , userid:"+userId +", message :"+request.comment());
         if (existingComment.isPresent()) {
             Comment commentToUpdate = existingComment.get();
+            commentToUpdate.updateImage(images);
             commentToUpdate.updateComment(request.comment());
             commentToUpdate.updateStar(request.star());
             return commentRepository.save(commentToUpdate);
@@ -117,10 +124,10 @@ public class CommentService {
                 .orElseThrow(() -> new ApiException(ErrorCode.BOARD_NOT_FOUND));
 
         PageRequest pageable = PageRequest.of(page,size);
-
         List<Comment> comments = commentRepository.findAllByBoard(board);
 
-        user.map(AuthenticatedUser::userId).flatMap(userId -> comments.stream()
+        user.map(AuthenticatedUser::userId)
+                .flatMap(userId -> comments.stream()
                 .filter(comment -> comment.getUsers().getUserId().equals(userId))
                 .findFirst()).ifPresent(userComment -> {
             comments.remove(userComment);
