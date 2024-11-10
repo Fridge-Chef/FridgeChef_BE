@@ -77,6 +77,7 @@ public class BoardMyRecipeResponse {
     }
 
     public static BoardMyRecipeResponse of(Board board) {
+        System.out.println("---of "+board.toString());
         var ownedIngredients = board.getContext().getBoardIngredients().stream()
                 .map(ingredient -> new OwnedIngredientResponse(ingredient.getId(), ingredient.getIngredient().getName()))
                 .collect(Collectors.toList());
@@ -101,7 +102,7 @@ public class BoardMyRecipeResponse {
                 board.getMainImageLink(),
                 issueInfo,
                 board.getContext().getDishTime(),
-                level(board.getContext().getDishLevel()),
+                board.getContext().getDishLevel(),
                 board.getContext().getDishCategory(),
                 ownedIngredients,
                 recipeIngredients,
