@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 public class BoardMyRecipeResponse {
     private String title;
     private String username;
-    private String intro;
+    private String description;
     private double rating;
     private int hitTotal;
     private int starTotal;
@@ -62,7 +62,7 @@ public class BoardMyRecipeResponse {
         this.title = title;
         this.username = username;
         this.rating = rating;
-        this.intro=intro;
+        this.description=intro;
         this.hitTotal = hitTotal;
         this.starTotal = starTotal;
         this.mainImage = mainImage;
