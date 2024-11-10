@@ -9,6 +9,9 @@ import Fridge_Chef.team.board.rest.request.BoardByRecipeUpdateRequest;
 import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.exception.ErrorCode;
 import Fridge_Chef.team.image.domain.Image;
+import Fridge_Chef.team.ingredient.domain.Ingredient;
+import Fridge_Chef.team.ingredient.repository.IngredientRepository;
+import Fridge_Chef.team.ingredient.repository.RecipeIngredientRepository;
 import Fridge_Chef.team.recipe.domain.RecipeIngredient;
 import Fridge_Chef.team.recipe.repository.RecipeRepository;
 import Fridge_Chef.team.user.domain.User;
@@ -18,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -28,6 +32,8 @@ public class BoardRecipeService {
     private final BoardUserEventRepository boardUserEventRepository;
     private final ContextRepository contextRepository;
     private final RecipeRepository recipeRepository;
+    private final RecipeIngredientRepository recipeIngredientRepository;
+    private final IngredientRepository ingredientRepository;
 
     @Transactional
     public Board create(UserId userId, BoardByRecipeRequest request,
@@ -35,10 +41,22 @@ public class BoardRecipeService {
                         List<Description> descriptions,
                         Image image) {
         User user = findByUserId(userId);
+        List<RecipeIngredient> recipeIngredients = new ArrayList<>();
 
-        Context context = Context.formMyUserRecipe(
+        for(var search : recipeIngredient){
+            Ingredient ingredient =getIngredient(search.getIngredient().getName());
+            recipeIngredients.add(new RecipeIngredient(ingredient,search.getQuantity()));
+        }
+
+        List<Description> descriptionList = new ArrayList<>();
+
+        for(var search: descriptions){
+            descriptionList.add(new Description(search.getDescription(),search.getImage()));
+        }
+
+        Context context = contextRepository.save(Context.formMyUserRecipe(
                 request.getDishTime(), request.getDishLevel(), request.getDishCategory(),
-                recipeIngredient, descriptions);
+                recipeIngredients, descriptionList));
 
         Board board = boardRepository.save(new Board(user, request.getDescription(), request.getName(), context, image, BoardType.USER));
         BoardUserEvent event = new BoardUserEvent(board, user);
@@ -46,6 +64,26 @@ public class BoardRecipeService {
         return board;
     }
 
+    public Ingredient getIngredient(String ingredientName) {
+        return ingredientRepository.findByName(ingredientName)
+                .orElseGet(() -> ingredientRepository.save(new Ingredient(ingredientName)));
+    }
+
+    public List<Description> toDescriptions(List<Description> descriptions) {
+        List<Description> result = new ArrayList<>();
+        for (Description description : descriptions) {
+            result.add(new Description(description.getDescription(), description.getImage()));
+        }
+        return result;
+    }
+
+    public List<RecipeIngredient> toRecipeIngredient(List<RecipeIngredient> recipeIngredients) {
+        List<RecipeIngredient> result = new ArrayList<>();
+        for (RecipeIngredient value : recipeIngredients) {
+            result.add(new RecipeIngredient(value.getIngredient(), value.getQuantity()));
+        }
+        return result;
+    }
     @Transactional
     public Board update(UserId userId, BoardByRecipeUpdateRequest request,
                         List<RecipeIngredient> ingredients, List<Description> descriptions,

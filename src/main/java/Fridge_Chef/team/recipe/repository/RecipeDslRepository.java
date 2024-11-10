@@ -64,21 +64,18 @@ public class RecipeDslRepository {
                 .leftJoin(recipeIngredient.ingredient, ingredient)
                 .groupBy(board, ingredient.name);
 
+        List<String> pick = new ArrayList<>(ingredients);
+        pick.addAll(must);
+        query.where(ingredient.name.in(pick));
+
         if (must != null && !must.isEmpty()) {
             BooleanBuilder mustConditions = new BooleanBuilder();
-            mustConditions.and(ingredient.name.in(must));
-            query.where(mustConditions);
-            log.info("having ");
+            query.where(mustConditions.and(ingredient.name.in(must)));
             query.having(ingredient.name.countDistinct().eq((long) must.size()));
-            log.info("where ");
-        } else {
-            query.where(ingredient.name.in(ingredients));
             log.info("where ");
         }
 
         long totalPage = query.fetch().size();
-        List<String> pick = new ArrayList<>(ingredients);
-        pick.addAll(must);
         applySort(query,request.getSortType(),pick);
 
         List<RecipeSearchResponse> responses = query.fetch()
