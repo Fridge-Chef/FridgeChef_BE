@@ -80,7 +80,7 @@ public class CommentService {
                 .orElseThrow(() -> new ApiException(ErrorCode.COMMENT_NOT_FOUND));
         Board board = comment.getBoard();
 
-        validCommentBoardAuthor(boardId, comment, board);
+        validCommentAuthor(comment, board);
         validCommentUserAuthor(comment, userId);
 
         comment.updateStar(request.star());
@@ -101,7 +101,7 @@ public class CommentService {
                 .orElseThrow(() -> new ApiException(ErrorCode.COMMENT_NOT_FOUND));
         Board board = comment.getBoard();
 
-        validCommentBoardAuthor(boardId, comment, board);
+        validCommentAuthor(comment, board);
         validCommentUserAuthor(comment, userId);
 
         board.updateStar(calculateNewTotalStar(board, -comment.getStar()));
@@ -159,7 +159,7 @@ public class CommentService {
         if(event.isEmpty()){
             Board board =findByBoard(boardId);
             Comment comment = findComment(commentId);
-            validCommentBoardAuthor(boardId,comment,board);
+            validCommentAuthor(comment,board);
             User user = findByUser(userId);
             var userEvent = new CommentUserEvent(board,comment,user);
             userEvent.updateHit();
@@ -195,10 +195,7 @@ public class CommentService {
                 .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
     }
 
-    private void validCommentBoardAuthor(Long boardId, Comment comment, Board board) {
-        if (!boardId.equals(comment.getBoard().getId())) {
-            throw new ApiException(ErrorCode.COMMENT_NOT_BOARD);
-        }
+    private void validCommentAuthor(Comment comment, Board board) {
         if (!comment.getBoard().getId().equals(board.getId())) {
             throw new ApiException(ErrorCode.COMMENT_NOT_BOARD);
         }
