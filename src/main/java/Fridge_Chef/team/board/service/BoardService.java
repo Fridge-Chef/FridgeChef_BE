@@ -164,13 +164,16 @@ public class BoardService {
         filters.add(request.getDescription());
         if(request.getInstructions() != null){
             request.getInstructions().forEach(text -> {
-                filters.add(text.getContent());
+                if(text.getContent() != null){
+                    filters.add(text.getContent());
+                }
             });
         }
         if(request.getRecipeIngredients() != null){
             request.getRecipeIngredients().forEach(text -> {
-                filters.add(text.getName());
-                filters.add(text.getDetails());
+                if(text.getName() != null){
+                    filters.add(""+text.getName()+text.getDetails());
+                }
             });
         }
         BadWordFiltering filtering = new BadWordFiltering();
