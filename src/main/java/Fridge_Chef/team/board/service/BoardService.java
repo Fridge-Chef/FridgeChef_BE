@@ -78,13 +78,13 @@ public class BoardService {
         }
 
         descriptions.forEach(description -> {
-            if(description.getImage() != null || description.getImage().getType().equals(ImageType.ORACLE_CLOUD)){
+            if(description.getImage() != null && description.getImage().getType() != null && description.getImage().getType().equals(ImageType.ORACLE_CLOUD)){
                 imageService.imageRemove(userId, description.getImage().getId());
             }
         });
 
         context.getDescriptions().forEach(description -> {
-            if(description.getImage() != null || description.getImage().getType().equals(ImageType.ORACLE_CLOUD)){
+            if(description.getImage() != null && description.getImage().getType() != null && description.getImage().getType().equals(ImageType.ORACLE_CLOUD)){
                 imageService.imageRemove(userId, description.getImage().getId());
             }
         });

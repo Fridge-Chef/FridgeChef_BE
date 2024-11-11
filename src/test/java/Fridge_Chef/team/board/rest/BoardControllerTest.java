@@ -247,7 +247,7 @@ public class BoardControllerTest extends RestDocControllerTests {
 
         doNothing().when(boardService).delete(any(UserId.class), any(Long.class));
 
-        ResultActions actions = jwtJsonDeleteWhen("/api/board", request);
+        ResultActions actions = jwtJsonDeleteWhen("/api/boards/1", request);
 
         actions.andExpect(status().isOk())
                 .andDo(document("나만의 레시피 삭제",
@@ -276,10 +276,7 @@ public class BoardControllerTest extends RestDocControllerTests {
                 .thenReturn(mockIngredients);
 
         when(boardRecipeService.update(any(UserId.class),
-                any(BoardByRecipeUpdateRequest.class),
-                anyList(),
-                anyList(),
-                any(Image.class)
+                any(BoardByRecipeUpdateRequest.class)
         )).thenReturn(null);
 
         Part idPart = new MockPart("id", "1".getBytes());

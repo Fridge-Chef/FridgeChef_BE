@@ -180,7 +180,8 @@ public class BorderServiceTest {
 
         List<Description> descriptions = boardIngredientService.uploadInstructionImages(user.getUserId(), request);
         List<RecipeIngredient> ingredients = boardIngredientService.findOrCreate(request);
-        boardRecipeService.update(user.getUserId(), request, ingredients, descriptions, mainImage);
+        boardRecipeService.update(user.getUserId(), request);
+
 
         Board after = boardRepository.findById(board.getId()).get();
 
