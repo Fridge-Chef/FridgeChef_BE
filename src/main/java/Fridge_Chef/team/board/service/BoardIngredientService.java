@@ -4,6 +4,7 @@ import Fridge_Chef.team.board.domain.Description;
 import Fridge_Chef.team.board.repository.DescriptionRepository;
 import Fridge_Chef.team.board.rest.request.BoardByRecipeRequest;
 import Fridge_Chef.team.board.rest.request.BoardByRecipeUpdateRequest;
+import Fridge_Chef.team.board.service.request.RecipeIngredientDto;
 import Fridge_Chef.team.image.domain.Image;
 import Fridge_Chef.team.image.service.ImageService;
 import Fridge_Chef.team.ingredient.domain.Ingredient;
@@ -41,14 +42,27 @@ public class BoardIngredientService {
     }
 
     @Transactional
+    public List<RecipeIngredient> findOrCreate(List<RecipeIngredientDto> request) {
+        return request.stream()
+                .map(this::findOrSaveIngredient)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public RecipeIngredient findOrCreate(RecipeIngredientDto request) {
+        return findOrSaveIngredient(request);
+    }
+
+
+    @Transactional
     public List<Description> uploadInstructionImages(UserId userId, BoardByRecipeRequest request) {
-        if(request.getDescriptions() == null){
+        if (request.getDescriptions() == null) {
             return List.of();
         }
         return request.getDescriptions()
                 .stream().map(instruction -> {
-                    if(instruction.getImage() == null){
-                        return  descriptionRepository.save(new Description(instruction.getContent(), null));
+                    if (instruction.getImage() == null) {
+                        return descriptionRepository.save(new Description(instruction.getContent(), null));
                     }
                     Image instructionImage = imageService.imageUpload(userId, instruction.getImage());
                     return descriptionRepository.save(new Description(instruction.getContent(), instructionImage));
@@ -57,37 +71,43 @@ public class BoardIngredientService {
 
     @Transactional
     public List<Description> uploadInstructionImages(UserId userId, BoardByRecipeUpdateRequest request) {
-        return request.getRecipeIngredients()
+        if (request.getInstructions() == null) {
+            return List.of();
+        }
+
+        return request.getInstructions()
                 .stream().map(instruction -> {
-                    Image instructionImage = imageService.uploadImageWithId(userId, request.isMainImageChange(), request.getMainImageId(), request.getMainImage());
-                    Description description = descriptionRepository.findById(instruction.getId())
-                            .orElse(new Description(instruction.getDetails(), instructionImage))
-                            .update(instruction.getDetails(), instructionImage);
-                    return descriptionRepository.save(description);
+                    if (instruction.isImageChange() && instruction.getImage() == null) {
+                        return new Description(instruction.getContent(), null);
+                    }
+                    Image instructionImage = imageService.imageUpload(userId, instruction.getImage());
+                    return new Description(instruction.getContent(), instructionImage);
                 }).collect(Collectors.toList());
     }
 
-    private RecipeIngredient findOrSaveIngredient(BoardByRecipeRequest.RecipeIngredient recipeIngredient) {
-        Ingredient ingredient = updateRecipeIngredient(recipeIngredient.getName());
-        RecipeIngredient findRecipeIngredient = RecipeIngredient.ofMyRecipe(ingredient, recipeIngredient.getDetails());
+
+    private RecipeIngredient findOrSaveIngredient(String name, String details) {
+        Ingredient ingredient = updateRecipeIngredient(name);
+        RecipeIngredient findRecipeIngredient = RecipeIngredient.ofMyRecipe(ingredient, details);
         return recipeIngredientRepository.save(findRecipeIngredient);
     }
 
+
+    private RecipeIngredient findOrSaveIngredient(RecipeIngredientDto dto) {
+        return findOrSaveIngredient(dto.name(), dto.detail());
+    }
+
+    private RecipeIngredient findOrSaveIngredient(BoardByRecipeRequest.RecipeIngredient recipeIngredient) {
+        return findOrSaveIngredient(recipeIngredient.getName(), recipeIngredient.getDetails());
+    }
+
     private RecipeIngredient findOrSaveIngredient(BoardByRecipeUpdateRequest.RecipeIngredient recipeIngredient) {
-        Ingredient ingredient = updateRecipeIngredient(recipeIngredient.getName());
-        RecipeIngredient findRecipeIngredient = updateRecipeDetails(recipeIngredient.getId(), ingredient, recipeIngredient.getDetails());
-        return recipeIngredientRepository.save(findRecipeIngredient);
+        return findOrSaveIngredient(recipeIngredient.getName(), recipeIngredient.getDetails());
     }
 
     private Ingredient updateRecipeIngredient(String name) {
         return ingredientRepository.findByName(name)
                 .orElseGet(() -> saveNewIngredient(name));
-    }
-
-    private RecipeIngredient updateRecipeDetails(Long id, Ingredient ingredient, String details) {
-        return recipeIngredientRepository.findById(id)
-                .orElse(RecipeIngredient.ofMyRecipe(ingredient, details))
-                .update(ingredient, details);
     }
 
     private Ingredient saveNewIngredient(String ingredientName) {

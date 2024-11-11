@@ -6,15 +6,14 @@ import Fridge_Chef.team.board.repository.BoardUserEventRepository;
 import Fridge_Chef.team.board.repository.ContextRepository;
 import Fridge_Chef.team.board.rest.request.BoardByRecipeRequest;
 import Fridge_Chef.team.board.rest.request.BoardByRecipeUpdateRequest;
+import Fridge_Chef.team.board.service.request.RecipeIngredientDto;
 import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.exception.ErrorCode;
 import Fridge_Chef.team.image.domain.Image;
 import Fridge_Chef.team.image.service.ImageService;
-import Fridge_Chef.team.ingredient.domain.Ingredient;
 import Fridge_Chef.team.ingredient.repository.IngredientRepository;
 import Fridge_Chef.team.ingredient.repository.RecipeIngredientRepository;
 import Fridge_Chef.team.recipe.domain.RecipeIngredient;
-import Fridge_Chef.team.recipe.repository.RecipeRepository;
 import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.domain.UserId;
 import Fridge_Chef.team.user.repository.UserRepository;
@@ -23,13 +22,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class BoardRecipeService {
+    private final RecipeIngredientRepository recipeIngredientRepository;
     private final UserRepository userRepository;
     private final BoardRepository boardRepository;
     private final BoardUserEventRepository boardUserEventRepository;
@@ -54,42 +53,51 @@ public class BoardRecipeService {
         Board board = boardRepository.save(new Board(user, request.getDescription(), request.getName(), context, image, BoardType.USER));
         BoardUserEvent event = new BoardUserEvent(board, user);
         boardUserEventRepository.save(event);
-        log.info("레시피 등록 "+ request.getName() +", user "+ user.getUsername());
+        log.info("레시피 등록 " + request.getName() + ", user " + user.getUsername());
         return board;
     }
 
-    public Ingredient getIngredient(String ingredientName) {
-        return ingredientRepository.findByName(ingredientName)
-                .orElseGet(() -> ingredientRepository.save(new Ingredient(ingredientName)));
-    }
 
-    public List<Description> toDescriptions(List<Description> descriptions) {
-        List<Description> result = new ArrayList<>();
-        for (Description description : descriptions) {
-            result.add(new Description(description.getDescription(), description.getImage()));
-        }
-        return result;
-    }
-
-    public List<RecipeIngredient> toRecipeIngredient(List<RecipeIngredient> recipeIngredients) {
-        List<RecipeIngredient> result = new ArrayList<>();
-        for (RecipeIngredient value : recipeIngredients) {
-            result.add(new RecipeIngredient(value.getIngredient(), value.getQuantity()));
-        }
-        return result;
-    }
     @Transactional
-    public Board update(UserId userId, BoardByRecipeUpdateRequest request,
-                        List<RecipeIngredient> ingredients, List<Description> descriptions,
-                        Image mainImage) {
+    public Board update(UserId userId, BoardByRecipeUpdateRequest request) {
+        log.info("레시피 수정 " + request.getTitle() + " 소개 : " + request.getDescription());
+
         findByUserId(userId);
         Board board = boardRepository.findById(request.getId())
                 .orElseThrow(() -> new ApiException(ErrorCode.BOARD_NOT_FOUND));
         validBoardUser(board, userId);
 
-        board.updateMainImage(mainImage);
-        board.updateTitle(request.getTitle());
-        board.updateContext(ingredients, descriptions, request.getDishTime(), request.getDishLevel(), request.getDishCategory());
+        List<Description> descriptions = boardIngredientService.uploadInstructionImages(userId, request);
+        List<RecipeIngredient> myRecipe = board.getContext().getBoardIngredients();
+
+        myRecipe.removeIf(ingredient ->
+                request.getRecipeIngredients().stream()
+                        .noneMatch(recipeIngredient -> recipeIngredient.getName().equals(ingredient.getIngredient().getName()))
+        );
+
+        for (var ingredient : request.getRecipeIngredients()) {
+            boolean isData = false;
+            for (var data : myRecipe) {
+                if (ingredient.getName().equals(data.getIngredient().getName())) {
+                    data.updateQuantity(ingredient.getDetails());
+                    isData = true;
+                    break;
+                }
+            }
+
+            if (!isData) {
+                RecipeIngredient recipeIngredient = boardIngredientService.findOrCreate(new RecipeIngredientDto(ingredient.getName(), ingredient.getDetails()));
+                board.getContext().addRecipeIngredient(recipeIngredient);
+            }
+        }
+
+        if (request.isMainImageChange()) {
+            Image mainImage = imageService.uploadImageWithId(userId, request.isMainImageChange(),
+                    request.getMainImageId(), request.getMainImage());
+            board.updateMainImage(mainImage);
+        }
+
+        board.updateContext(descriptions, request.getDescription(), request.getTitle(), request.getDishTime(), request.getDishLevel(), request.getDishCategory());
         return board;
     }
 

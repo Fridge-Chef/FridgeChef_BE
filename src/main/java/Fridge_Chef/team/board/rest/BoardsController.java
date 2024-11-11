@@ -43,9 +43,11 @@ public class BoardsController {
         boardService.updateUserHit(user.userId(), boardId);
     }
 
-    @PostMapping("/{board_id}/star?")
-    public void star(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable("board_id") Long boardId, BoardStarRequest request) {
-        boardService.updateUserStar(user.userId(), boardId, request);
+
+    @DeleteMapping("/{board_id}")
+    void delete(@AuthenticationPrincipal AuthenticatedUser user,
+                @PathVariable("board_id") Long boardId) {
+        boardService.delete(user.userId(), boardId);
     }
 
     private static UserId openUserId(AuthenticatedUser user) {

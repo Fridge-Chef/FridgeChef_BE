@@ -42,4 +42,8 @@ public class RecipeIngredient {
         this.quantity=details;
         return this;
     }
+
+    public void updateQuantity(String quantity) {
+        this.quantity=quantity;
+    }
 }

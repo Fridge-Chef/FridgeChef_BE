@@ -69,18 +69,20 @@ public class BoardService {
     @Transactional
     public void delete(UserId userId, Long boardId) {
         Board board = findByUserIdAndBoardId(userId, boardId);
-
         Context context = board.getContext();
+
         List<Description> descriptions = context.getDescriptions();
 
         if (!board.isMainImageEmpty() && board.getMainImage().getType().equals(ImageType.ORACLE_CLOUD)) {
             imageService.imageRemove(userId, board.getMainImage().getId());
         }
+
         descriptions.forEach(description -> {
-            if (!description.isImageEmpty() && description.getImage().getType().equals(ImageType.ORACLE_CLOUD)) {
+            if(description.getImage() != null || description.getImage().getType().equals(ImageType.ORACLE_CLOUD)){
                 imageService.imageRemove(userId, description.getImage().getId());
             }
         });
+
         contextRepository.delete(context);
         boardRepository.delete(board);
         log.info("삭제");
@@ -104,7 +106,7 @@ public class BoardService {
 
         int total = filterTotalHit(board);
         board.updateHit(total);
-        log.info("게시글 좋아요 :"+event.getHit() +",총함 :"+total);
+        log.info("게시글 좋아요 :" + event.getHit() + ",총함 :" + total);
         return total;
     }
 

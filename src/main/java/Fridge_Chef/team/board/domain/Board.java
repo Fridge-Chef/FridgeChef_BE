@@ -145,6 +145,13 @@ public class Board extends BaseEntity {
         context.update(ingredients, descriptions,dishTime,dishLevel,dishCategory);
     }
 
+    public void updateContext(List<Description> descriptions, String introduction,String title,String dishTime, String dishLevel, String dishCategory){
+        this.title=title;
+        this.introduction=introduction;
+        context.update(descriptions,dishTime,dishLevel,dishCategory);
+    }
+
+
     public int hitTotalCount() {
         return boardUserEvent.stream()
                 .mapToInt(event -> event.getHit())

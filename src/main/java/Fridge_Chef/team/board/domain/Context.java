@@ -61,16 +61,38 @@ public class Context {
     }
 
     public void update(List<RecipeIngredient> ingredients, List<Description> descriptions, String dishTime, String dishLevel, String dishCategory) {
-        this.boardIngredients = ingredients;
-        this.descriptions = descriptions;
+        this.boardIngredients.clear();
+        this.descriptions.clear();
+        this.boardIngredients.addAll(ingredients);
+        this.descriptions.addAll(descriptions);
         this.dishTime = dishTime;
         this.dishLevel = dishLevel;
         this.dishCategory = dishCategory;
     }
 
-    public void slicePathIngredient(){
+    public void update(List<Description> descriptions, String dishTime, String dishLevel, String dishCategory) {
+        this.descriptions.clear();
+        this.descriptions.addAll(descriptions);
+        this.dishTime = dishTime;
+        this.dishLevel = dishLevel;
+        this.dishCategory = dishCategory;
+    }
+
+
+    public void slicePathIngredient() {
         pathIngredient = boardIngredients.stream()
                 .map(ingredient -> ingredient.getIngredient().getName())
                 .collect(Collectors.joining(","));
+    }
+
+    public void removeAllIngredient() {
+    }
+
+    public void removeRecipeIngredient(RecipeIngredient boardIngredient) {
+        this.boardIngredients.remove(boardIngredient);
+    }
+
+    public void addRecipeIngredient(RecipeIngredient recipeIngredient) {
+        this.boardIngredients.add(recipeIngredient);
     }
 }
