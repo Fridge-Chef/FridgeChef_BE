@@ -10,8 +10,7 @@ import Fridge_Chef.team.recipe.repository.model.RecipeSearchSortType;
 import Fridge_Chef.team.recipe.rest.request.RecipePageRequest;
 import Fridge_Chef.team.recipe.rest.response.RecipeSearchResponse;
 import Fridge_Chef.team.user.domain.UserId;
-import com.querydsl.core.types.Order;
-import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -45,11 +44,7 @@ public class RecipeDslRepository {
     private final JPAQueryFactory factory;
     private final BoardRepository boardRepository;
 
-    /**
-     * must=필수재료, 선택재료
-     * <p>
-     * 정렬 = 검색된 재료카운트에서 내림차순
-     */
+
     @Transactional(readOnly = true)
     public Page<RecipeSearchResponse> findRecipesByIngredients(PageRequest pageable, RecipePageRequest request, List<String> must, List<String> ingredients, Optional<UserId> userId) {
         var query = factory
@@ -60,25 +55,24 @@ public class RecipeDslRepository {
                 .leftJoin(recipeIngredient.ingredient, ingredient)
                 .groupBy(board);
 
-
         List<String> pick = new ArrayList<>(ingredients);
         pick.addAll(must);
-        query.where(recipeIngredient.ingredient.name.in(pick));
-
-        long totalPage = query.fetch().size();
+        BooleanBuilder builder = new BooleanBuilder();
 
         if (must != null && !must.isEmpty()) {
             for (String mu : must) {
-                query.where(recipeIngredient.ingredient.name.in(mu));
+                builder.and(recipeIngredient.ingredient.name.eq(mu));
             }
         }
+        builder.and(recipeIngredient.ingredient.name.in(pick));
+        long totalPage = query.fetch().size();
+        query.where(builder);
 
         applySort(query, request.getSortType());
         List<RecipeSearchResponse> responses = query.fetch()
                 .stream()
                 .map(value -> RecipeSearchResponse.of(value, mergeList(must, ingredients), userId))
                 .toList();
-
         return PageableExecutionUtils.getPage(responses, pageable, () -> totalPage);
     }
 
@@ -89,12 +83,6 @@ public class RecipeDslRepository {
             case LIKE -> query.orderBy(board.hit.desc());
             default -> query.orderBy(board.createTime.desc());
         }
-    }
-
-    private OrderSpecifier[] createOrderSpecifier() {
-        List<OrderSpecifier> orderSpecifiers = new ArrayList<>();
-        orderSpecifiers.add(new OrderSpecifier(Order.DESC, recipeIngredient.ingredient.name.count()));
-        return orderSpecifiers.toArray(new OrderSpecifier[orderSpecifiers.size()]);
     }
 
     @Transactional(readOnly = true)
