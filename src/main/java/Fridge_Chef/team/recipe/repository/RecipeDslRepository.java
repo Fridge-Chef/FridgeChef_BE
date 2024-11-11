@@ -59,16 +59,18 @@ public class RecipeDslRepository {
         pick.addAll(must);
         BooleanBuilder builder = new BooleanBuilder();
 
-        if (must != null && !must.isEmpty()) {
+        if (!must.isEmpty()) {
             for (String mu : must) {
                 builder.and(recipeIngredient.ingredient.name.eq(mu));
             }
         }
         builder.and(recipeIngredient.ingredient.name.in(pick));
+
         long totalPage = query.fetch().size();
         query.where(builder);
 
         applySort(query, request.getSortType());
+
         List<RecipeSearchResponse> responses = query.fetch()
                 .stream()
                 .map(value -> RecipeSearchResponse.of(value, mergeList(must, ingredients), userId))
@@ -78,7 +80,7 @@ public class RecipeDslRepository {
 
     private void applySort(JPAQuery<Board> query, RecipeSearchSortType sortType) {
         switch (sortType) {
-            case MATCH -> query.orderBy(recipeIngredient.ingredient.countDistinct().desc());
+            case MATCH -> query.orderBy(recipeIngredient.ingredient.name.count().desc());
             case RATING -> query.orderBy(board.totalStar.desc());
             case LIKE -> query.orderBy(board.hit.desc());
             default -> query.orderBy(board.createTime.desc());
