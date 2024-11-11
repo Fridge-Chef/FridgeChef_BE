@@ -16,7 +16,6 @@ import Fridge_Chef.team.image.service.ImageService;
 import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.domain.UserId;
 import Fridge_Chef.team.user.repository.UserRepository;
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -126,24 +125,24 @@ public class CommentService {
                 });
 
         List<CommentResponse> responses = comments.stream()
-                .map(entity -> CommentResponse.fromEntity(entity,user))
+                .map(entity -> CommentResponse.fromEntity(entity, user))
                 .toList();
 
         return new PageImpl<>(responses, pageable, responses.size());
     }
 
-    public CommentResponse getCommentsByBoard(Long boardId, Long commentId,Optional<UserId> user) {
+    @Transactional(readOnly = true)
+    public CommentResponse getCommentsByBoard(Long boardId, Long commentId, Optional<UserId> user) {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new ApiException(ErrorCode.BOARD_NOT_FOUND));
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ApiException(ErrorCode.COMMENT_NOT_FOUND));
-        return CommentResponse.fromEntity(comment,user);
+        return CommentResponse.fromEntity(comment, user);
 
     }
 
     @Transactional
     public int updateHit(Long boardId, Long commentId, UserId userId) {
-
         Board board = findByBoard(boardId);
         Comment comment = findComment(commentId);
 
@@ -157,17 +156,26 @@ public class CommentService {
             userEvent.updateHit();
             var commentUserEvent = commentUserEventRepository.save(userEvent);
             comment.addUserEvent(commentUserEvent);
-            log.info("좋아요 클릭 + "+commentUserEvent.getHit());
-            int total =commentUserEvent.getComments().getCommentUserEvent().stream().filter(v -> v.getHit() ==1).toList().size();
+            log.info("좋아요 클릭 + " + commentUserEvent.getHit());
+            int total = commentUserEvent.getComments().getCommentUserEvent().stream().filter(v -> v.getHit() == 1).toList().size();
             comment.updateHit(total);
-        }else{
-            log.info("이력 있을시 내 좋아요 카운트 "+event.get().getHit());
-            var eventUser = event.get();
-            int total = eventUser.getComments().getCommentUserEvent().stream().filter(v -> v.getHit() ==1).toList().size();
+        } else {
+            log.info("이력 있을시 내 좋아요 카운트 " + event.get().getHit());
+            int total =filterTotalHit(event.get().getComments());
             comment.updateHit(total);
         }
+        log.info(" 댓글 "+commentId +"+ 좋아요 : "+comment.getTotalHit());
         return comment.getTotalHit();
     }
+
+    private int filterTotalHit(Comment comment){
+        return comment.getCommentUserEvent()
+                .stream()
+                .filter(v -> v.getHit() == 1)
+                .toList()
+                .size();
+    }
+
 
     private Comment findComment(Long commentId) {
         return commentRepository.findById(commentId)
