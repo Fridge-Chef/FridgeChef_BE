@@ -156,19 +156,16 @@ public class CommentService {
             userEvent.updateHit();
             var commentUserEvent = commentUserEventRepository.save(userEvent);
             comment.addUserEvent(commentUserEvent);
-            log.info("좋아요 클릭 + " + commentUserEvent.getHit());
-            int total = commentUserEvent.getComments().getCommentUserEvent().stream().filter(v -> v.getHit() == 1).toList().size();
-            comment.updateHit(total);
+            comment.updateHit(filterTotalHit((commentUserEvent.getComments())));
+            log.info("댓글 처음 좋아요 "+commentId+" , 카운트 " + commentUserEvent.getHit());
         } else {
-            log.info("이력 있을시 내 좋아요 카운트 " + event.get().getHit());
-            int total =filterTotalHit(event.get().getComments());
-            comment.updateHit(total);
+            comment.updateHit( filterTotalHit(event.get().getComments()));
+            log.info("댓글 좋아요 "+commentId+" ,카운트 " + event.get().getHit());
         }
-        log.info(" 댓글 "+commentId +"+ 좋아요 : "+comment.getTotalHit());
         return comment.getTotalHit();
     }
 
-    private int filterTotalHit(Comment comment){
+    private int filterTotalHit(Comment comment) {
         return comment.getCommentUserEvent()
                 .stream()
                 .filter(v -> v.getHit() == 1)
