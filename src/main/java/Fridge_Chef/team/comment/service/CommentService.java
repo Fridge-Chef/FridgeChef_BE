@@ -43,43 +43,39 @@ public class CommentService {
     public Comment addComment(Long boardId, UserId userId, CommentCreateRequest request) {
         Board board = findByBoard(boardId);
         User user = findByUser(userId);
-        List<Image> images = new ArrayList<>();
-
-        if (request.images() != null) {
-            log.info("comment image size :" + request.images().size());
-            images = imageService.imageUploads(userId, request.images());
-        }
+        List<Image> images = request.images() != null ? imageService.imageUploads(userId, request.images()) : new ArrayList<>();
 
         Optional<Comment> existingComment = board.getComments()
                 .stream()
                 .filter(comment -> comment.getUsers().getUserId().equals(userId))
                 .findFirst();
 
+        log.info("댓글 등록 board:" + boardId + " , userid:" + userId + ", message :" + request.comment());
+
         for (var img : images) {
             log.info("add comment img :" + img.getId() + " " + img.getLink());
         }
 
-        log.info("댓글 등록 board:" + boardId + " , userid:" + userId + ", message :" + request.comment());
         if (existingComment.isPresent()) {
             Comment commentToUpdate = existingComment.get();
             commentToUpdate.updateImage(images);
             commentToUpdate.updateComment(request.comment());
             commentToUpdate.updateStar(request.star());
             return commentRepository.save(commentToUpdate);
-        } else {
-            Comment newComment = new Comment(board, user, images, request.comment(), request.star());
-            board.updateStar(calculateNewTotalStar(board, request.star()));
-            return commentRepository.save(newComment);
         }
+
+        Comment newComment = new Comment(board, user, images, request.comment(), request.star());
+        board.updateStar(calculateNewTotalStar(board, request.star()));
+        return commentRepository.save(newComment);
+
     }
 
     @Transactional
     public Comment updateComment(Long boardId, Long commentId, UserId userId, CommentUpdateRequest request) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ApiException(ErrorCode.COMMENT_NOT_FOUND));
-        Board board = comment.getBoard();
 
-        validCommentAuthor(comment, board);
+        validCommentAuthor(comment, boardId);
         validCommentUserAuthor(comment, userId);
 
         comment.updateStar(request.star());
@@ -100,11 +96,12 @@ public class CommentService {
                 .orElseThrow(() -> new ApiException(ErrorCode.COMMENT_NOT_FOUND));
         Board board = comment.getBoard();
 
-        validCommentAuthor(comment, board);
+        validCommentAuthor(comment, boardId);
         validCommentUserAuthor(comment, userId);
 
         board.updateStar(calculateNewTotalStar(board, -comment.getStar()));
         commentRepository.delete(comment);
+        log.info("댓글 삭제 성공 - board id :" + boardId +" , comment id :"+commentId +" , user id :"+userId);
     }
 
 
@@ -138,7 +135,6 @@ public class CommentService {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ApiException(ErrorCode.COMMENT_NOT_FOUND));
         return CommentResponse.fromEntity(comment, user);
-
     }
 
     @Transactional
@@ -150,18 +146,20 @@ public class CommentService {
         event.ifPresent(CommentUserEvent::updateHit);
 
         log.info("내 좋아요 이력  :" + event.isPresent());
+
         if (event.isEmpty()) {
-            User user = findByUser(userId);
-            var userEvent = new CommentUserEvent(board, comment, user);
+            var userEvent = new CommentUserEvent(board, comment, findByUser(userId));
             userEvent.updateHit();
+
             var commentUserEvent = commentUserEventRepository.save(userEvent);
             comment.addUserEvent(commentUserEvent);
             comment.updateHit(filterTotalHit((commentUserEvent.getComments())));
-            log.info("댓글 처음 좋아요 "+commentId+" , 카운트 " + commentUserEvent.getHit());
+            log.info("댓글 처음 좋아요 " + commentId + " , 카운트 " + commentUserEvent.getHit());
         } else {
-            comment.updateHit( filterTotalHit(event.get().getComments()));
-            log.info("댓글 좋아요 "+commentId+" ,카운트 " + event.get().getHit());
+            comment.updateHit(filterTotalHit(event.get().getComments()));
+            log.info("댓글 좋아요 " + commentId + " ,카운트 " + event.get().getHit());
         }
+
         return comment.getTotalHit();
     }
 
@@ -198,8 +196,8 @@ public class CommentService {
                 .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
     }
 
-    private void validCommentAuthor(Comment comment, Board board) {
-        if (!comment.getBoard().getId().equals(board.getId())) {
+    private void validCommentAuthor(Comment comment, Long boardId) {
+        if (!comment.getBoard().getId().equals(boardId)) {
             throw new ApiException(ErrorCode.COMMENT_NOT_BOARD);
         }
     }
@@ -209,5 +207,4 @@ public class CommentService {
             throw new ApiException(ErrorCode.COMMENT_NOT_USER_AUTHOR);
         }
     }
-
 }
