@@ -19,10 +19,8 @@ public class CommentUserEvent extends BaseEntity {
     @Column(name = "id")
     private Long id;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn
     private Board board;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn
     private Comment comments;
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;

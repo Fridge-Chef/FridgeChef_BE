@@ -100,4 +100,8 @@ public class Comment extends BaseEntity {
     public void updateComments(List<Image> images) {
         this.commentImage=images;
     }
+
+    public void addUserEvent(CommentUserEvent commentUserEvent) {
+        this.commentUserEvent.add(commentUserEvent);
+    }
 }

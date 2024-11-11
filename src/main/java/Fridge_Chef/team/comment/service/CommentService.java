@@ -16,6 +16,7 @@ import Fridge_Chef.team.image.service.ImageService;
 import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.domain.UserId;
 import Fridge_Chef.team.user.repository.UserRepository;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -142,26 +143,29 @@ public class CommentService {
 
     @Transactional
     public int updateHit(Long boardId, Long commentId, UserId userId) {
+
         Board board = findByBoard(boardId);
         Comment comment = findComment(commentId);
 
         Optional<CommentUserEvent> event = commentUserEventRepository.findByBoardIdAndCommentsIdAndUserUserId(boardId, commentId, userId);
         event.ifPresent(CommentUserEvent::updateHit);
 
+        log.info("내 좋아요 이력  :" + event.isPresent());
         if (event.isEmpty()) {
             User user = findByUser(userId);
             var userEvent = new CommentUserEvent(board, comment, user);
             userEvent.updateHit();
-            commentUserEventRepository.save(userEvent);
+            var commentUserEvent = commentUserEventRepository.save(userEvent);
+            comment.addUserEvent(commentUserEvent);
+            log.info("좋아요 클릭 + "+commentUserEvent.getHit());
+            int total =commentUserEvent.getComments().getCommentUserEvent().stream().filter(v -> v.getHit() ==1).toList().size();
+            comment.updateHit(total);
+        }else{
+            log.info("이력 있을시 내 좋아요 카운트 "+event.get().getHit());
+            var eventUser = event.get();
+            int total = eventUser.getComments().getCommentUserEvent().stream().filter(v -> v.getHit() ==1).toList().size();
+            comment.updateHit(total);
         }
-
-        int sum = findComment(commentId)
-                .getCommentUserEvent()
-                .stream()
-                .mapToInt(CommentUserEvent::getHit)
-                .sum();
-
-        comment.updateHit(sum);
         return comment.getTotalHit();
     }
 
