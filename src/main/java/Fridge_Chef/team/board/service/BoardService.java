@@ -83,6 +83,12 @@ public class BoardService {
             }
         });
 
+        context.getDescriptions().forEach(description -> {
+            if(description.getImage() != null || description.getImage().getType().equals(ImageType.ORACLE_CLOUD)){
+                imageService.imageRemove(userId, description.getImage().getId());
+            }
+        });
+
         contextRepository.delete(context);
         boardRepository.delete(board);
         log.info("삭제");
