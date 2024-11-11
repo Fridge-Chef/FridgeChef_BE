@@ -38,7 +38,7 @@ public class BoardsController {
         return boardService.findMyRecipes(userId, new BoardPageRequest(page, size, issue, sort));
     }
 
-    @PostMapping("/{board_id}/hit")
+    @PatchMapping("/{board_id}/like")
     public void hit(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable("board_id") Long boardId) {
         boardService.updateUserHit(user.userId(), boardId);
     }
