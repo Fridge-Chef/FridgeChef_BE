@@ -16,7 +16,6 @@ import Fridge_Chef.team.image.service.ImageService;
 import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.domain.UserId;
 import Fridge_Chef.team.user.repository.UserRepository;
-import Fridge_Chef.team.user.rest.model.AuthenticatedUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -108,52 +107,41 @@ public class CommentService {
         commentRepository.delete(comment);
     }
 
-    @Transactional(readOnly = true)
-    public List<CommentResponse> getCommentsByBoard(Long boardId) {
-        Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new ApiException(ErrorCode.BOARD_NOT_FOUND));
-        return commentRepository.findAllByBoard(board)
-                .stream()
-                .map(CommentResponse::fromEntity)
-                .toList();
-    }
 
     @Transactional(readOnly = true)
-    public Page<CommentResponse> getCommentsByBoard(Long boardId, int page, int size, Optional<AuthenticatedUser> user) {
+    public Page<CommentResponse> getCommentsByBoards(Long boardId, int page, int size, Optional<UserId> user) {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new ApiException(ErrorCode.BOARD_NOT_FOUND));
 
         PageRequest pageable = PageRequest.of(page, size);
         List<Comment> comments = commentRepository.findAllByBoard(board);
 
-        user.map(AuthenticatedUser::userId)
-                .flatMap(userId -> comments.stream()
+        user.flatMap(userId -> comments.stream()
                         .filter(comment -> comment.getUsers().getUserId().equals(userId))
-                        .findFirst()).ifPresent(userComment -> {
+                        .findFirst())
+                .ifPresent(userComment -> {
                     comments.remove(userComment);
                     comments.add(0, userComment);
                 });
 
         List<CommentResponse> responses = comments.stream()
-                .map(CommentResponse::fromEntity)
+                .map(entity -> CommentResponse.fromEntity(entity,user))
                 .toList();
 
         return new PageImpl<>(responses, pageable, responses.size());
     }
 
-    @Transactional(readOnly = true)
-    public CommentResponse getCommentsByBoard(Long boardId, Long commentId) {
+    public CommentResponse getCommentsByBoard(Long boardId, Long commentId,Optional<UserId> user) {
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new ApiException(ErrorCode.BOARD_NOT_FOUND));
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ApiException(ErrorCode.COMMENT_NOT_FOUND));
-        if (!comment.getBoard().getId().equals(boardId)) {
-            throw new ApiException(ErrorCode.COMMENT_NOT_BOARD);
-        }
-        return CommentResponse.fromEntity(comment);
+        return CommentResponse.fromEntity(comment,user);
+
     }
 
-
     @Transactional
-    public void updateHit(Long boardId, Long commentId, UserId userId) {
+    public int updateHit(Long boardId, Long commentId, UserId userId) {
         Board board = findByBoard(boardId);
         Comment comment = findComment(commentId);
 
@@ -161,7 +149,6 @@ public class CommentService {
         event.ifPresent(CommentUserEvent::updateHit);
 
         if (event.isEmpty()) {
-            validCommentAuthor(comment, board);
             User user = findByUser(userId);
             var userEvent = new CommentUserEvent(board, comment, user);
             userEvent.updateHit();
@@ -175,6 +162,7 @@ public class CommentService {
                 .sum();
 
         comment.updateHit(sum);
+        return comment.getTotalHit();
     }
 
     private Comment findComment(Long commentId) {

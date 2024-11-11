@@ -1,6 +1,7 @@
 package Fridge_Chef.team.comment.rest;
 
 import Fridge_Chef.team.comment.rest.request.CommentUpdateRequest;
+import Fridge_Chef.team.comment.rest.response.CommentLikeResponse;
 import Fridge_Chef.team.comment.rest.response.CommentResponse;
 import Fridge_Chef.team.comment.service.CommentService;
 import Fridge_Chef.team.user.rest.model.AuthenticatedUser;
@@ -25,14 +26,15 @@ public class CommentsController {
             @PathVariable("board_id") Long boardId,
             @RequestParam(defaultValue = "0", required = false) int page,
             @RequestParam(defaultValue = "30", required = false) int size) {
-        return commentService.getCommentsByBoard(boardId, page, size, Optional.ofNullable(user));
+        return commentService.getCommentsByBoards(boardId, page, size,AuthenticatedUser.anonymousUser(user));
     }
 
     @GetMapping("/{comment_id}")
     public CommentResponse getComments(
+            @AuthenticationPrincipal AuthenticatedUser user,
             @PathVariable("board_id") Long boardId,
             @PathVariable("comment_id") Long commentId) {
-        return commentService.getCommentsByBoard(boardId, commentId);
+        return commentService.getCommentsByBoard(boardId, commentId,AuthenticatedUser.anonymousUser(user));
     }
 
 
@@ -54,10 +56,10 @@ public class CommentsController {
     }
 
     @PatchMapping("/{comment_id}/like")
-    public void addLike(
+    public CommentLikeResponse addLike(
             @AuthenticationPrincipal AuthenticatedUser user,
             @PathVariable("board_id") Long boardId,
             @PathVariable("comment_id") Long commentId) {
-        commentService.updateHit(boardId, commentId, user.userId());
+        return new CommentLikeResponse(commentService.updateHit(boardId, commentId, user.userId()));
     }
 }

@@ -119,7 +119,7 @@ public class CommentServiceTest {
         when(boardRepository.findById(anyLong())).thenReturn(Optional.of(board));
         when(commentRepository.findAllByBoard(any(Board.class))).thenReturn(List.of(comment));
 
-        Page<CommentResponse> comments = commentService.getCommentsByBoard(1L, 0,10,Optional.of(new AuthenticatedUser(UserId.create(), Role.USER)));
+        Page<CommentResponse> comments = commentService.getCommentsByBoards(1L, 0,50, Optional.of(new AuthenticatedUser(UserId.create(), Role.USER).userId()));
 
         assertNotNull(comments);
         assertEquals(1, comments.getTotalElements());

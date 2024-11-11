@@ -159,7 +159,7 @@ public class CommentsControllerTest extends RestDocControllerTests {
     @Test
     @DisplayName("전체조회")
     void testGetAllComments() throws Exception {
-        when(commentService.getCommentsByBoard(anyLong(), anyInt(), anyInt(), any(Optional.class))).thenReturn(getAllCommentsProvider());
+        when(commentService.getCommentsByBoards(anyLong(), anyInt(),anyInt(), any(Optional.class))).thenReturn(getAllCommentsProvider());
 
         ResultActions result = jwtGetPathWhen("/api/boards/{board_id}/comments?page=0&size=30", 1);
 
@@ -177,6 +177,7 @@ public class CommentsControllerTest extends RestDocControllerTests {
                                 fieldWithPath("content[].id").description("ID"),
                                 fieldWithPath("content[].comments").description("후기 내용"),
                                 fieldWithPath("content[].like").description("좋아요 수 "),
+                                fieldWithPath("content[].myHit").description("내 좋아요 여부 "),
                                 fieldWithPath("content[].star").description("별점"),
                                 fieldWithPath("content[].userName").description("사용자 이름"),
                                 fieldWithPath("content[].imageLink[]").description("이미지 주소"),
@@ -192,7 +193,7 @@ public class CommentsControllerTest extends RestDocControllerTests {
     @Test
     @DisplayName("단일 조회")
     void getComment() throws Exception {
-        when(commentService.getCommentsByBoard(anyLong(), anyLong()))
+        when(commentService.getCommentsByBoard(anyLong(), anyLong(),any(Optional.class)))
                 .thenReturn(getAllCommentsProvider().getContent().get(0));
 
         ResultActions result = jwtGetPathWhen("/api/boards/{board_id}/comments/{comment_id}", 1, 1);
@@ -207,6 +208,7 @@ public class CommentsControllerTest extends RestDocControllerTests {
                                 fieldWithPath("id").description(" ID"),
                                 fieldWithPath("comments").description("내용"),
                                 fieldWithPath("like").description("좋아요 수 "),
+                                fieldWithPath("myHit").description("내 좋아요 여부"),
                                 fieldWithPath("star").description("별점"),
                                 fieldWithPath("userName").description("사용자 이름"),
                                 fieldWithPath("imageLink[]").description("이미지 주소"),
@@ -217,8 +219,8 @@ public class CommentsControllerTest extends RestDocControllerTests {
 
     private static Page<CommentResponse> getAllCommentsProvider() {
         return new PageImpl<>(List.of(
-                new CommentResponse(1L, "후기 내용", 4.5, 1, "User1", List.of("test.png"), 1L, LocalDateTime.now()),
-                new CommentResponse(2L, "또 다른 후기", 5.0, 1, "User2", List.of("test.png", "test2.png"), 1L, LocalDateTime.now())
+                new CommentResponse(1L, "후기 내용", 4.5, 1, false,"User1", List.of("test.png"), 1L, LocalDateTime.now()),
+                new CommentResponse(2L, "또 다른 후기", 5.0, 1,false, "User2", List.of("test.png", "test2.png"), 1L, LocalDateTime.now())
         ), PageRequest.of(0, 10), 2);
     }
 }
