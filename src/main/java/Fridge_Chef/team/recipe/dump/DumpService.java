@@ -152,7 +152,6 @@ public class DumpService {
     private void saveRecipeWithIngredients(Recipe recipe) {
 
         for (RecipeIngredient recipeIngredient : recipe.getRecipeIngredients()) {
-            recipeIngredient.setRecipe(recipe);
 
             Ingredient ingredient = recipeIngredient.getIngredient();
             Optional<Ingredient> existingIngredient = ingredientRepository.findByName(ingredient.getName());

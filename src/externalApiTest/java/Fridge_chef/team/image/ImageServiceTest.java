@@ -105,9 +105,9 @@ public class ImageServiceTest extends FridgeChefApplicationApiTest {
         Image image = imageService.imageUpload(user.getUserId(), body);
         String path = url + upload + image.getName();
 
-        assertThat(isUrlConnect(path)).isTrue();
-
         imageService.imageRemove(user.getUserId(), image.getId());
+
+        assertThat(isUrlConnect(path)).isFalse();
     }
 
     @Test

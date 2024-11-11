@@ -33,10 +33,8 @@ import static Fridge_Chef.team.recipe.domain.QRecipe.recipe;
 import static Fridge_Chef.team.recipe.domain.QRecipeIngredient.recipeIngredient;
 
 /**
- *
  * 100개 레시피 단어 검색 [ 성능 최적화 기록 ]
-     * 기존 단어만 검색시 Time: 1262ms (1 s 262 ms) ~ 1294ms (1 s 294 ms);
- *
+ * 기존 단어만 검색시 Time: 1262ms (1 s 262 ms) ~ 1294ms (1 s 294 ms);
  */
 @Slf4j
 @Repository
@@ -45,10 +43,8 @@ public class RecipeDslRepository {
 
     private final JPAQueryFactory factory;
     private final BoardRepository boardRepository;
-/*
 
 
- */
     @Transactional(readOnly = true)
     public Page<RecipeSearchResponse> findRecipesByIngredients(PageRequest pageable, RecipePageRequest request, List<String> must, List<String> ingredients, Optional<UserId> userId) {
         var query = factory
@@ -57,45 +53,34 @@ public class RecipeDslRepository {
                 .limit(pageable.getPageSize())
                 .leftJoin(board.context.boardIngredients, recipeIngredient)
                 .leftJoin(recipeIngredient.ingredient, ingredient)
-                .groupBy(board, ingredient.name);
+                .groupBy(board);
 
-        log.info("select ");
-        if (must != null && !must.isEmpty()) {
-            BooleanBuilder mustConditions = new BooleanBuilder();
-            mustConditions.and(ingredient.name.in(must));
-            query.where(mustConditions);
-            log.info("having ");
-            query.having(ingredient.name.countDistinct().eq((long) must.size()));
-            log.info("where ");
-        } else {
-            query.where(ingredient.name.in(ingredients));
-            log.info("where ");
+        List<String> pick = new ArrayList<>(ingredients);
+        pick.addAll(must);
+        BooleanBuilder builder = new BooleanBuilder();
+
+        if (!must.isEmpty()) {
+            for (String mu : must) {
+                builder.and(recipeIngredient.ingredient.name.eq(mu));
+            }
         }
+        builder.and(recipeIngredient.ingredient.name.in(pick));
 
-        List<String> pick = new ArrayList<>(must);
-        pick.addAll(ingredients);
-
-        query.orderBy(recipeIngredient.ingredient.name.desc());
-
-        log.info("total page ");
         long totalPage = query.fetch().size();
+        query.where(builder);
+
         applySort(query, request.getSortType());
-        log.info("sort");
 
         List<RecipeSearchResponse> responses = query.fetch()
                 .stream()
                 .map(value -> RecipeSearchResponse.of(value, mergeList(must, ingredients), userId))
                 .toList();
-
         return PageableExecutionUtils.getPage(responses, pageable, () -> totalPage);
     }
 
     private void applySort(JPAQuery<Board> query, RecipeSearchSortType sortType) {
-
         switch (sortType) {
-            case MATCH -> {
-                break;
-            }
+            case MATCH -> query.orderBy(recipeIngredient.ingredient.name.count().desc());
             case RATING -> query.orderBy(board.totalStar.desc());
             case LIKE -> query.orderBy(board.hit.desc());
             default -> query.orderBy(board.createTime.desc());

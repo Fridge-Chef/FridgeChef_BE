@@ -16,6 +16,7 @@ import Fridge_Chef.team.user.domain.UserId;
 import Fridge_Chef.team.user.repository.UserRepository;
 import com.vane.badwordfiltering.BadWordFiltering;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BoardService {
@@ -57,7 +59,7 @@ public class BoardService {
 
     @Transactional(readOnly = true)
     public Page<BoardMyRecipePageResponse> findMyRecipes(UserId userId, BoardPageRequest request) {
-        if(request.getSize() > 50){
+        if (request.getSize() > 50) {
             throw new ApiException(ErrorCode.VALID_SIZE_50);
         }
         var page = PageRequest.of(request.getPage(), request.getSize());
@@ -67,20 +69,29 @@ public class BoardService {
     @Transactional
     public void delete(UserId userId, Long boardId) {
         Board board = findByUserIdAndBoardId(userId, boardId);
-
         Context context = board.getContext();
+
         List<Description> descriptions = context.getDescriptions();
 
         if (!board.isMainImageEmpty() && board.getMainImage().getType().equals(ImageType.ORACLE_CLOUD)) {
             imageService.imageRemove(userId, board.getMainImage().getId());
         }
+
         descriptions.forEach(description -> {
-            if (!description.isImageEmpty() && description.getImage().getType().equals(ImageType.ORACLE_CLOUD)) {
+            if(description.getImage() != null && description.getImage().getType() != null && description.getImage().getType().equals(ImageType.ORACLE_CLOUD)){
                 imageService.imageRemove(userId, description.getImage().getId());
             }
         });
+
+        context.getDescriptions().forEach(description -> {
+            if(description.getImage() != null && description.getImage().getType() != null && description.getImage().getType().equals(ImageType.ORACLE_CLOUD)){
+                imageService.imageRemove(userId, description.getImage().getId());
+            }
+        });
+
         contextRepository.delete(context);
         boardRepository.delete(board);
+        log.info("삭제");
     }
 
 
@@ -91,24 +102,26 @@ public class BoardService {
     }
 
     @Transactional
-    public void updateUserHit(UserId userId, Long boardId) {
+    public int updateUserHit(UserId userId, Long boardId) {
         Board board = findById(boardId);
-        User user = userRepository.findByUserId_Value(userId.getValue())
+        User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
 
-        BoardUserEvent evnet = getUserEvent(user, board);
+        var event = getUserEvent(user, board);
+        event.hitUp();
 
-        evnet.hitUp();
-        if (evnet.getHit() == 0 && evnet.getStar() == 0) {
-            boardUserEventRepository.deleteById(evnet.getId());
-        }
+        int total = filterTotalHit(board);
+        board.updateHit(total);
+        log.info("게시글 좋아요 :" + event.getHit() + ",총함 :" + total);
+        return total;
+    }
 
-        int hit = board.getBoardUserEvent()
+    private int filterTotalHit(Board board) {
+        return board.getBoardUserEvent()
                 .stream()
-                .mapToInt(BoardUserEvent::getHit)
-                .sum();
-
-        board.updateHit(hit);
+                .filter(v -> v.getHit() == 1)
+                .toList()
+                .size();
     }
 
     @Transactional
@@ -150,25 +163,33 @@ public class BoardService {
         return board;
     }
 
-
     private BoardUserEvent getUserEvent(User user, Board board) {
-        return board.getBoardUserEvent().stream()
+        BoardUserEvent event = board.getBoardUserEvent().stream()
                 .filter(events -> events.getUser() != null && events.getUser().getUserId().equals(user.getUserId()))
                 .findAny()
-                .orElse(new BoardUserEvent(board, user));
+                .orElse(boardUserEventRepository.save(new BoardUserEvent(board, user)));
+        board.addUserEvent(event);
+        return event;
     }
 
     public void textFilterPolicy(BoardByRecipeRequest request) {
         List<String> filters = new ArrayList<>();
         filters.add(request.getName());
         filters.add(request.getDescription());
-        request.getInstructions().forEach(text -> {
-            filters.add(text.getContent());
-        });
-        request.getRecipeIngredients().forEach(text -> {
-            filters.add(text.getName());
-            filters.add(text.getDetails());
-        });
+        if (request.getDescriptions() != null) {
+            request.getDescriptions().forEach(text -> {
+                if (text.getContent() != null) {
+                    filters.add(text.getContent());
+                }
+            });
+        }
+        if (request.getRecipeIngredients() != null) {
+            request.getRecipeIngredients().forEach(text -> {
+                if (text.getName() != null) {
+                    filters.add("" + text.getName() + text.getDetails());
+                }
+            });
+        }
         BadWordFiltering filtering = new BadWordFiltering();
         filters.stream()
                 .filter(filtering::check)

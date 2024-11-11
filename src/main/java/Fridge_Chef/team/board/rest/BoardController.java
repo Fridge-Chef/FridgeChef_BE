@@ -35,32 +35,12 @@ public class BoardController {
             @AuthenticationPrincipal AuthenticatedUser user,
             @Valid @ModelAttribute BoardByRecipeRequest request
     ) {
-        boardService.textFilterPolicy(request);
-
-        Image image = imageService.imageUpload(user.userId(), request.getMainImage());
-
-        List<Description> descriptions = boardIngredientService.uploadInstructionImages(user.userId(), request);
-        List<RecipeIngredient> ingredients = boardIngredientService.findOrCreate(request);
-
-        boardRecipeService.create(user.userId(), request, ingredients, descriptions, image);
+        boardRecipeService.create(user.userId(), request);
     }
 
     @PutMapping
     void update(@AuthenticationPrincipal AuthenticatedUser user,
                 @Valid @ModelAttribute BoardByRecipeUpdateRequest request) {
-
-        Image mainImage = imageService.uploadImageWithId(user.userId(), request.isMainImageChange(),
-                request.getMainImageId(), request.getMainImage());
-
-        List<Description> descriptions = boardIngredientService.uploadInstructionImages(user.userId(), request);
-        List<RecipeIngredient> ingredients = boardIngredientService.findOrCreate(request);
-
-        boardRecipeService.update(user.userId(), request, ingredients, descriptions, mainImage);
-    }
-
-    @DeleteMapping
-    void delete(@AuthenticationPrincipal AuthenticatedUser user,
-                @RequestBody BoardByRecipeDeleteRequest request) {
-        boardService.delete(user.userId(), request.id());
+        boardRecipeService.update(user.userId(), request);
     }
 }

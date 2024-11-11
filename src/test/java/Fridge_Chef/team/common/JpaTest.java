@@ -32,7 +32,7 @@ import java.util.Random;
 
 
 public class JpaTest extends QueryDslTest {
-    private static Random random = new Random();
+    protected static Random random = new Random();
     @Autowired
     protected UserRepository userRepository;
     @Autowired
@@ -46,13 +46,13 @@ public class JpaTest extends QueryDslTest {
     @Autowired
     protected IngredientRepository ingredientRepository;
     @Autowired
-    private DescriptionRepository descriptionRepository;
+    protected DescriptionRepository descriptionRepository;
     @Autowired
-    private RecipeIngredientRepository recipeIngredientRepository;
+    protected RecipeIngredientRepository recipeIngredientRepository;
     @Autowired
-    private CommentRepository commentRepository;
+    protected CommentRepository commentRepository;
     @Autowired
-    private BoardUserEventRepository boardUserEventRepository;
+    protected BoardUserEventRepository boardUserEventRepository;
 
     @Rollback(false)
     @Transactional

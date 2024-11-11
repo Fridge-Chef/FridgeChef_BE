@@ -1,5 +1,6 @@
 package Fridge_Chef.team.board.rest.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -32,7 +33,9 @@ public class BoardByRecipeRequest {
     private List<RecipeIngredient> recipeIngredients;
 
     @Size(min = 1, max = 30, message = "설명은 1~30개 까지 가능합니다.")
-    private List<Instructions> instructions;
+    @JsonProperty("descriptions")
+    private List<Instructions> descriptions;
+
 
     @Getter
     @Setter

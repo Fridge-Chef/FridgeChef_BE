@@ -74,10 +74,9 @@ public class CommentServiceTest {
     @DisplayName("댓글 추가 - 성공")
     void addComment_Success() {
         CommentCreateRequest request = new CommentCreateRequest("Test Comment", null, 4.0);
-        List<MultipartFile> files = List.of(new MockMultipartFile("test", "test.png".getBytes()));
         when(boardRepository.findById(anyLong())).thenReturn(Optional.of(board));
         when(userRepository.findByUserId_Value(any(UUID.class))).thenReturn(Optional.of(user));
-        when(imageService.imageUploads(any(UserId.class), isNull())).thenReturn(List.of(ImageFixture.create()));
+//        when(imageService.imageUploads(any(UserId.class), isNull())).thenReturn(List.of(ImageFixture.create()));
         when(commentRepository.save(any(Comment.class))).thenReturn(comment);
 
         Comment result = commentService.addComment(1L, UserFixture.create("tests@gmail.com").getUserId(), request);
@@ -120,7 +119,7 @@ public class CommentServiceTest {
         when(boardRepository.findById(anyLong())).thenReturn(Optional.of(board));
         when(commentRepository.findAllByBoard(any(Board.class))).thenReturn(List.of(comment));
 
-        Page<CommentResponse> comments = commentService.getCommentsByBoard(1L, 0,10,Optional.of(new AuthenticatedUser(UserId.create(), Role.USER)));
+        Page<CommentResponse> comments = commentService.getCommentsByBoards(1L, 0,50, Optional.of(new AuthenticatedUser(UserId.create(), Role.USER).userId()));
 
         assertNotNull(comments);
         assertEquals(1, comments.getTotalElements());

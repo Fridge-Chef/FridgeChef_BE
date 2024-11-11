@@ -108,8 +108,7 @@ public class BoardControllerTest extends RestDocControllerTests {
         Part ingredientDetailsPart1 = new MockPart("recipeIngredients[0].details", "상세정보1".getBytes());
         Part ingredientNamePart2 = new MockPart("recipeIngredients[1].name", "재료2".getBytes());
         Part ingredientDetailsPart2 = new MockPart("recipeIngredients[1].details", "상세정보3".getBytes());
-        Part instructionContentPart1 = new MockPart("instruction" +
-                "s[0].content", "설명1".getBytes());
+        Part instructionContentPart1 = new MockPart("instructions[0].content", "설명1".getBytes());
 
         var requestBuilder =
                 RestDocumentationRequestBuilders.multipart("/api/board")
@@ -165,7 +164,7 @@ public class BoardControllerTest extends RestDocControllerTests {
                                 fieldWithPath("boardId").description("레시피 ID"),
                                 fieldWithPath("title").description("레시피 제목"),
                                 fieldWithPath("username").description("작성자 명"),
-                                fieldWithPath("intro").description("레시피 소개"),
+                                fieldWithPath("description").description("레시피 소개"),
                                 fieldWithPath("hitTotal").description("총 좋아요 "),
                                 fieldWithPath("starTotal").description("총 별점 개수"),
                                 fieldWithPath("rating").description("레시피 평점"),
@@ -248,7 +247,7 @@ public class BoardControllerTest extends RestDocControllerTests {
 
         doNothing().when(boardService).delete(any(UserId.class), any(Long.class));
 
-        ResultActions actions = jwtJsonDeleteWhen("/api/board", request);
+        ResultActions actions = jwtJsonDeleteWhen("/api/boards/1", request);
 
         actions.andExpect(status().isOk())
                 .andDo(document("나만의 레시피 삭제",
@@ -277,10 +276,7 @@ public class BoardControllerTest extends RestDocControllerTests {
                 .thenReturn(mockIngredients);
 
         when(boardRecipeService.update(any(UserId.class),
-                any(BoardByRecipeUpdateRequest.class),
-                anyList(),
-                anyList(),
-                any(Image.class)
+                any(BoardByRecipeUpdateRequest.class)
         )).thenReturn(null);
 
         Part idPart = new MockPart("id", "1".getBytes());

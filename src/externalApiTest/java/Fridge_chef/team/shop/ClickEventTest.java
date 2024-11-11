@@ -3,7 +3,6 @@ package Fridge_chef.team.shop;
 import Fridge_chef.team.FridgeChefApplicationApiTest;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import groovy.util.logging.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-@Slf4j
+
 public class ClickEventTest extends FridgeChefApplicationApiTest {
     @Autowired
     private RestClient config;

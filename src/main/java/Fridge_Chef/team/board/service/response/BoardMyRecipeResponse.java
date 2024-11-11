@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 public class BoardMyRecipeResponse {
     private String title;
     private String username;
-    private String intro;
+    private String description;
     private double rating;
     private int hitTotal;
     private int starTotal;
@@ -62,7 +62,7 @@ public class BoardMyRecipeResponse {
         this.title = title;
         this.username = username;
         this.rating = rating;
-        this.intro=intro;
+        this.description=intro;
         this.hitTotal = hitTotal;
         this.starTotal = starTotal;
         this.mainImage = mainImage;
@@ -85,9 +85,15 @@ public class BoardMyRecipeResponse {
                 .map(ingredient -> new RecipeIngredientResponse(ingredient.getIngredient().getId(), ingredient.getIngredient().getName(), ingredient.getQuantity()))
                 .collect(Collectors.toList());
 
-        var instructions = board.getContext().getDescriptions().stream()
-                .map(step -> new StepResponse(step.getDescription(), step.getLink()))
+
+        var instructions = board.getContext().getDescriptions()
+                .stream()
+                .map(step -> {
+                    System.out.println("ins " +step.getDescription() +","+step.getLink());
+                    return new StepResponse(step.getDescription(), step.getLink());
+                })
                 .collect(Collectors.toList());
+
 
         List<BoardIssue> boardIssues = board.getBoardIssues();
         String issueInfo = generateIssueInfo(boardIssues);
@@ -101,7 +107,7 @@ public class BoardMyRecipeResponse {
                 board.getMainImageLink(),
                 issueInfo,
                 board.getContext().getDishTime(),
-                level(board.getContext().getDishLevel()),
+                board.getContext().getDishLevel(),
                 board.getContext().getDishCategory(),
                 ownedIngredients,
                 recipeIngredients,

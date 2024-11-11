@@ -8,6 +8,8 @@ import Fridge_Chef.team.board.repository.BoardRepository;
 import Fridge_Chef.team.board.repository.BoardUserEventRepository;
 import Fridge_Chef.team.board.repository.ContextRepository;
 import Fridge_Chef.team.board.repository.DescriptionRepository;
+import Fridge_Chef.team.image.domain.Image;
+import Fridge_Chef.team.image.repository.ImageRepository;
 import Fridge_Chef.team.ingredient.domain.Ingredient;
 import Fridge_Chef.team.ingredient.repository.RecipeIngredientRepository;
 import Fridge_Chef.team.ingredient.service.IngredientService;
@@ -42,14 +44,13 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 @org.springframework.context.annotation.Profile({"prod", "dev"})
 public class BasicRecipesInitializer {
+    private final ImageRepository imageRepository;
 
     private final ResourceLoader resourceLoader;
 
     private final IngredientService ingredientService;
 
     private final UserRepository userRepository;
-    private final RecipeRepository recipeRepository;
-    private final DescriptionRepository descriptionRepository;
     private final RecipeIngredientRepository recipeIngredientRepository;
     private final ContextRepository contextRepository;
     private final BoardRepository boardRepository;
@@ -61,12 +62,11 @@ public class BasicRecipesInitializer {
     private static final Pattern QUANTITY_PATTERN = Pattern.compile("\\((.*?)\\)");
 
 
-
     @PostConstruct
-    public void init() throws IOException{
+    public void init() throws IOException {
         log.info("recipe init()");
-        String email ="recipeUser@fridge.chef";
-        if(!userRepository.existsByProfileEmail(email)){
+        String email = "recipeUser@fridge.chef";
+        if (!userRepository.existsByProfileEmail(email)) {
             User user = createAdminUser(email);
             createBasicRecipes(user);
         }
@@ -85,18 +85,16 @@ public class BasicRecipesInitializer {
 
     @Transactional
     public void createBasicRecipes(User user) throws IOException {
-
         Resource resource = resourceLoader.getResource("classpath:basic_recipes.csv");
         BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8));
 
         String line;
+        int index = 0;
         while ((line = reader.readLine()) != null) {
             List<String> fields = parseLine(line);
-
             Recipe recipe = createRecipe(fields);
-            saveRecipeWithIngredients(recipe);
-            Board board = recipeToBoard(user, recipe);
-            recipe.updateBoard(board);
+            recipeToBoard(user, recipe, index++);
+            log.info("board insert >");
         }
     }
 
@@ -117,18 +115,16 @@ public class BasicRecipesInitializer {
     }
 
     private Recipe createRecipe(List<String> fields) {
-
         String name = fields.get(0);
         String category = fields.get(1);
-        String cookTime =fields.get(2);
+        String cookTime = fields.get(2);
         Difficult difficult = Difficult.of(fields.get(3));
         String intro = fields.get(4);
-
         String ingredients = fields.get(5);
-        List<RecipeIngredient> recipeIngredients = extractRecipeIngredients(ingredients);
-        List<Description> descriptions = extractDescriptions(fields);
 
-        Recipe recipe = Recipe.builder()
+        List<RecipeIngredient> recipeIngredients =extractRecipeIngredients(ingredients);
+        List<Description> descriptions = extractDescriptions(fields);
+        return  Recipe.builder()
                 .name(name)
                 .category(category)
                 .cookTime(cookTime)
@@ -137,10 +133,6 @@ public class BasicRecipesInitializer {
                 .recipeIngredients(recipeIngredients)
                 .descriptions(descriptions)
                 .build();
-
-        recipeRepository.save(recipe);
-
-        return recipe;
     }
 
     private List<RecipeIngredient> extractRecipeIngredients(String ingredients) {
@@ -150,10 +142,8 @@ public class BasicRecipesInitializer {
         String[] parts = INGREDIENTS_SPLIT_PATTERN.split(ingredients);
         for (String part : parts) {
             part = part.trim();
-
             String ingredientName = extractIngredientName(part);
             String quantity = extractQuantity(part);
-
             Ingredient ingredient = ingredientService.getOrCreate(ingredientName);
 
             RecipeIngredient recipeIngredient = RecipeIngredient.builder()
@@ -167,16 +157,12 @@ public class BasicRecipesInitializer {
     }
 
     private List<Description> extractDescriptions(List<String> fields) {
-
         List<Description> descriptions = new ArrayList<>();
-
         for (int i = 6; i < fields.size(); i++) {
             String manual = fields.get(i);
-
             Description description = new Description(manual, null);
             descriptions.add(description);
         }
-
         return descriptions;
     }
 
@@ -202,36 +188,30 @@ public class BasicRecipesInitializer {
         return "X";
     }
 
-    private void saveRecipeWithIngredients(Recipe recipe) {
-
-        for (RecipeIngredient recipeIngredient : recipe.getRecipeIngredients()) {
-            recipeIngredient.setRecipe(recipe);
-        }
-
-        recipeIngredientRepository.saveAll(recipe.getRecipeIngredients());
-    }
-
-    private Board recipeToBoard(User user, Recipe recipe) {
+    private Board recipeToBoard(User user, Recipe recipe, int index) {
         Context context = Context.formMyUserRecipe(recipe.getCookTime(), String.valueOf(recipe.getDifficult()), recipe.getCategory(),
                 toRecipeIngredient(recipe.getRecipeIngredients()), toDescriptions(recipe.getDescriptions()));
-        Board board = Board.from(user, recipe.getIntro(),recipe.getName(),context,recipe.getImage());
+        Image image = Image.outUri("https://objectstorage.ap-chuncheon-1.oraclecloud.com/p/RO5Ur4yw-jzifHvgLdMG4nkUmU_UJpzy3YQnWXaJnTIAygJO3qDzSwMy0ulHEwxt/n/axqoa2bp7wqg/b/fridge/o/" + index + "_recipe.png");
+        imageRepository.save(image);
+
+        Board board = Board.from(user, recipe.getIntro(), recipe.getName(), context, image);
         boardRepository.save(board);
         boardUserEventRepository.save(new BoardUserEvent(board, user));
         return board;
     }
 
-    public List<Description> toDescriptions(List<Description> descriptions){
-        List<Description>  result = new ArrayList<>();
-        for(Description  description : descriptions){
-            result.add(new Description(description.getDescription(),description.getImage()));
+    public List<Description> toDescriptions(List<Description> descriptions) {
+        List<Description> result = new ArrayList<>();
+        for (Description description : descriptions) {
+            result.add(new Description(description.getDescription(), description.getImage()));
         }
         return result;
     }
 
-    public List<RecipeIngredient> toRecipeIngredient (List<RecipeIngredient> recipeIngredients) {
-        List<RecipeIngredient>  result = new ArrayList<>();
-        for(RecipeIngredient  value : recipeIngredients){
-            result.add(new RecipeIngredient(value.getIngredient(),value.getQuantity()));
+    public List<RecipeIngredient> toRecipeIngredient(List<RecipeIngredient> recipeIngredients) {
+        List<RecipeIngredient> result = new ArrayList<>();
+        for (RecipeIngredient value : recipeIngredients) {
+            result.add(new RecipeIngredient(value.getIngredient(), value.getQuantity()));
         }
         return result;
     }

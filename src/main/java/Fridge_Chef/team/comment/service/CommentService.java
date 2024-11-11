@@ -16,8 +16,8 @@ import Fridge_Chef.team.image.service.ImageService;
 import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.domain.UserId;
 import Fridge_Chef.team.user.repository.UserRepository;
-import Fridge_Chef.team.user.rest.model.AuthenticatedUser;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CommentService {
@@ -42,41 +43,46 @@ public class CommentService {
     public Comment addComment(Long boardId, UserId userId, CommentCreateRequest request) {
         Board board = findByBoard(boardId);
         User user = findByUser(userId);
-        List<Image> images = new ArrayList<>();
-        if(request.images() == null){
-            images = imageService.imageUploads(userId,request.images());
-        }
+        List<Image> images = request.images() != null ? imageService.imageUploads(userId, request.images()) : new ArrayList<>();
+
         Optional<Comment> existingComment = board.getComments()
                 .stream()
                 .filter(comment -> comment.getUsers().getUserId().equals(userId))
                 .findFirst();
 
+        log.info("댓글 등록 board:" + boardId + " , userid:" + userId + ", message :" + request.comment());
+
+        for (var img : images) {
+            log.info("add comment img :" + img.getId() + " " + img.getLink());
+        }
+
         if (existingComment.isPresent()) {
             Comment commentToUpdate = existingComment.get();
+            commentToUpdate.updateImage(images);
             commentToUpdate.updateComment(request.comment());
             commentToUpdate.updateStar(request.star());
             return commentRepository.save(commentToUpdate);
-        } else {
-            Comment newComment = new Comment(board, user, images, request.comment(), request.star());
-            board.updateStar(calculateNewTotalStar(board, request.star()));
-            return commentRepository.save(newComment);
         }
+
+        Comment newComment = new Comment(board, user, images, request.comment(), request.star());
+        board.updateStar(calculateNewTotalStar(board, request.star()));
+        return commentRepository.save(newComment);
+
     }
 
     @Transactional
     public Comment updateComment(Long boardId, Long commentId, UserId userId, CommentUpdateRequest request) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ApiException(ErrorCode.COMMENT_NOT_FOUND));
-        Board board = comment.getBoard();
 
-        validCommentBoardAuthor(boardId, comment, board);
+        validCommentAuthor(comment, boardId);
         validCommentUserAuthor(comment, userId);
 
         comment.updateStar(request.star());
         comment.updateComment(request.comment());
-        if(request.isImage()){
+        if (request.isImage()) {
             List<Image> images = new ArrayList<>();
-            request.image().forEach(image -> images.add( imageService.imageUpload(userId,image)));
+            request.image().forEach(image -> images.add(imageService.imageUpload(userId, image)));
             comment.updateComments(images);
         }
         commentRepository.save(comment);
@@ -90,75 +96,81 @@ public class CommentService {
                 .orElseThrow(() -> new ApiException(ErrorCode.COMMENT_NOT_FOUND));
         Board board = comment.getBoard();
 
-        validCommentBoardAuthor(boardId, comment, board);
+        validCommentAuthor(comment, boardId);
         validCommentUserAuthor(comment, userId);
 
         board.updateStar(calculateNewTotalStar(board, -comment.getStar()));
         commentRepository.delete(comment);
+        log.info("댓글 삭제 성공 - board id :" + boardId +" , comment id :"+commentId +" , user id :"+userId);
     }
 
-    @Transactional(readOnly = true)
-    public List<CommentResponse> getCommentsByBoard(Long boardId) {
-        Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new ApiException(ErrorCode.BOARD_NOT_FOUND));
-        return commentRepository.findAllByBoard(board)
-                .stream()
-                .map(CommentResponse::fromEntity)
-                .toList();
-    }
 
     @Transactional(readOnly = true)
-    public Page<CommentResponse> getCommentsByBoard(Long boardId, int page, int size, Optional<AuthenticatedUser> user) {
+    public Page<CommentResponse> getCommentsByBoards(Long boardId, int page, int size, Optional<UserId> user) {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new ApiException(ErrorCode.BOARD_NOT_FOUND));
 
-        PageRequest pageable = PageRequest.of(page,size);
-
+        PageRequest pageable = PageRequest.of(page, size);
         List<Comment> comments = commentRepository.findAllByBoard(board);
 
-        user.map(AuthenticatedUser::userId).flatMap(userId -> comments.stream()
-                .filter(comment -> comment.getUsers().getUserId().equals(userId))
-                .findFirst()).ifPresent(userComment -> {
-            comments.remove(userComment);
-            comments.add(0, userComment);
-        });
+        user.flatMap(userId -> comments.stream()
+                        .filter(comment -> comment.getUsers().getUserId().equals(userId))
+                        .findFirst())
+                .ifPresent(userComment -> {
+                    comments.remove(userComment);
+                    comments.add(0, userComment);
+                });
 
         List<CommentResponse> responses = comments.stream()
-                .map(CommentResponse::fromEntity)
+                .map(entity -> CommentResponse.fromEntity(entity, user))
                 .toList();
 
-        return new PageImpl<>(responses,pageable,responses.size());
+        return new PageImpl<>(responses, pageable, responses.size());
     }
 
     @Transactional(readOnly = true)
-    public CommentResponse getCommentsByBoard(Long boardId, Long commentId) {
-        Comment comment =  commentRepository.findById(commentId)
+    public CommentResponse getCommentsByBoard(Long boardId, Long commentId, Optional<UserId> user) {
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new ApiException(ErrorCode.BOARD_NOT_FOUND));
+        Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ApiException(ErrorCode.COMMENT_NOT_FOUND));
-        if(!comment.getBoard().getId().equals(boardId)){
-            throw new ApiException(ErrorCode.COMMENT_NOT_BOARD);
-        }
-        return CommentResponse.fromEntity(comment);
+        return CommentResponse.fromEntity(comment, user);
     }
-
 
     @Transactional
-    public void updateHit(Long boardId, Long commentId, UserId userId) {
-        Optional<CommentUserEvent> event = commentUserEventRepository.findByBoardIdAndCommentsIdAndUserUserId(boardId,commentId,userId);
+    public int updateHit(Long boardId, Long commentId, UserId userId) {
+        Board board = findByBoard(boardId);
+        Comment comment = findComment(commentId);
+
+        Optional<CommentUserEvent> event = commentUserEventRepository.findByBoardIdAndCommentsIdAndUserUserId(boardId, commentId, userId);
         event.ifPresent(CommentUserEvent::updateHit);
-        if(event.isEmpty()){
-            Board board =findByBoard(boardId);
-            Comment comment = findComment(commentId);
-            validCommentBoardAuthor(boardId,comment,board);
-            User user = findByUser(userId);
-            var userEvent = new CommentUserEvent(board,comment,user);
+
+        log.info("내 좋아요 이력  :" + event.isPresent());
+
+        if (event.isEmpty()) {
+            var userEvent = new CommentUserEvent(board, comment, findByUser(userId));
             userEvent.updateHit();
-            int sum = comment.getCommentUserEvent()
-                    .stream()
-                    .mapToInt(CommentUserEvent::getHit)
-                    .sum();
-            comment.updateHit(sum);
+
+            var commentUserEvent = commentUserEventRepository.save(userEvent);
+            comment.addUserEvent(commentUserEvent);
+            comment.updateHit(filterTotalHit((commentUserEvent.getComments())));
+            log.info("댓글 처음 좋아요 " + commentId + " , 카운트 " + commentUserEvent.getHit());
+        } else {
+            comment.updateHit(filterTotalHit(event.get().getComments()));
+            log.info("댓글 좋아요 " + commentId + " ,카운트 " + event.get().getHit());
         }
+
+        return comment.getTotalHit();
     }
+
+    private int filterTotalHit(Comment comment) {
+        return comment.getCommentUserEvent()
+                .stream()
+                .filter(v -> v.getHit() == 1)
+                .toList()
+                .size();
+    }
+
 
     private Comment findComment(Long commentId) {
         return commentRepository.findById(commentId)
@@ -184,11 +196,8 @@ public class CommentService {
                 .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
     }
 
-    private void validCommentBoardAuthor(Long boardId, Comment comment, Board board) {
-        if (!boardId.equals(comment.getBoard().getId())) {
-            throw new ApiException(ErrorCode.COMMENT_NOT_BOARD);
-        }
-        if (!comment.getBoard().getId().equals(board.getId())) {
+    private void validCommentAuthor(Comment comment, Long boardId) {
+        if (!comment.getBoard().getId().equals(boardId)) {
             throw new ApiException(ErrorCode.COMMENT_NOT_BOARD);
         }
     }
@@ -198,5 +207,4 @@ public class CommentService {
             throw new ApiException(ErrorCode.COMMENT_NOT_USER_AUTHOR);
         }
     }
-
 }

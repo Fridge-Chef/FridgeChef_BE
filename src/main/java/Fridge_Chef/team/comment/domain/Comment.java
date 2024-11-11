@@ -28,7 +28,7 @@ public class Comment extends BaseEntity {
 
     @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true)
     private List<CommentUserEvent> commentUserEvent;
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.PERSIST )
     private List<Image> commentImage;
     @ManyToOne(fetch = FetchType.LAZY)
     private Board board;
@@ -60,11 +60,14 @@ public class Comment extends BaseEntity {
         this.star = star;
     }
 
-    public String getImageLink(){
+    public List<String> getImageLink(){
+        List<String> links = new ArrayList<>();
         if(commentImage != null){
-            return commentImage.get(0).getLink();
+            for(var image : commentImage){
+                links.add(image.getLink());
+            }
         }
-        return "";
+        return links;
     }
     public Comment updateId(Long id){
         this.id=id;
@@ -84,15 +87,21 @@ public class Comment extends BaseEntity {
 
     public List<String> getImageLinks() {
         List<String> list = new ArrayList<>();
+        if(commentImage==null){
+            return list;
+        }
         commentImage.forEach(comment -> {
-            if(comment != null){
+            System.out.println("response get img link :"+comment.getLink());
                 list.add(comment.getLink());
-            }
         });
         return list;
     }
 
     public void updateComments(List<Image> images) {
         this.commentImage=images;
+    }
+
+    public void addUserEvent(CommentUserEvent commentUserEvent) {
+        this.commentUserEvent.add(commentUserEvent);
     }
 }

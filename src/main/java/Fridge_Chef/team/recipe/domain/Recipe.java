@@ -39,12 +39,11 @@ public class Recipe extends BaseEntity {
     @OneToOne(fetch = FetchType.LAZY)
     private Image image;
 
-    @OneToOne(fetch = FetchType.LAZY,orphanRemoval = true, cascade = CascadeType.PERSIST)
+    @OneToOne(fetch = FetchType.LAZY)
     private Board board;
-    @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.PERSIST)
+    @OneToMany(fetch = FetchType.LAZY)
     private List<Description> descriptions;
-
-    @OneToMany(mappedBy = "recipe", fetch = FetchType.LAZY,  orphanRemoval = true, cascade = CascadeType.PERSIST)
+    @OneToMany(fetch = FetchType.LAZY)
     private List<RecipeIngredient> recipeIngredients;
 
     public Recipe(String name, String category, String intro, String cookTime, Difficult difficult, Image image, List<Description> descriptions, List<RecipeIngredient> recipeIngredients,Board board) {
@@ -57,31 +56,5 @@ public class Recipe extends BaseEntity {
         this.descriptions = descriptions;
         this.recipeIngredients = recipeIngredients;
         this.board =board;
-    }
-
-    public static Recipe ofBoard(Board board) {
-        List<Description> descriptions = new ArrayList<>();
-        for (var description : board.getContext().getDescriptions()) {
-            descriptions.add(new Description(description.getDescription(), description.getImage()));
-        }
-        List<RecipeIngredient> recipeIngredients = new ArrayList<>();
-        for (var recipeIngredient : board.getContext().getBoardIngredients()) {
-            recipeIngredients.add(new RecipeIngredient(recipeIngredient.getIngredient(), recipeIngredient.getQuantity()));
-        }
-        return new Recipe(
-                board.getTitle(),
-                board.getContext().getDishCategory(),
-                board.getIntroduction(),
-                board.getContext().getDishTime(),
-                Difficult.of(board.getContext().getDishLevel()),
-                board.getMainImage(),
-                descriptions,
-                recipeIngredients,
-                board
-        );
-    }
-
-    public void updateBoard(Board board) {
-        this.board=board;
     }
 }

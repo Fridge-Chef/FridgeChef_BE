@@ -50,13 +50,15 @@ public class ImageProdService implements ImageService {
 
     @Transactional
     public Image imageUpload(UserId userId, MultipartFile file) {
-        if (file == null) {
+        if (file == null || file.isEmpty()) {
+            log.info("image null");
             return imageRepository.save(Image.none());
         }
-        String fileName = onlyNameChange(file.getName());
+        String fileName = onlyNameChange(file.getOriginalFilename());
         upload(file, fileName);
         Image image = new Image(imageConfigMeta.getUrl(), imageConfigMeta.getUploadPath(), fileName, ImageType.ORACLE_CLOUD, userId);
-        log.info("image upload success User : " + userId + " _ , " + fileName);
+        log.info("size : "+file.getSize() +" , isEmpty() : "+file.isEmpty() + ","+file.getContentType());
+        log.info("[Image] upload success " + fileName);
         return imageRepository.save(image);
     }
 
@@ -65,7 +67,7 @@ public class ImageProdService implements ImageService {
         if (file.isEmpty()) {
             return imageRepository.save(Image.none());
         }
-        String fileName = onlyNameChange(file.getName());
+        String fileName = onlyNameChange(file.getOriginalFilename());
         upload(file, fileName);
         Image image = new Image(imageConfigMeta.getUrl(), imageConfigMeta.getUploadPath(), fileName, ImageType.ORACLE_CLOUD, user.getUserId());
         log.info("image upload success User : " + user.getUserId() + " _ , " + fileName);
@@ -84,7 +86,7 @@ public class ImageProdService implements ImageService {
         Image image = imageRepository.findById(imageId)
                 .orElseThrow(() -> new ApiException(ErrorCode.IMAGE_NOT_ID));
 
-        if (image.getType().equals(ImageType.OUT_URI)) {
+        if (image.getType() == null || image.getType().equals(ImageType.OUT_URI)) {
             return;
         }
 
@@ -103,8 +105,8 @@ public class ImageProdService implements ImageService {
         Image image = imageRepository.findById(imageId)
                 .orElseThrow(() -> new ApiException(ErrorCode.IMAGE_NOT_ID));
 
-        FileRemoveManager file = new FileRemoveManager(objectStorageClient, imageConfigMeta, image);
-        file.remove();
+        FileRemoveManager manager = new FileRemoveManager(objectStorageClient, imageConfigMeta, image);
+        manager.remove();
         log.info("image.id remove success : " + image.getName());
         imageRepository.delete(image);
     }
@@ -112,6 +114,7 @@ public class ImageProdService implements ImageService {
     public void upload(MultipartFile multipartFile, String fileName) {
         FileUploadManager file = new FileUploadManager(uploadManager, imageConfigMeta, multipartFile, fileName);
         file.upload();
+        log.info(fileName+"image update");
     }
 
     public void filter(MultipartFile file) {
@@ -136,7 +139,8 @@ public class ImageProdService implements ImageService {
     }
 
     private String onlyNameChange(String name) {
+        String cleanedName = name.replaceAll("\\s", "");
         String uuidString = UUID.randomUUID().toString();
-        return uuidString + "_" + name;
+        return uuidString + "_" + cleanedName;
     }
 }

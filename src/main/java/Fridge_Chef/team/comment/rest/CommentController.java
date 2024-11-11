@@ -9,7 +9,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/boards/{board_id}/comment")
+@RequestMapping("/api/boards/{board_id}")
 @RequiredArgsConstructor
 public class CommentController {
     private final CommentService commentService;
