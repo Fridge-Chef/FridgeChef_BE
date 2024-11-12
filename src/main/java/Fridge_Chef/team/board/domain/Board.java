@@ -38,12 +38,13 @@ public class Board extends BaseEntity {
     private User user;
     private String title;
     private String introduction;
-    @OneToOne(fetch = FetchType.LAZY, orphanRemoval = true,cascade = CascadeType.ALL)
+    @Embedded
     private Context context;
     @Enumerated(EnumType.STRING)
     private BoardType type;
     @ManyToOne(fetch = FetchType.LAZY)
     private Image mainImage;
+    private String pathMainImage;
     private double totalStar;
     private int hit;
     private int count;
@@ -63,6 +64,10 @@ public class Board extends BaseEntity {
         this.historys = new ArrayList<>();
         this.comments=new ArrayList<>();
         this.boardIssues = new ArrayList<>();
+
+        if(mainImage != null){
+            pathMainImage = mainImage.getLink();
+        }
     }
 
     public static Board from(User user, Recipe recipe) {
