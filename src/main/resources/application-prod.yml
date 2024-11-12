@@ -18,6 +18,7 @@ spring:
       - "classpath:/application/jpa.yml"
       - "classpath:/application/mail.yml"
       - "classpath:/application/oauth.yml"
+      - "classpath:/application/shop.yml"
       - "classpath:/application/image.yml"
 
   datasource:
