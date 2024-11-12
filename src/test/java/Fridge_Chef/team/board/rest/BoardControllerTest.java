@@ -291,15 +291,12 @@ public class BoardControllerTest extends RestDocControllerTests {
         Part dishLevelPart = new MockPart("dishLevel", "조리 난이도".getBytes());
         Part dishCategoryPart = new MockPart("dishCategory", "조리 카테고리".getBytes());
 
-        Part ingredientIdPart1 = new MockPart("recipeIngredients[0].id", "2".getBytes());
         Part ingredientNamePart1 = new MockPart("recipeIngredients[0].name", "재료1".getBytes());
         Part ingredientDetailsPart1 = new MockPart("recipeIngredients[0].details", "상세정보1".getBytes());
 
-        Part ingredientIdPart2 = new MockPart("recipeIngredients[1].id", "1".getBytes());
         Part ingredientNamePart2 = new MockPart("recipeIngredients[1].name", "재료2".getBytes());
         Part ingredientDetailsPart2 = new MockPart("recipeIngredients[1].details", "상세정보3".getBytes());
 
-        Part instructionContentIdPart1 = new MockPart("instructions[0].id", "2".getBytes());
         Part instructionContentPart1 = new MockPart("instructions[0].content", "설명1".getBytes());
         Part instructionImagePart1 = new MockPart("instructions[0].imageChange", "false".getBytes());
         MockMultipartFile instructionImage1 = getMultiFile("instructions[0].image");
@@ -315,13 +312,10 @@ public class BoardControllerTest extends RestDocControllerTests {
                         .part(dishTimePart)
                         .part(dishLevelPart)
                         .part(dishCategoryPart)
-                        .part(ingredientIdPart1)
                         .part(ingredientNamePart1)
                         .part(ingredientDetailsPart1)
-                        .part(ingredientIdPart2)
                         .part(ingredientNamePart2)
                         .part(ingredientDetailsPart2)
-                        .part(instructionContentIdPart1)
                         .part(instructionContentPart1)
                         .part(instructionImagePart1)
                         .file(instructionImage1)
@@ -348,13 +342,10 @@ public class BoardControllerTest extends RestDocControllerTests {
                                 partWithName("dishTime").description("조리 시간 (예: '30분')"),
                                 partWithName("dishLevel").description("조리 난이도 (예: '쉬움', '보통', '어려움')"),
                                 partWithName("dishCategory").description("조리 카테고리 "),
-                                partWithName("recipeIngredients[0].id").description("첫 번째 재료의 고유 ID"),
                                 partWithName("recipeIngredients[0].name").description("첫 번째 재료 이름 (예: '양파')"),
                                 partWithName("recipeIngredients[0].details").description("첫 번째 재료의 상세 정보 (예: '다진 양파 100g')"),
-                                partWithName("recipeIngredients[1].id").description("두 번째 재료의 고유 ID"),
                                 partWithName("recipeIngredients[1].name").description("두 번째 재료 이름 "),
                                 partWithName("recipeIngredients[1].details").description("두 번째 재료의 상세 정보"),
-                                partWithName("instructions[0].id").description("첫 번째 조리 단계의 고유 ID"),
                                 partWithName("instructions[0].content").description("첫 번째 조리 단계 설명 (예: '양파를 볶는다.')"),
                                 partWithName("instructions[0].imageChange").description("조리 단계 이미지 변경 여부 (true: 이미지 변경, false: 유지)"),
                                 partWithName("instructions[0].image").description("첫 번째 조리 단계 이미지 파일 (Optional: 이미지를 변경할 때만 필요)")
