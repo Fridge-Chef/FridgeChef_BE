@@ -6,7 +6,6 @@ import Fridge_Chef.team.board.domain.Context;
 import Fridge_Chef.team.board.domain.Description;
 import Fridge_Chef.team.board.repository.BoardRepository;
 import Fridge_Chef.team.board.repository.BoardUserEventRepository;
-import Fridge_Chef.team.board.repository.ContextRepository;
 import Fridge_Chef.team.board.repository.DescriptionRepository;
 import Fridge_Chef.team.comment.domain.Comment;
 import Fridge_Chef.team.comment.repository.CommentRepository;
@@ -41,8 +40,6 @@ public class JpaTest extends QueryDslTest {
     protected ImageRepository imageRepository;
     @Autowired
     protected BoardRepository boardRepository;
-    @Autowired
-    protected ContextRepository contextRepository;
     @Autowired
     protected IngredientRepository ingredientRepository;
     @Autowired
@@ -109,9 +106,9 @@ public class JpaTest extends QueryDslTest {
             recipeIngredients.add(RecipeIngredient.ofMyRecipe(ingredient, recipeIngredient.getQuantity()));
         }
 
-        Board result = new Board(board.getUser(),board.getIntroduction(), board.getTitle(), contextRepository.save(new Context(
+        Board result = new Board(board.getUser(), board.getIntroduction(), board.getTitle(), new Context(
                 recipeIngredientRepository.saveAll(recipeIngredients),
-                descriptionRepository.saveAll(descriptions))), saveImage(board.getMainImage()), board.getType());
+                descriptionRepository.saveAll(descriptions)), saveImage(board.getMainImage()), board.getType());
         return boardRepository.save(result);
     }
 
