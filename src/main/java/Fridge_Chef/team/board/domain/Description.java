@@ -17,8 +17,7 @@ public class Description {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "context_id")
-    private Context context;
+    private Board board;
     private String description;
     @ManyToOne(fetch = FetchType.LAZY)
     private Image image;
