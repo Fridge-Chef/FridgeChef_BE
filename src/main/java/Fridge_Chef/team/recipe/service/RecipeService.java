@@ -3,13 +3,11 @@ package Fridge_Chef.team.recipe.service;
 import Fridge_Chef.team.board.domain.*;
 import Fridge_Chef.team.board.repository.BoardRepository;
 import Fridge_Chef.team.board.repository.BoardUserEventRepository;
-import Fridge_Chef.team.board.repository.ContextRepository;
 import Fridge_Chef.team.board.repository.DescriptionRepository;
 import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.exception.ErrorCode;
 import Fridge_Chef.team.image.domain.Image;
 import Fridge_Chef.team.image.service.ImageService;
-import Fridge_Chef.team.ingredient.service.IngredientService;
 import Fridge_Chef.team.recipe.domain.Difficult;
 import Fridge_Chef.team.recipe.domain.Recipe;
 import Fridge_Chef.team.recipe.domain.RecipeIngredient;
@@ -40,7 +38,6 @@ public class RecipeService {
     private final RecipeRepository recipeRepository;
     private final RecipeDslRepository recipeDslRepository;
     private final DescriptionRepository descriptionRepository;
-    private final ContextRepository contextRepository;
     private final BoardRepository boardRepository;
     private final BoardUserEventRepository boardUserEventRepository;
 
@@ -101,7 +98,6 @@ public class RecipeService {
         Context context = Context.formMyUserRecipe(
                 recipe.getCookTime(), recipe.getDifficult().name(), recipe.getCategory(),
                 ingredients, descriptions);
-        contextRepository.save(context);
 
         Board board = new Board(user, recipe.getIntro(), recipe.getName(), context, recipe.getImage(), BoardType.USER);
         boardRepository.save(board);

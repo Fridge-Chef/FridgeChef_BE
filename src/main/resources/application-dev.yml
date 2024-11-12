@@ -4,6 +4,7 @@ spring:
       - "classpath:/application/h2.yml"
       - "classpath:/application/jpa.yml"
       - "classpath:/application/testSll.yml"
+      - "classpath:/application/shop.yml"
       - "classpath:/application/image.yml"
       - "classpath:/application/mail.yml"
       - "classpath:/application/oauth.yml"

@@ -3,7 +3,6 @@ package Fridge_Chef.team.board.service;
 import Fridge_Chef.team.board.domain.*;
 import Fridge_Chef.team.board.repository.BoardRepository;
 import Fridge_Chef.team.board.repository.BoardUserEventRepository;
-import Fridge_Chef.team.board.repository.ContextRepository;
 import Fridge_Chef.team.board.rest.request.BoardByRecipeRequest;
 import Fridge_Chef.team.board.rest.request.BoardByRecipeUpdateRequest;
 import Fridge_Chef.team.board.service.request.RecipeIngredientDto;
@@ -11,8 +10,6 @@ import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.exception.ErrorCode;
 import Fridge_Chef.team.image.domain.Image;
 import Fridge_Chef.team.image.service.ImageService;
-import Fridge_Chef.team.ingredient.repository.IngredientRepository;
-import Fridge_Chef.team.ingredient.repository.RecipeIngredientRepository;
 import Fridge_Chef.team.recipe.domain.RecipeIngredient;
 import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.domain.UserId;
@@ -28,12 +25,9 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class BoardRecipeService {
-    private final RecipeIngredientRepository recipeIngredientRepository;
     private final UserRepository userRepository;
     private final BoardRepository boardRepository;
     private final BoardUserEventRepository boardUserEventRepository;
-    private final ContextRepository contextRepository;
-    private final IngredientRepository ingredientRepository;
     private final ImageService imageService;
     private final BoardIngredientService boardIngredientService;
 
@@ -46,9 +40,9 @@ public class BoardRecipeService {
         List<Description> descriptions = boardIngredientService.uploadInstructionImages(user.getUserId(), request);
         List<RecipeIngredient> ingredients = boardIngredientService.findOrCreate(request);
 
-        Context context = contextRepository.save(Context.formMyUserRecipe(
+        Context context = Context.formMyUserRecipe(
                 request.getDishTime(), request.getDishLevel(), request.getDishCategory(),
-                ingredients, descriptions));
+                ingredients, descriptions);
 
         Board board = boardRepository.save(new Board(user, request.getDescription(), request.getName(), context, image, BoardType.USER));
         BoardUserEvent event = new BoardUserEvent(board, user);

@@ -1,7 +1,6 @@
 package Fridge_Chef.team.recipe.rest.response;
 
 import Fridge_Chef.team.board.domain.Board;
-import Fridge_Chef.team.recipe.domain.RecipeIngredient;
 import Fridge_Chef.team.user.domain.UserId;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,16 +32,17 @@ public class RecipeSearchResponse {
     private List<String> without;
 
     public static RecipeSearchResponse of(Board board, List<String> pick, Optional<UserId> userId) {
-        List<RecipeIngredient> ingredients = board.getContext().getBoardIngredients();
+        List<String> ingredients = Arrays.stream(board.getContext().getPathIngredient().split(","))
+                .toList();
+
         List<String> without = ingredients.stream()
-                .map(pi -> pi.getIngredient().getName())
                 .filter(ingredientName -> !pick.contains(ingredientName))
                 .toList();
 
         return new RecipeSearchResponse(board.getId(),
                 board.getTitle(),
                 board.getUser().getUsername(),
-                board.getMainImageLink(),
+                board.getPathMainImage(),
                 board.getTotalStar(),
                 board.getHit(),
                 userId.isEmpty() ? false : board.getIsMyHit(userId.get()),

@@ -58,8 +58,6 @@ public class BorderServiceTest {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private RecipeRepository recipeRepository;
-    @Autowired
     private BoardUserEventRepository boardUserEventRepository;
     @Autowired
     private BoardIngredientService boardIngredientService;

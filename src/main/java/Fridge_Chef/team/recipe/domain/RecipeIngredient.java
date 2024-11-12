@@ -1,6 +1,6 @@
 package Fridge_Chef.team.recipe.domain;
 
-import Fridge_Chef.team.board.domain.Context;
+import Fridge_Chef.team.board.domain.Board;
 import Fridge_Chef.team.ingredient.domain.Ingredient;
 import jakarta.persistence.*;
 import lombok.*;
@@ -19,8 +19,8 @@ public class RecipeIngredient {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "context_id")
-    private Context context;
+    @JoinColumn(name = "board_id")
+    private Board board;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ingredient_id")

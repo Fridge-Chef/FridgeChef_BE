@@ -1,0 +1,5 @@
+client:
+  naver:
+    uri: https://openapi.naver.com/v1/search
+    Client-Id: ENC(G+gctodpscBDoYZv44qjVoYzi/wIS/8cMhjC3OjEmE8=)
+    Client-Secret: ENC(peFfqHep89x4Alf2nzmu2+n8LgJ6lM35)
