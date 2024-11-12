@@ -15,6 +15,7 @@ java { toolchain { languageVersion = JavaLanguageVersion.of(17) } }
 repositories {
     mavenCentral()
 }
+
 sourceSets {
     externalApiTest {
         java {
@@ -23,16 +24,15 @@ sourceSets {
         resources {
             srcDir 'src/externalApiTest/resources'
         }
-        compileClasspath += sourceSets.externalApiTest.output + configurations.testRuntimeClasspath
-        runtimeClasspath += output + compileClasspath
+        compileClasspath += sourceSets.main.output + configurations.testCompileClasspath
+        runtimeClasspath += sourceSets.main.output + configurations.testRuntimeClasspath
     }
-
 }
 
 configurations {
-    asciidoctorExt
     externalApiTestImplementation.extendsFrom testImplementation
     externalApiTestRuntimeOnly.extendsFrom testRuntimeOnly
+
     querydsl.extendsFrom compileClasspath
     compileOnly {
         extendsFrom annotationProcessor
