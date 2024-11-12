@@ -33,7 +33,6 @@ import java.util.List;
 public class BoardService {
     private final BoardDslRepository boardDslRepository;
     private final BoardRepository boardRepository;
-    private final ContextRepository contextRepository;
     private final ImageService imageService;
     private final UserRepository userRepository;
     private final BoardUserEventRepository boardUserEventRepository;
@@ -89,7 +88,6 @@ public class BoardService {
             }
         });
 
-        contextRepository.delete(context);
         boardRepository.delete(board);
         log.info("삭제");
     }

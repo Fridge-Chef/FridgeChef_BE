@@ -6,17 +6,13 @@ import Fridge_Chef.team.board.domain.Context;
 import Fridge_Chef.team.board.domain.Description;
 import Fridge_Chef.team.board.repository.BoardRepository;
 import Fridge_Chef.team.board.repository.BoardUserEventRepository;
-import Fridge_Chef.team.board.repository.ContextRepository;
-import Fridge_Chef.team.board.repository.DescriptionRepository;
 import Fridge_Chef.team.image.domain.Image;
 import Fridge_Chef.team.image.repository.ImageRepository;
 import Fridge_Chef.team.ingredient.domain.Ingredient;
-import Fridge_Chef.team.ingredient.repository.RecipeIngredientRepository;
 import Fridge_Chef.team.ingredient.service.IngredientService;
 import Fridge_Chef.team.recipe.domain.Difficult;
 import Fridge_Chef.team.recipe.domain.Recipe;
 import Fridge_Chef.team.recipe.domain.RecipeIngredient;
-import Fridge_Chef.team.recipe.repository.RecipeRepository;
 import Fridge_Chef.team.user.domain.Profile;
 import Fridge_Chef.team.user.domain.Role;
 import Fridge_Chef.team.user.domain.User;
@@ -44,15 +40,10 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 @org.springframework.context.annotation.Profile({"prod", "dev"})
 public class BasicRecipesInitializer {
-    private final ImageRepository imageRepository;
-
-    private final ResourceLoader resourceLoader;
-
     private final IngredientService ingredientService;
-
+    private final ImageRepository imageRepository;
+    private final ResourceLoader resourceLoader;
     private final UserRepository userRepository;
-    private final RecipeIngredientRepository recipeIngredientRepository;
-    private final ContextRepository contextRepository;
     private final BoardRepository boardRepository;
     private final BoardUserEventRepository boardUserEventRepository;
 
@@ -99,7 +90,6 @@ public class BasicRecipesInitializer {
     }
 
     private List<String> parseLine(String line) {
-
         List<String> result = new ArrayList<>();
         Matcher matcher = CSV_LINE_PATTERN.matcher(line);
 
@@ -110,7 +100,6 @@ public class BasicRecipesInitializer {
                 result.add(matcher.group(2).trim());
             }
         }
-
         return result;
     }
 
@@ -122,9 +111,9 @@ public class BasicRecipesInitializer {
         String intro = fields.get(4);
         String ingredients = fields.get(5);
 
-        List<RecipeIngredient> recipeIngredients =extractRecipeIngredients(ingredients);
+        List<RecipeIngredient> recipeIngredients = extractRecipeIngredients(ingredients);
         List<Description> descriptions = extractDescriptions(fields);
-        return  Recipe.builder()
+        return Recipe.builder()
                 .name(name)
                 .category(category)
                 .cookTime(cookTime)
@@ -142,7 +131,7 @@ public class BasicRecipesInitializer {
         String[] parts = INGREDIENTS_SPLIT_PATTERN.split(ingredients);
         for (String part : parts) {
             part = part.trim();
-            String ingredientName = extractIngredientName(part);
+            String ingredientName = match(INGREDIENT_NAME_PATTERN, part);
             String quantity = extractQuantity(part);
             Ingredient ingredient = ingredientService.getOrCreate(ingredientName);
 
@@ -166,25 +155,20 @@ public class BasicRecipesInitializer {
         return descriptions;
     }
 
-    private String extractIngredientName(String part) {
 
-        Matcher matcher = INGREDIENT_NAME_PATTERN.matcher(part);
-
+    private String match(Pattern pattern, String part) {
+        Matcher matcher = pattern.matcher(part);
         if (matcher.find()) {
             return matcher.group(1).trim();
         }
-
         return part;
     }
 
     private String extractQuantity(String part) {
-
         Matcher matcher = QUANTITY_PATTERN.matcher(part);
-
         if (matcher.find()) {
             return matcher.group(1).trim();
         }
-
         return "X";
     }
 
