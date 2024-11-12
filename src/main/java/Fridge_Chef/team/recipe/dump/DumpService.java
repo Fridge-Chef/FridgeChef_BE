@@ -4,7 +4,6 @@ import Fridge_Chef.team.board.domain.Board;
 import Fridge_Chef.team.board.domain.Context;
 import Fridge_Chef.team.board.domain.Description;
 import Fridge_Chef.team.board.repository.BoardRepository;
-import Fridge_Chef.team.board.repository.ContextRepository;
 import Fridge_Chef.team.board.repository.DescriptionRepository;
 import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.exception.ErrorCode;
@@ -48,7 +47,6 @@ public class DumpService {
     private final DescriptionRepository descriptionRepository;
     private final ImageRepository imageRepository;
     private final BoardRepository boardRepository;
-    private final ContextRepository contextRepository;
     private final UserRepository userRepository;
     private final RecipeIngredientRepository recipeIngredientRepository;
 
@@ -57,7 +55,7 @@ public class DumpService {
 
     private static final Pattern PREFIX_PATTERN = Pattern.compile("^[\\s●]*(?:재료|주재료)?\\s*");
 
-    @Value("${recipeRequestUrl}")
+//    @Value("${recipeRequestUrl}")
     private String baseUrl;
 
     @Transactional
@@ -102,7 +100,7 @@ public class DumpService {
             saveRecipeWithIngredients(recipe);
 
             Context context = Context.formMyUserRecipe(recipe.getRecipeIngredients(), recipe.getDescriptions());
-            context = contextRepository.save(context);
+//            context = contextRepository.save(context);
 
             Board board = Board.from(user, recipe);
             board.updateContext(context);
