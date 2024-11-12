@@ -47,9 +47,6 @@ out/
 
 ### VS Code ###
 .vscode/
-/src/main/resources/Wallet_**
-/src/main/resources/fridgejwt.priv
-/src/main/resources/fridgejwt.pub
 /venv/
 /redoc-static.html
 /package-lock.json
@@ -60,3 +57,5 @@ out/
 /src/main/resources/private/
 /batch/src/main/resources/private/
 /batch/
+/docs/help.md
+/http/http-client.env.json

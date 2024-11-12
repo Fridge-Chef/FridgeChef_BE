@@ -33,6 +33,9 @@ public class FileRemoveManager {
         try {
             storageClient.deleteObject(request);
         } catch (BmcException e) {
+            if(e.getStatusCode() == 404 ){
+                return;
+            }
             throw new ApiException(ErrorCode.IMAGE_FILE_DELETE_FAIL);
         }
     }
