@@ -12,6 +12,7 @@ import Fridge_Chef.team.comment.rest.response.CommentResponse;
 import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.exception.ErrorCode;
 import Fridge_Chef.team.image.domain.Image;
+import Fridge_Chef.team.image.repository.ImageRepository;
 import Fridge_Chef.team.image.service.ImageService;
 import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.domain.UserId;
@@ -23,8 +24,10 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,6 +35,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class CommentService {
+    private final ImageRepository imageRepository;
     private final CommentRepository commentRepository;
     private final CommentUserEventRepository commentUserEventRepository;
     private final BoardRepository boardRepository;
@@ -41,6 +45,8 @@ public class CommentService {
 
     @Transactional
     public Comment addComment(Long boardId, UserId userId, CommentCreateRequest request) {
+        log.info("댓글 등록 board:" + boardId + " , userid:" + userId + ", message :" + request.comment());
+
         Board board = findByBoard(boardId);
         User user = findByUser(userId);
         List<Image> images = request.images() != null ? imageService.imageUploads(userId, request.images()) : new ArrayList<>();
@@ -49,12 +55,6 @@ public class CommentService {
                 .stream()
                 .filter(comment -> comment.getUsers().getUserId().equals(userId))
                 .findFirst();
-
-        log.info("댓글 등록 board:" + boardId + " , userid:" + userId + ", message :" + request.comment());
-
-        for (var img : images) {
-            log.info("add comment img :" + img.getId() + " " + img.getLink());
-        }
 
         if (existingComment.isPresent()) {
             Comment commentToUpdate = existingComment.get();
@@ -72,6 +72,7 @@ public class CommentService {
 
     @Transactional
     public Comment updateComment(Long boardId, Long commentId, UserId userId, CommentUpdateRequest request) {
+        log.info("댓글 수정    user :"+userId);
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ApiException(ErrorCode.COMMENT_NOT_FOUND));
 
@@ -80,14 +81,24 @@ public class CommentService {
 
         comment.updateStar(request.star());
         comment.updateComment(request.comment());
-        if (request.isImage() && request.image() != null && !request.image().isEmpty()) {
-            List<Image> images = new ArrayList<>();
-            request.image().forEach(image -> images.add(imageService.imageUpload(userId, image)));
-            comment.updateComments(images);
-        }
-        commentRepository.save(comment);
 
-        return comment;
+        List<MultipartFile> imageFiles = new ArrayList<>(request.image() == null ? List.of() :request.image());
+
+        if(imageFiles.isEmpty()){
+            return comment;
+        }
+
+        for(Image image : comment.getCommentImage()){
+            imageService.imageRemove(userId,image.getId());
+            imageRepository.delete(image);
+        }
+        comment.removeImage();
+
+        List<Image> images = new ArrayList<>();
+        request.image().forEach(image -> images.add(imageService.imageUpload(userId, image)));
+        comment.updateComments(images);
+        log.info("댓글 삭제 성공      user: "+userId);
+        return commentRepository.save(comment);
     }
 
     @Transactional
@@ -130,7 +141,7 @@ public class CommentService {
 
     @Transactional(readOnly = true)
     public CommentResponse getCommentsByBoard(Long boardId, Long commentId, Optional<UserId> user) {
-        Board board = boardRepository.findById(boardId)
+        boardRepository.findById(boardId)
                 .orElseThrow(() -> new ApiException(ErrorCode.BOARD_NOT_FOUND));
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ApiException(ErrorCode.COMMENT_NOT_FOUND));
@@ -166,11 +177,10 @@ public class CommentService {
     private int filterTotalHit(Comment comment) {
         return comment.getCommentUserEvent()
                 .stream()
-                .filter(v -> v.getHit() == 1)
+                .filter(CommentUserEvent::isHitOn)
                 .toList()
                 .size();
     }
-
 
     private Comment findComment(Long commentId) {
         return commentRepository.findById(commentId)

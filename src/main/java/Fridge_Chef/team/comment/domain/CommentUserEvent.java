@@ -40,4 +40,8 @@ public class CommentUserEvent extends BaseEntity {
             hit = 0;
         }
     }
+
+    public boolean isHitOn(){
+        return hit == 1;
+    }
 }
