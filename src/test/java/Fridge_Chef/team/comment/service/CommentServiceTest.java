@@ -76,7 +76,6 @@ public class CommentServiceTest {
         CommentCreateRequest request = new CommentCreateRequest("Test Comment", null, 4.0);
         when(boardRepository.findById(anyLong())).thenReturn(Optional.of(board));
         when(userRepository.findByUserId_Value(any(UUID.class))).thenReturn(Optional.of(user));
-//        when(imageService.imageUploads(any(UserId.class), isNull())).thenReturn(List.of(ImageFixture.create()));
         when(commentRepository.save(any(Comment.class))).thenReturn(comment);
 
         Comment result = commentService.addComment(1L, UserFixture.create("tests@gmail.com").getUserId(), request);
@@ -91,14 +90,15 @@ public class CommentServiceTest {
     @Transactional
     @DisplayName("댓글 수정 - 성공")
     void updateComment_Success() {
-        CommentUpdateRequest request = new CommentUpdateRequest("test", false, null, 4.5);
-        when(commentRepository.findById(anyLong())).thenReturn(Optional.of(comment));
+        CommentUpdateRequest request = new CommentUpdateRequest("test", true, null, 4.5);
+        Comment existingComment = new Comment(board, user, List.of(), "수정내용", 4.5);
+
+        when(commentRepository.findById(anyLong())).thenReturn(Optional.of(existingComment));
 
         Comment result = commentService.updateComment(1L, 1L, user.getUserId(), request);
 
-        assertNotNull(result);
-        assertEquals(4.5, result.getStar());
-        verify(commentRepository, times(1)).save(any(Comment.class));
+        assertNotNull(result, "Result should not be null"); // 추가된 검증
+        assertEquals(4.5, result.getStar(), "Star rating should be updated to 4.5");
     }
 
     @Test

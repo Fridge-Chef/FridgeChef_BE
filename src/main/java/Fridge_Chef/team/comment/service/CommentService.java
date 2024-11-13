@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -87,18 +88,19 @@ public class CommentService {
 
         List<MultipartFile> imageFiles = new ArrayList<>(request.image() == null ? List.of() :request.image());
 
+        if(imageFiles.isEmpty()){
+            return comment;
+        }
+
         for(Image image : comment.getCommentImage()){
             imageService.imageRemove(userId,image.getId());
             imageRepository.delete(image);
         }
-
         comment.removeImage();
 
-        if(!imageFiles.isEmpty()){
-            List<Image> images = new ArrayList<>();
-            request.image().forEach(image -> images.add(imageService.imageUpload(userId, image)));
-            comment.updateComments(images);
-        }
+        List<Image> images = new ArrayList<>();
+        request.image().forEach(image -> images.add(imageService.imageUpload(userId, image)));
+        comment.updateComments(images);
         log.info("댓글 삭제 성공      user: "+userId);
         return commentRepository.save(comment);
     }
