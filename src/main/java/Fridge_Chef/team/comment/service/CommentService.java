@@ -24,6 +24,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,6 +75,7 @@ public class CommentService {
 
     @Transactional
     public Comment updateComment(Long boardId, Long commentId, UserId userId, CommentUpdateRequest request) {
+        log.info("댓글 수정    user :"+userId);
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ApiException(ErrorCode.COMMENT_NOT_FOUND));
 
@@ -83,21 +85,26 @@ public class CommentService {
         comment.updateStar(request.star());
         comment.updateComment(request.comment());
 
-        if (request.isImage()) {
-            for(Image image : comment.getCommentImage()){
-                imageService.imageRemove(userId,image.getId());
-                imageRepository.delete(image);
-            }
-            comment.removeImage();
-            if(request.image() != null || !request.image().isEmpty()){
-                List<Image> images = new ArrayList<>();
-                request.image().forEach(image -> images.add(imageService.imageUpload(userId, image)));
-                comment.updateComments(images);
-            }
+        if (!request.isImage()) {
+            return comment;
         }
-        commentRepository.save(comment);
 
-        return comment;
+        for(Image image : comment.getCommentImage()){
+            imageService.imageRemove(userId,image.getId());
+            imageRepository.delete(image);
+        }
+
+        comment.removeImage();
+
+        List<MultipartFile> imageFiles = new ArrayList<>(request.image() == null ? List.of() :request.image());
+
+        if(!imageFiles.isEmpty()){
+            List<Image> images = new ArrayList<>();
+            request.image().forEach(image -> images.add(imageService.imageUpload(userId, image)));
+            comment.updateComments(images);
+        }
+        log.info("댓글 삭제 성공      user: "+userId);
+        return commentRepository.save(comment);
     }
 
     @Transactional
