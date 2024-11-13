@@ -45,6 +45,8 @@ public class CommentService {
 
     @Transactional
     public Comment addComment(Long boardId, UserId userId, CommentCreateRequest request) {
+        log.info("댓글 등록 board:" + boardId + " , userid:" + userId + ", message :" + request.comment());
+
         Board board = findByBoard(boardId);
         User user = findByUser(userId);
         List<Image> images = request.images() != null ? imageService.imageUploads(userId, request.images()) : new ArrayList<>();
@@ -53,12 +55,6 @@ public class CommentService {
                 .stream()
                 .filter(comment -> comment.getUsers().getUserId().equals(userId))
                 .findFirst();
-
-        log.info("댓글 등록 board:" + boardId + " , userid:" + userId + ", message :" + request.comment());
-
-        for (var img : images) {
-            log.info("add comment img :" + img.getId() + " " + img.getLink());
-        }
 
         if (existingComment.isPresent()) {
             Comment commentToUpdate = existingComment.get();
@@ -145,7 +141,7 @@ public class CommentService {
 
     @Transactional(readOnly = true)
     public CommentResponse getCommentsByBoard(Long boardId, Long commentId, Optional<UserId> user) {
-        Board board = boardRepository.findById(boardId)
+        boardRepository.findById(boardId)
                 .orElseThrow(() -> new ApiException(ErrorCode.BOARD_NOT_FOUND));
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ApiException(ErrorCode.COMMENT_NOT_FOUND));
@@ -181,11 +177,10 @@ public class CommentService {
     private int filterTotalHit(Comment comment) {
         return comment.getCommentUserEvent()
                 .stream()
-                .filter(v -> v.getHit() == 1)
+                .filter(CommentUserEvent::isHitOn)
                 .toList()
                 .size();
     }
-
 
     private Comment findComment(Long commentId) {
         return commentRepository.findById(commentId)
