@@ -80,7 +80,7 @@ public class CommentService {
 
         comment.updateStar(request.star());
         comment.updateComment(request.comment());
-        if (request.isImage()) {
+        if (request.isImage() && request.image() != null && !request.image().isEmpty()) {
             List<Image> images = new ArrayList<>();
             request.image().forEach(image -> images.add(imageService.imageUpload(userId, image)));
             comment.updateComments(images);
