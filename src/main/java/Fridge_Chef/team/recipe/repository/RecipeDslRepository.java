@@ -1,6 +1,5 @@
 package Fridge_Chef.team.recipe.repository;
 
-import Fridge_Chef.team.board.domain.Board;
 import Fridge_Chef.team.recipe.repository.model.RecipeSearchSortType;
 import Fridge_Chef.team.recipe.rest.request.RecipePageRequest;
 import Fridge_Chef.team.recipe.rest.response.RecipeSearchResponse;
@@ -30,7 +29,8 @@ import static Fridge_Chef.team.recipe.domain.QRecipeIngredient.recipeIngredient;
  * <p>
  * 이슈 : n+1 문제
  * n+1 문제 해결후 0.039ms 으로 해결
-
+ * 이슈 : [게시판] - 1:N - [레시피-재료] - 1:1 - [재료]
+ *          필수,선택 재료 매칭 정렬순 문제 해결
  */
 @Slf4j
 @Repository
@@ -41,25 +41,25 @@ public class RecipeDslRepository {
 
     @Transactional(readOnly = true)
     public Page<RecipeSearchResponse> findRecipesByIngredients(PageRequest pageable, RecipePageRequest request, List<String> must, List<String> ingredients, Optional<UserId> userId) {
+        BooleanBuilder pickBuilder = new BooleanBuilder();
+        BooleanBuilder mustBuilder = new BooleanBuilder();
+        List<String> pick = merge(must, ingredients);
+
         var query = factory
                 .selectFrom(board)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .leftJoin(board.context.boardIngredients, recipeIngredient)
                 .leftJoin(recipeIngredient.ingredient, ingredient)
-                .groupBy(board, recipeIngredient, ingredient, ingredient.name);
+                .groupBy(board);
 
-        List<String> pick = merge(must,ingredients);
+        validTask(must,
+                () -> must.forEach(find -> mustBuilder.and(board.context.pathIngredient.contains(find))),
+                () -> query.where(mustBuilder));
 
-        BooleanBuilder builder = new BooleanBuilder();
-        if (!must.isEmpty()) {
-            for (String mu : must) {
-                builder.and(recipeIngredient.ingredient.name.eq(mu));
-            }
-        }
-        builder.and(ingredient.name.in(pick));
-        query.where(builder);
-        int totalPage = query.fetch().size();
+        validTask(ingredients,
+                () -> pickBuilder.or(recipeIngredient.ingredient.name.in(pick)),
+                () -> query.where(pickBuilder));
 
         applySort(query, request.getSortType());
 
@@ -68,10 +68,17 @@ public class RecipeDslRepository {
                 .map(value -> RecipeSearchResponse.of(value, pick, userId))
                 .toList();
 
-        return PageableExecutionUtils.getPage(responses, pageable, () -> totalPage);
+        return PageableExecutionUtils.getPage(responses, pageable, () -> query.fetch().size());
     }
 
-    private void applySort(JPAQuery<Board> query, RecipeSearchSortType sortType) {
+    private void validTask(List<String> ingredient, Runnable runnable, Runnable where) {
+        if (ingredient != null || !ingredient.isEmpty()) {
+            runnable.run();
+            where.run();
+        }
+    }
+
+    private void applySort(JPAQuery<?> query, RecipeSearchSortType sortType) {
         switch (sortType) {
             case MATCH -> query.orderBy(recipeIngredient.ingredient.name.count().desc());
             case RATING -> query.orderBy(board.totalStar.desc());
