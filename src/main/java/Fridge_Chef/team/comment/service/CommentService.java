@@ -12,6 +12,7 @@ import Fridge_Chef.team.comment.rest.response.CommentResponse;
 import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.exception.ErrorCode;
 import Fridge_Chef.team.image.domain.Image;
+import Fridge_Chef.team.image.repository.ImageRepository;
 import Fridge_Chef.team.image.service.ImageService;
 import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.domain.UserId;
@@ -32,6 +33,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class CommentService {
+    private final ImageRepository imageRepository;
     private final CommentRepository commentRepository;
     private final CommentUserEventRepository commentUserEventRepository;
     private final BoardRepository boardRepository;
@@ -80,10 +82,18 @@ public class CommentService {
 
         comment.updateStar(request.star());
         comment.updateComment(request.comment());
-        if (request.isImage() && request.image() != null && !request.image().isEmpty()) {
-            List<Image> images = new ArrayList<>();
-            request.image().forEach(image -> images.add(imageService.imageUpload(userId, image)));
-            comment.updateComments(images);
+
+        if (request.isImage()) {
+            for(Image image : comment.getCommentImage()){
+                imageService.imageRemove(userId,image.getId());
+                imageRepository.delete(image);
+            }
+            comment.removeImage();
+            if(request.image() != null || !request.image().isEmpty()){
+                List<Image> images = new ArrayList<>();
+                request.image().forEach(image -> images.add(imageService.imageUpload(userId, image)));
+                comment.updateComments(images);
+            }
         }
         commentRepository.save(comment);
 
