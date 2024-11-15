@@ -132,5 +132,5 @@ jobs:
               echo "Adding label: $LABEL to PR #${{ github.event.pull_request.number }}"
               gh pr edit ${{ github.event.pull_request.number }} --add-label "$LABEL"
             done
-          env:
-            GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # GitHub Actions에서 제공하는 토큰
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
