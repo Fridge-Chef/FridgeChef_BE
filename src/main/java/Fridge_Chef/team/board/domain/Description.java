@@ -27,10 +27,6 @@ public class Description {
         this.image = image;
     }
 
-    public boolean isImageEmpty() {
-        return this.image == null;
-    }
-
     public Description update(String description, Image image) {
         this.description = description;
         this.image = image;
