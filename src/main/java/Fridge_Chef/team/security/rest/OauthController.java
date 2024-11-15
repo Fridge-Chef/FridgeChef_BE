@@ -27,7 +27,6 @@ public class OauthController {
     private final CustomOAuth2UserService oAuth2UserService;
     private final CustomOAuth2ClientProvider customOAuth2ClientProvider;
     private final JwtProvider jwtProvider;
-    private final UserRepository userRepository;
 
     @PostMapping("/login")
     public UserResponse login(@RequestBody MobileLoginRequest request) {
@@ -35,11 +34,9 @@ public class OauthController {
         OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, request.getToken(), null, null);
 
         OAuth2UserRequest userRequest = new OAuth2UserRequest(client, accessToken);
-        OAuth2User oAuth2User = oAuth2UserService.loadUser(userRequest);
-        UserId userId = new UserId((String) oAuth2User.getAttributes().get("userId"));
-        User user = userRepository.findByUserId(userId)
-                .orElseThrow(() -> new ApiException(ErrorCode.TOKEN_ACCESS_NOT_USER));
-        String jwtToken = jwtProvider.create(userId, user.getRole());
+        User user = oAuth2UserService.loadUserToId(userRequest);
+        String jwtToken = jwtProvider.create(user.getUserId(), user.getRole());
+
         return createUserResponse(user, jwtToken);
     }
 
