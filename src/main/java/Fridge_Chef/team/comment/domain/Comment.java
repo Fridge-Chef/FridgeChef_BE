@@ -20,15 +20,13 @@ import static lombok.AccessLevel.PROTECTED;
 @Table(name = "comments")
 @NoArgsConstructor(access = PROTECTED)
 public class Comment extends BaseEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
-
     @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true)
     private List<CommentUserEvent> commentUserEvent;
-    @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.PERSIST )
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<Image> commentImage;
     @ManyToOne(fetch = FetchType.LAZY)
     private Board board;
@@ -44,7 +42,7 @@ public class Comment extends BaseEntity {
         this.users = users;
         this.comments = comments;
         this.star = star;
-        this.totalHit=0;
+        this.totalHit = 0;
         this.commentImage = images;
         this.commentUserEvent = new ArrayList<>();
     }
@@ -60,45 +58,44 @@ public class Comment extends BaseEntity {
         this.star = star;
     }
 
-    public List<String> getImageLink(){
+    public List<String> getImageLink() {
         List<String> links = new ArrayList<>();
-        if(commentImage != null){
-            for(var image : commentImage){
+        if (commentImage != null) {
+            for (var image : commentImage) {
                 links.add(image.getLink());
             }
         }
         return links;
     }
-    public Comment updateId(Long id){
-        this.id=id;
+
+    public Comment updateId(Long id) {
+        this.id = id;
         return this;
     }
 
     public void updateImage(List<Image> image) {
-        this.commentImage=image;
+        this.commentImage = image;
     }
+
     public void updateHit(int totalHit) {
         this.totalHit = totalHit;
     }
 
     public void updateComment(String comment) {
-        this.comments =comment;
+        this.comments = comment;
     }
 
     public List<String> getImageLinks() {
         List<String> list = new ArrayList<>();
-        if(commentImage==null){
+        if (commentImage == null) {
             return list;
         }
-        commentImage.forEach(comment -> {
-            System.out.println("response get img link :"+comment.getLink());
-                list.add(comment.getLink());
-        });
+        commentImage.forEach(comment -> list.add(comment.getLink()));
         return list;
     }
 
     public void updateComments(List<Image> images) {
-        this.commentImage=images;
+        this.commentImage = images;
     }
 
     public void addUserEvent(CommentUserEvent commentUserEvent) {
