@@ -1,4 +1,3 @@
-
 ### 특정 레시피 댓글조회
 GET {{http-api}}/api/boards/{{board_id}}/comments
 
