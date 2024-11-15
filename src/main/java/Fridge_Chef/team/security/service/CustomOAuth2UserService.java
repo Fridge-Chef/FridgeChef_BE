@@ -8,10 +8,7 @@ import Fridge_Chef.team.image.domain.Image;
 import Fridge_Chef.team.image.repository.ImageRepository;
 import Fridge_Chef.team.security.service.dto.OAuthAttributes;
 import Fridge_Chef.team.security.service.factory.OAuthAttributesAdapterFactory;
-import Fridge_Chef.team.user.domain.Role;
-import Fridge_Chef.team.user.domain.Social;
-import Fridge_Chef.team.user.domain.User;
-import Fridge_Chef.team.user.domain.UserHistory;
+import Fridge_Chef.team.user.domain.*;
 import Fridge_Chef.team.user.repository.UserHistoryRepository;
 import Fridge_Chef.team.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -61,6 +58,12 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                 modifiableAttributes,
                 attributes.nameAttributeKey()
         );
+    }
+    public User loadUserToId(OAuth2UserRequest userRequest){
+        OAuth2User oAuth2User = loadUser(userRequest);
+        UserId userId = new UserId((String) oAuth2User.getAttributes().get("userId"));
+        return userRepository.findByUserId(userId)
+                .orElseThrow(() -> new ApiException(ErrorCode.TOKEN_ACCESS_NOT_USER));
     }
 
     public OAuthAttributes oAuthAttributes(String registrationId, OAuth2User oAuth2User) {
