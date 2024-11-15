@@ -4,5 +4,5 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 
-public record CommentUpdateRequest(String comment, boolean isImage, ArrayList<MultipartFile> image, double star) {
+public record CommentUpdateRequest(String comment, boolean isImage, ArrayList<MultipartFile> images, double star) {
 }
