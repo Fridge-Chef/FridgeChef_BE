@@ -111,32 +111,26 @@ jobs:
 
       - name: Create missing labels
         run: |
-          IFS=',' read -r -a LABEL_ARRAY <<< "recipe,book,api,레시피"
+          IFS=',' read -r -a LABEL_ARRAY <<< "${{ env.FINAL_LABELS }}"
           for LABEL in "${LABEL_ARRAY[@]}"; do
-            if ! gh label list | grep -q "$LABEL"; then
-          echo "Creating label: $LABEL"
-            gh label create "$LABEL" --color "$(printf '#%06X\n' $((RANDOM%16777215)))"
+            if ! gh label list | grep -q "^$LABEL$"; then
+              echo "Creating label: $LABEL"
+              gh label create "$LABEL" --color "$(printf '#%06X\n' $((RANDOM%16777215)))"
             else
-            echo "Label '$LABEL' already exists, updating..."
-            gh label edit "$LABEL" --force --color "$(printf '#%06X\n' $((RANDOM%16777215)))"
+              echo "Label '$LABEL' already exists, updating..."
+              gh label edit "$LABEL" --color "$(printf '#%06X\n' $((RANDOM%16777215)))"
             fi
-            done
-
+          done
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub Actions에서 제공하는 토큰
-
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Add labels to PR
+        if: github.event_name == 'pull_request'
         run: |
-          if [ "${{ github.event_name }}" == "pull_request" ]; then
-            echo "Adding labels: ${{ env.FINAL_LABELS }} to PR #${{ github.event.pull_request.number }}"
-            if gh pr edit ${{ github.event.pull_request.number }} --add-label "${{ env.FINAL_LABELS }}"; then
-              echo "Labels added successfully."
-            else
-              echo "Failed to add labels."
-            fi
-          else
-            echo "Not a pull request event, no labels added."
-          fi
+            IFS=',' read -r -a LABEL_ARRAY <<< "${{ env.FINAL_LABELS }}"
+            for LABEL in "${LABEL_ARRAY[@]}"; do
+              echo "Adding label: $LABEL to PR #${{ github.event.pull_request.number }}"
+              gh pr edit ${{ github.event.pull_request.number }} --add-label "$LABEL"
+            done
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub Actions에서 제공하는 토큰
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
