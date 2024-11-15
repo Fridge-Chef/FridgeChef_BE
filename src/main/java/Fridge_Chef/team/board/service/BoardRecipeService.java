@@ -10,6 +10,9 @@ import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.exception.ErrorCode;
 import Fridge_Chef.team.image.domain.Image;
 import Fridge_Chef.team.image.service.ImageService;
+import Fridge_Chef.team.ingredient.domain.Ingredient;
+import Fridge_Chef.team.ingredient.repository.IngredientRepository;
+import Fridge_Chef.team.ingredient.repository.RecipeIngredientRepository;
 import Fridge_Chef.team.recipe.domain.RecipeIngredient;
 import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.domain.UserId;
@@ -20,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -29,6 +33,8 @@ public class BoardRecipeService {
     private final BoardRepository boardRepository;
     private final BoardUserEventRepository boardUserEventRepository;
     private final ImageService imageService;
+    private final IngredientRepository ingredientRepository;
+    private final RecipeIngredientRepository recipeIngredientRepository ;
     private final BoardIngredientService boardIngredientService;
 
     @Transactional
@@ -38,7 +44,7 @@ public class BoardRecipeService {
         Image image = imageService.imageUpload(user.getUserId(), request.getMainImage());
 
         List<Description> descriptions = boardIngredientService.uploadInstructionImages(user.getUserId(), request);
-        List<RecipeIngredient> ingredients = boardIngredientService.findOrCreate(request);
+        List<RecipeIngredient> ingredients =findOrCreate(request.getRecipeIngredients());
 
         Context context = Context.formMyUserRecipe(
                 request.getDishTime(), request.getDishLevel(), request.getDishCategory(),
@@ -51,6 +57,23 @@ public class BoardRecipeService {
         return board;
     }
 
+    @Transactional
+    public List<RecipeIngredient> findOrCreate(List<BoardByRecipeRequest.RecipeIngredient> recipeIngredients) {
+        return recipeIngredients.stream()
+                .map(request -> findOrSaveIngredient(request.getName(),request.getDetails()))
+                .collect(Collectors.toList());
+    }
+
+    private RecipeIngredient findOrSaveIngredient(String name, String details) {
+        Ingredient ingredient = updateRecipeIngredient(name);
+        RecipeIngredient findRecipeIngredient = RecipeIngredient.ofMyRecipe(ingredient, details);
+        return recipeIngredientRepository.save(findRecipeIngredient);
+    }
+
+    private Ingredient updateRecipeIngredient(String name) {
+        return ingredientRepository.findByName(name)
+                .orElseGet(() -> ingredientRepository.save(new Ingredient(name)));
+    }
 
     @Transactional
     public Board update(UserId userId, BoardByRecipeUpdateRequest request) {
@@ -80,7 +103,7 @@ public class BoardRecipeService {
             }
 
             if (!isData) {
-                RecipeIngredient recipeIngredient = boardIngredientService.findOrCreate(new RecipeIngredientDto(ingredient.getName(), ingredient.getDetails()));
+                RecipeIngredient recipeIngredient = boardIngredientService.findOrSaveIngredient(new RecipeIngredientDto(ingredient.getName(), ingredient.getDetails()));
                 board.getContext().addRecipeIngredient(recipeIngredient);
             }
         }

@@ -3,7 +3,6 @@ package Fridge_Chef.team.board.domain;
 import Fridge_Chef.team.comment.domain.Comment;
 import Fridge_Chef.team.common.entity.BaseEntity;
 import Fridge_Chef.team.image.domain.Image;
-import Fridge_Chef.team.recipe.domain.Recipe;
 import Fridge_Chef.team.recipe.domain.RecipeIngredient;
 import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.domain.UserId;
@@ -70,15 +69,6 @@ public class Board extends BaseEntity {
         }
     }
 
-    public static Board from(User user, Recipe recipe) {
-        return new Board(user,recipe.getIntro(), recipe.getName(),
-                Context.formMyUserRecipe(
-                        recipe.getRecipeIngredients(),
-                        recipe.getDescriptions()
-                ),
-                recipe.getImage(),
-                BoardType.OPEN_API);
-    }
     public static Board from(User user,String intro,String name, Context context,Image mainImage) {
         return new Board(user,intro, name, context, mainImage, BoardType.OPEN_API);
     }

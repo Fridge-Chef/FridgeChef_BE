@@ -82,7 +82,7 @@ public class CommentService {
         comment.updateStar(request.star());
         comment.updateComment(request.comment());
 
-        List<MultipartFile> imageFiles = new ArrayList<>(request.image() == null ? List.of() :request.image());
+        List<MultipartFile> imageFiles = new ArrayList<>(request.images() == null ? List.of() :request.images());
 
         if(imageFiles.isEmpty()){
             return comment;
@@ -95,9 +95,9 @@ public class CommentService {
         comment.removeImage();
 
         List<Image> images = new ArrayList<>();
-        request.image().forEach(image -> images.add(imageService.imageUpload(userId, image)));
+        request.images().forEach(image -> images.add(imageService.imageUpload(userId, image)));
         comment.updateComments(images);
-        log.info("댓글 삭제 성공      user: "+userId);
+        log.info("댓글 수정 성공     user: "+userId);
         return commentRepository.save(comment);
     }
 
@@ -155,8 +155,6 @@ public class CommentService {
 
         Optional<CommentUserEvent> event = commentUserEventRepository.findByBoardIdAndCommentsIdAndUserUserId(boardId, commentId, userId);
         event.ifPresent(CommentUserEvent::updateHit);
-
-        log.info("내 좋아요 이력  :" + event.isPresent());
 
         if (event.isEmpty()) {
             var userEvent = new CommentUserEvent(board, comment, findByUser(userId));

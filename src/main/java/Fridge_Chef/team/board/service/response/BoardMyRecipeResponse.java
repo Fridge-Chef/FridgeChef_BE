@@ -11,6 +11,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -88,10 +89,7 @@ public class BoardMyRecipeResponse {
 
         var instructions = board.getContext().getDescriptions()
                 .stream()
-                .map(step -> {
-                    System.out.println("ins " +step.getDescription() +","+step.getLink());
-                    return new StepResponse(step.getDescription(), step.getLink());
-                })
+                .map(step -> new StepResponse(step.getDescription(), step.getLink()))
                 .collect(Collectors.toList());
 
 

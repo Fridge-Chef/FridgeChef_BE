@@ -1,5 +1,7 @@
 package Fridge_Chef.team.recipe.repository;
 
+import Fridge_Chef.team.board.domain.Board;
+import Fridge_Chef.team.board.domain.BoardUserEvent;
 import Fridge_Chef.team.recipe.repository.model.RecipeSearchSortType;
 import Fridge_Chef.team.recipe.rest.request.RecipePageRequest;
 import Fridge_Chef.team.recipe.rest.response.RecipeSearchResponse;
@@ -16,12 +18,15 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import static Fridge_Chef.team.board.domain.QBoard.board;
+import static Fridge_Chef.team.board.domain.QBoardUserEvent.boardUserEvent;
 import static Fridge_Chef.team.ingredient.domain.QIngredient.ingredient;
 import static Fridge_Chef.team.recipe.domain.QRecipeIngredient.recipeIngredient;
+import static Fridge_Chef.team.user.domain.QUser.user;
 
 /**
  * 100개 레시피 단어 검색 [ 성능 최적화 기록 ]
@@ -30,7 +35,12 @@ import static Fridge_Chef.team.recipe.domain.QRecipeIngredient.recipeIngredient;
  * 이슈 : n+1 문제
  * n+1 문제 해결후 0.039ms 으로 해결
  * 이슈 : [게시판] - 1:N - [레시피-재료] - 1:1 - [재료]
- *          필수,선택 재료 매칭 정렬순 문제 해결
+ * 필수,선택 재료 매칭 정렬순 문제 해결
+ * <p>
+ * con = 400ms
+ * cache = 218ms
+ *
+ * @author kang history
  */
 @Slf4j
 @Repository
@@ -61,24 +71,43 @@ public class RecipeDslRepository {
                 () -> pickBuilder.or(recipeIngredient.ingredient.name.in(pick)),
                 () -> query.where(pickBuilder));
 
-        applySort(query, request.getSortType());
+        int totalSize = query.fetch().size();
 
-        List<RecipeSearchResponse> responses = query.fetch()
-                .stream()
-                .map(value -> RecipeSearchResponse.of(value, pick, userId))
-                .toList();
+        applySort(query, request.sortType());
 
-        return PageableExecutionUtils.getPage(responses, pageable, () -> query.fetch().size());
+        List<Board> result = query.fetch();
+        List<BoardUserEvent> userEvent = getUserEvent(result, userId);
+
+        return PageableExecutionUtils.getPage(
+                RecipeSearchResponse.of(result, pick, userEvent),
+                pageable,
+                () -> totalSize);
     }
 
-    private void validTask(List<String> ingredient, Runnable runnable, Runnable where) {
-        if (ingredient != null || !ingredient.isEmpty()) {
-            runnable.run();
-            where.run();
+    private List<BoardUserEvent> getUserEvent(List<Board> boards, Optional<UserId> userId) {
+        if (userId.isPresent()) {
+            List<Long> ids = boards.stream()
+                    .map(Board::getId)
+                    .toList();
+
+            return factory.select(boardUserEvent)
+                    .from(boardUserEvent)
+                    .leftJoin(boardUserEvent.board, board)
+                    .leftJoin(boardUserEvent.user, user)
+                    .where(boardUserEvent.board.id.in(ids), boardUserEvent.user.userId.eq(userId.get()))
+                    .where(boardUserEvent.hit.eq(1))
+                    .fetch();
+        }
+        return new ArrayList<>();
+    }
+
+    private void validTask(List<String> ingredient, Runnable... runnables) {
+        if (ingredient != null && !ingredient.isEmpty()) {
+            Arrays.stream(runnables).forEach(Runnable::run);
         }
     }
 
-    private void applySort(JPAQuery<?> query, RecipeSearchSortType sortType) {
+    private void applySort(JPAQuery<Board> query, RecipeSearchSortType sortType) {
         switch (sortType) {
             case MATCH -> query.orderBy(recipeIngredient.ingredient.name.count().desc());
             case RATING -> query.orderBy(board.totalStar.desc());
