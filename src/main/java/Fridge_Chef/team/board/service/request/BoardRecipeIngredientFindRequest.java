@@ -19,9 +19,8 @@ public class BoardRecipeIngredientFindRequest {
         private Long id;
         private String name;
         private String details;
-
-
     }
+
     public static BoardRecipeIngredientFindRequest from(BoardByRecipeRequest request) {
         List<BoardRecipeIngredientFindRequest.RecipeIngredient> recipeIngredients =
                 request.getRecipeIngredients().stream()

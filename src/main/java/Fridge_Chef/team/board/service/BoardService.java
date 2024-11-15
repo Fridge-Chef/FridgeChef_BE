@@ -44,11 +44,13 @@ public class BoardService {
 
         var todayStart = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
         var todayEnd = todayStart.plusDays(1).minusNanos(1);
-        BoardHistory todayHistory = board.getHistorys().stream()
+        BoardHistory todayHistory = board.getHistorys()
+                .stream()
                 .filter(history -> {
                     var createTime = history.getCreateTime();
                     return createTime.isAfter(todayStart) && createTime.isBefore(todayEnd);
-                }).findFirst()
+                })
+                .findFirst()
                 .orElse(boardHistoryRepository.save(new BoardHistory(board, 0)));
 
         todayHistory.countUp();
@@ -122,36 +124,11 @@ public class BoardService {
                 .size();
     }
 
-    @Transactional
-    public void updateUserStar(UserId userId, Long boardId, BoardStarRequest request) {
-        Board board = findById(boardId);
-        User user = userRepository.findByUserId_Value(userId.getValue())
-                .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
-
-        BoardUserEvent evnet = getUserEvent(user, board);
-
-        evnet.updateStar(request.star());
-
-        if (evnet.getHit() == 0 && evnet.getStar() == 0) {
-            boardUserEventRepository.deleteById(evnet.getId());
-        }
-
-        double star = board.getBoardUserEvent()
-                .stream()
-                .mapToDouble(BoardUserEvent::getStar)
-                .average().orElse(0L);
-
-        board.updateStar(roundToHalf(star));
-    }
-
     public Board findById(Long id) {
         return boardRepository.findById(id)
                 .orElseThrow(() -> new ApiException(ErrorCode.BOARD_NOT_FOUND));
     }
 
-    private static double roundToHalf(double star) {
-        return Math.round(star * 2) / 2.0;
-    }
 
     private Board findByUserIdAndBoardId(UserId userId, Long boardId) {
         Board board = findById(boardId);

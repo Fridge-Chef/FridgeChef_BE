@@ -59,4 +59,8 @@ public class BoardUserEvent extends BaseEntity {
         }
         return false;
     }
+
+    public boolean isUserHit(){
+        return hit != 0;
+    }
 }
