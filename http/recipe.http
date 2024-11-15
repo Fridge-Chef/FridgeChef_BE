@@ -1,6 +1,6 @@
 ### 추천 레시피 조회
-GET {{http-api}}/api/recipes/?must=달걀&ingredients=대파&page=0&size=50&sort=MATCH
-
+GET {{http-api}}/api/recipes/?must=계란&ingredients=소금&page=0&size=50&sort=MATCH
+Authorization: Bearer {{token}}
 
 ### 레시피 단일 id 조회
 GET {{http-api}}/api/boards/1
@@ -19,7 +19,7 @@ GET {{http-api}}/api/books/recipe?book=MYRECIPE
 Authorization: Bearer {{token}}
 
 ### 찜하기 클릭
-POST {{http-api}}/api/boards/1/hit
+PATCH {{http-api}}/api/boards/21/like
 Authorization: Bearer {{token}}
 
 ### 구매 버튼

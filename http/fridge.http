@@ -1,6 +1,6 @@
-# 냉장고 등록
-POST https://fridgebe.site/api/fridges/
-Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJ1c2VySWQiOiIzYzZkZjY1OC01ZGYxLTQ2OWItYTZlMi1mYjBlZTQ4Y2Y5OTUiLCJyb2xlIjoiVVNFUiIsImlhdCI6MTczMTAwMjE5NywiZXhwIjoxNzMxMDAzOTk3fQ.kLa6Pxd8CcLa2Lzof-oHU6dRGYJQ4z8JhaOVwyko0fAm-Ue-ja5N12s5Sb6xr0XgXQ2OpcPAPp5stSGIl8LtL7FJG1qJYmM4bT_5dWADJFcuTNb2nHxW5gLiWzDu8XclLYuJbqI-DKVnX3SqToZTD3vHgcUeKnPpswin7myviIFqcnnG6PN-43djD70bgzLBK3JODIJfEHyuiLs90_43nmtYqDeCKqgrOxNyrQX_F23AuWuUwup7ipLDYJAr_adans8mf_pjvY_k4RqDVVqPiFAETiYqvxBt_RlKWsugGKByU6QR11PJ0QoqrieLXNdypcgF5DxlpLRiM-F47VDyfA
+### 냉장고 등록
+POST {{http-api}}/api/fridges/
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 [
@@ -16,28 +16,24 @@ Content-Type: application/json
 
 
 ### 냉장고 재료 제거
-DELETE https://localhost/api/fridges/ingredients
-Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJ1c2VySWQiOiJkMDkzMDI0NC02Y2IxLTQwY2UtYTZkOS1mODBkM2E5NDkzZGYiLCJyb2xlIjoiVVNFUiIsImlhdCI6MTczMDgxNjY5OSwiZXhwIjoxNzMwODE4NDk5fQ.bvWQ90scWnL3DFnWWHwZTqrFm2mdAJqA7BJok6FwP0oaA3P8OmE73rBcaB7p190ubsl5gLxr03h2ye__x2GUgPLBIpUZMucO_kneUfy_3zZ7qi7nrTQ_QdPNeRevr5JUSkK03arkkLakCQG5cRczrCmImSYBthoO1C2FiqpiF3tItBWXfFw2qMHGPJdsbHpjC9UludgOoTQT4lkLi1nk5_kHQC4FNOSrJCBZ14dDdk_H6xPWY1kZS9U4vmrW3rNxgKDEmLjeW-tcqY3sG7iRNAxtY050jEA7ZpDy53euCvCkt-rsmZpzGhDiue1z6cu6qy7-EAJzbQT6rZv-Xs51wQ
+DELETE {{http-api}}/api/fridges/ingredients
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-"ingredientName": "라면"
+    "ingredientName": "라면"
 }
 
 ### 냉장고 수정
-PUT https://localhost/api/fridges/ingredients
-Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJ1c2VySWQiOiIzYzZkZjY1OC01ZGYxLTQ2OWItYTZlMi1mYjBlZTQ4Y2Y5OTUiLCJyb2xlIjoiVVNFUiIsImlhdCI6MTczMTAxNDkzMCwiZXhwIjoxNzMxMDE2NzMwfQ.I51XbzxkLo4R8FhcHs9GWuOHltctR8fcrNm9_veqhm6h0LmdSXhHs3wocL5OdrvzyZ6FptS1fbyozm0DLI45dhONBRAJf-TAoRRmBz9TfEYI49vA5N9wbaRbUdORMZesUuGQUzZE81Grru8M7aQ3M7mPL0uRtzawrGrOCV8ZY_KwPDvgGRwihHYWBtwWCjvZy6QA9hG8GX94NpWU2Kq9-MeqYmZfpQGHsYsHZdoVTSbLcYj8ItZboKt2nlordHLCmsanKFO1dkLW2u6ZbY1L98zA_KjuzPF6qk29gpUEEd2WKmICXmSsitWQdKENoRIjMXLvf7qsr02zE-hs1gVd4A
+PUT {{http-api}}/api/fridges/ingredients
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-    "name":"라면",
-    "category":"가공식품",
-    "date":"2027-05-16"
+    "name": "라면",
+    "category": "가공식품",
+    "date": "2027-05-16"
 }
-
-### 냉장고 조회
-GET https://localhost/api/fridges/
-Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJ1c2VySWQiOiIzYzZkZjY1OC01ZGYxLTQ2OWItYTZlMi1mYjBlZTQ4Y2Y5OTUiLCJyb2xlIjoiVVNFUiIsImlhdCI6MTczMTAxNDkzMCwiZXhwIjoxNzMxMDE2NzMwfQ.I51XbzxkLo4R8FhcHs9GWuOHltctR8fcrNm9_veqhm6h0LmdSXhHs3wocL5OdrvzyZ6FptS1fbyozm0DLI45dhONBRAJf-TAoRRmBz9TfEYI49vA5N9wbaRbUdORMZesUuGQUzZE81Grru8M7aQ3M7mPL0uRtzawrGrOCV8ZY_KwPDvgGRwihHYWBtwWCjvZy6QA9hG8GX94NpWU2Kq9-MeqYmZfpQGHsYsHZdoVTSbLcYj8ItZboKt2nlordHLCmsanKFO1dkLW2u6ZbY1L98zA_KjuzPF6qk29gpUEEd2WKmICXmSsitWQdKENoRIjMXLvf7qsr02zE-hs1gVd4A
 
 ### 냉장고 조회
 GET {{http-api}}/api/fridges/
