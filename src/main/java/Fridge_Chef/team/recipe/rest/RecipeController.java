@@ -3,7 +3,6 @@ package Fridge_Chef.team.recipe.rest;
 import Fridge_Chef.team.recipe.repository.model.RecipeSearchSortType;
 import Fridge_Chef.team.recipe.rest.request.RecipePageRequest;
 import Fridge_Chef.team.recipe.rest.response.RecipeSearchResponse;
-import Fridge_Chef.team.recipe.service.RecipeIngredientService;
 import Fridge_Chef.team.recipe.service.RecipeService;
 import Fridge_Chef.team.user.rest.model.AuthenticatedUser;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Arrays;
-import java.util.List;
 
 
 @RestController
@@ -34,6 +32,6 @@ public class RecipeController {
             @RequestParam(defaultValue = "MATCH", required = false) RecipeSearchSortType sort) {
         RecipePageRequest request = new RecipePageRequest(page, size, sort);
 
-        return recipeService.searchRecipe(request,  Arrays.asList(must), Arrays.asList(ingredients), AuthenticatedUser.anonymousUser(user));
+        return recipeService.searchRecipe(request, Arrays.asList(must), Arrays.asList(ingredients), AuthenticatedUser.anonymousUser(user));
     }
 }

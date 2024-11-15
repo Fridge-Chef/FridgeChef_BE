@@ -38,19 +38,18 @@ import java.util.regex.Pattern;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@org.springframework.context.annotation.Profile({"prod", "dev"})
 public class BasicRecipesInitializer {
+    private static final Pattern CSV_LINE_PATTERN = Pattern.compile("\"([^\"]*)\"|([^,]+)");
+    private static final Pattern INGREDIENTS_SPLIT_PATTERN = Pattern.compile("\\s*,\\s*(?=(?:[^()]*\\([^()]*\\))*[^()]*$)");
+    private static final Pattern INGREDIENT_NAME_PATTERN = Pattern.compile("(.*?)(\\s*\\(.*?\\))?$");
+    private static final Pattern QUANTITY_PATTERN = Pattern.compile("\\((.*?)\\)");
+
     private final IngredientService ingredientService;
     private final ImageRepository imageRepository;
     private final ResourceLoader resourceLoader;
     private final UserRepository userRepository;
     private final BoardRepository boardRepository;
     private final BoardUserEventRepository boardUserEventRepository;
-
-    private static final Pattern CSV_LINE_PATTERN = Pattern.compile("\"([^\"]*)\"|([^,]+)");
-    private static final Pattern INGREDIENTS_SPLIT_PATTERN = Pattern.compile("\\s*,\\s*(?=(?:[^()]*\\([^()]*\\))*[^()]*$)");
-    private static final Pattern INGREDIENT_NAME_PATTERN = Pattern.compile("(.*?)(\\s*\\(.*?\\))?$");
-    private static final Pattern QUANTITY_PATTERN = Pattern.compile("\\((.*?)\\)");
 
 
     @PostConstruct
@@ -83,8 +82,7 @@ public class BasicRecipesInitializer {
         int index = 0;
         while ((line = reader.readLine()) != null) {
             List<String> fields = parseLine(line);
-            Recipe recipe = createRecipe(fields);
-            recipeToBoard(user, recipe, index++);
+            recipeToBoard(user, createRecipe(fields), index++);
             log.info("board insert >");
         }
     }
@@ -172,7 +170,7 @@ public class BasicRecipesInitializer {
         return "X";
     }
 
-    private Board recipeToBoard(User user, Recipe recipe, int index) {
+    private void recipeToBoard(User user, Recipe recipe, int index) {
         Context context = Context.formMyUserRecipe(recipe.getCookTime(), String.valueOf(recipe.getDifficult()), recipe.getCategory(),
                 toRecipeIngredient(recipe.getRecipeIngredients()), toDescriptions(recipe.getDescriptions()));
         Image image = Image.outUri("https://objectstorage.ap-chuncheon-1.oraclecloud.com/p/RO5Ur4yw-jzifHvgLdMG4nkUmU_UJpzy3YQnWXaJnTIAygJO3qDzSwMy0ulHEwxt/n/axqoa2bp7wqg/b/fridge/o/" + index + "_recipe.png");
@@ -181,7 +179,6 @@ public class BasicRecipesInitializer {
         Board board = Board.from(user, recipe.getIntro(), recipe.getName(), context, image);
         boardRepository.save(board);
         boardUserEventRepository.save(new BoardUserEvent(board, user));
-        return board;
     }
 
     public List<Description> toDescriptions(List<Description> descriptions) {

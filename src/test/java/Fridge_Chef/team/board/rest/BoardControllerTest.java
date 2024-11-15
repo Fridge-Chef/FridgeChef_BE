@@ -93,7 +93,7 @@ public class BoardControllerTest extends RestDocControllerTests {
         when(boardIngredientService.uploadInstructionImages(any(UserId.class), any(BoardByRecipeRequest.class)))
                 .thenReturn(Collections.emptyList());
 
-        when(boardIngredientService.findOrCreate(any(BoardByRecipeRequest.class)))
+        when(boardRecipeService.findOrCreate(any()))
                 .thenReturn(Collections.emptyList());
 
         MockMultipartFile mainImage = getMultiFile("mainImage");
@@ -272,7 +272,7 @@ public class BoardControllerTest extends RestDocControllerTests {
         when(boardIngredientService.uploadInstructionImages(any(UserId.class), any(BoardByRecipeUpdateRequest.class)))
                 .thenReturn(mockDescriptions);
 
-        when(boardIngredientService.findOrCreate(any(BoardByRecipeUpdateRequest.class)))
+        when(boardRecipeService.findOrCreate(any()))
                 .thenReturn(mockIngredients);
 
         when(boardRecipeService.update(any(UserId.class),

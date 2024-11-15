@@ -28,31 +28,9 @@ public class BoardIngredientService {
     private final RecipeIngredientRepository recipeIngredientRepository;
 
     @Transactional
-    public List<RecipeIngredient> findOrCreate(BoardByRecipeRequest request) {
-        return request.getRecipeIngredients().stream()
-                .map(this::findOrSaveIngredient)
-                .collect(Collectors.toList());
+    public RecipeIngredient findOrSaveIngredient(RecipeIngredientDto dto) {
+        return findOrSaveIngredient(dto.name(), dto.detail());
     }
-
-    @Transactional
-    public List<RecipeIngredient> findOrCreate(BoardByRecipeUpdateRequest request) {
-        return request.getRecipeIngredients().stream()
-                .map(this::findOrSaveIngredient)
-                .collect(Collectors.toList());
-    }
-
-    @Transactional
-    public List<RecipeIngredient> findOrCreate(List<RecipeIngredientDto> request) {
-        return request.stream()
-                .map(this::findOrSaveIngredient)
-                .collect(Collectors.toList());
-    }
-
-    @Transactional
-    public RecipeIngredient findOrCreate(RecipeIngredientDto request) {
-        return findOrSaveIngredient(request);
-    }
-
 
     @Transactional
     public List<Description> uploadInstructionImages(UserId userId, BoardByRecipeRequest request) {
@@ -85,26 +63,11 @@ public class BoardIngredientService {
                 }).collect(Collectors.toList());
     }
 
-
     private RecipeIngredient findOrSaveIngredient(String name, String details) {
         Ingredient ingredient = updateRecipeIngredient(name);
         RecipeIngredient findRecipeIngredient = RecipeIngredient.ofMyRecipe(ingredient, details);
         return recipeIngredientRepository.save(findRecipeIngredient);
     }
-
-
-    private RecipeIngredient findOrSaveIngredient(RecipeIngredientDto dto) {
-        return findOrSaveIngredient(dto.name(), dto.detail());
-    }
-
-    private RecipeIngredient findOrSaveIngredient(BoardByRecipeRequest.RecipeIngredient recipeIngredient) {
-        return findOrSaveIngredient(recipeIngredient.getName(), recipeIngredient.getDetails());
-    }
-
-    private RecipeIngredient findOrSaveIngredient(BoardByRecipeUpdateRequest.RecipeIngredient recipeIngredient) {
-        return findOrSaveIngredient(recipeIngredient.getName(), recipeIngredient.getDetails());
-    }
-
     private Ingredient updateRecipeIngredient(String name) {
         return ingredientRepository.findByName(name)
                 .orElseGet(() -> saveNewIngredient(name));
