@@ -50,14 +50,13 @@ import java.util.Random;
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
 import static fixture.ImageFixture.getMultiFile;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
 
 
-@DisplayName("나만의 게시판")
+@DisplayName("나만의 게시판 API")
 @WebMvcTest({BoardController.class, BoardsController.class})
 public class BoardControllerTest extends RestDocControllerTests {
     private static final Random random = new Random();

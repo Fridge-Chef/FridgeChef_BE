@@ -42,13 +42,10 @@ import static org.mockito.Mockito.*;
 public class CommentServiceTest {
     @Mock
     private CommentRepository commentRepository;
-
     @Mock
     private BoardRepository boardRepository;
-
     @Mock
     private UserRepository userRepository;
-
     @Mock
     private ImageService imageService;
     @Mock
@@ -86,20 +83,19 @@ public class CommentServiceTest {
         verify(commentRepository, times(1)).save(any(Comment.class));
     }
 
-//    @Test
+    @Test
     @Transactional
     @DisplayName("댓글 수정 - 성공")
     void updateComment_Success() {
-//        CommentUpdateRequest request = new CommentUpdateRequest("test", false, null, 4.5);
-//        Comment existingComment = new Comment(board, user, List.of(ImageFixture.create(1L), ImageFixture.create(2L), ImageFixture.create(3L)), "수정내용", 4.5);
-//
-//        when(commentRepository.findById(anyLong())).thenReturn(Optional.of(existingComment));
-//        doNothing().when(imageRepository).delete(any());
-//
-//        Comment result = commentService.updateComment(1L, 1L, user.getUserId(), request);
-//
-//        assertNotNull(result, "Result should not be null"); // 추가된 검증
-//        assertEquals(4.5, result.getStar(), "Star rating should be updated to 4.5");
+        CommentUpdateRequest request = new CommentUpdateRequest("test", false, null, 4.5);
+        Comment existingComment = new Comment(board, user, List.of(ImageFixture.create(1L), ImageFixture.create(2L), ImageFixture.create(3L)), "수정내용", 4.5);
+
+        when(commentRepository.findById(anyLong())).thenReturn(Optional.of(existingComment));
+
+        Comment result = commentService.updateComment(1L, 1L, user.getUserId(), request);
+
+        assertNotNull(result, "Result should not be null"); // 추가된 검증
+        assertEquals(4.5, result.getStar(), "Star rating should be updated to 4.5");
     }
 
     @Test
@@ -143,5 +139,4 @@ public class CommentServiceTest {
         ApiException exception = assertThrows(ApiException.class, () -> commentService.updateComment(1L, 1L, UserFixture.create("tests@gmail.com").getUserId(), new CommentUpdateRequest("test", false, null, 4.0)));
         assertEquals(ErrorCode.COMMENT_NOT_FOUND, exception.getErrorCode());
     }
-
 }

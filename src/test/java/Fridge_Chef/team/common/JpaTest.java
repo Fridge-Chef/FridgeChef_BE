@@ -21,8 +21,8 @@ import Fridge_Chef.team.user.repository.UserRepository;
 import fixture.BoardFixture;
 import fixture.CommentFixture;
 import fixture.UserFixture;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -51,11 +51,16 @@ public class JpaTest extends QueryDslTest {
     @Autowired
     protected BoardUserEventRepository boardUserEventRepository;
 
-    @Rollback(false)
+    @Test
+    @Transactional
+    public void boardInsert() {
+    }
+
+    @Test
     @Transactional
     public void userBoardCommentMetaData() {
         List<User> users = creates();
-        List<Board> boards = BoardFixture.creates(5, users);
+        List<Board> boards = BoardFixture.creates(10, users);
 
         for (Board board : boards) {
             board = saveBoard(board);
@@ -64,6 +69,7 @@ public class JpaTest extends QueryDslTest {
             for (Comment comment : comments) {
                 comment.updateImage(imageRepository.saveAll(comment.getCommentImage()));
             }
+
             commentRepository.saveAll(comments);
             randomEvent(board, users);
 
@@ -75,7 +81,7 @@ public class JpaTest extends QueryDslTest {
     }
 
     private List<User> creates() {
-        return userRepository.saveAll(UserFixture.creates(20));
+        return userRepository.saveAll(UserFixture.creates(3));
     }
 
     private void randomEvent(Board board, List<User> users) {
