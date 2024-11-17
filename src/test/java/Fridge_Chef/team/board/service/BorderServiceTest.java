@@ -12,6 +12,7 @@ import Fridge_Chef.team.board.rest.request.BoardByRecipeUpdateRequest;
 import Fridge_Chef.team.board.rest.request.BoardPageRequest;
 import Fridge_Chef.team.board.service.response.BoardMyRecipePageResponse;
 import Fridge_Chef.team.board.service.response.BoardMyRecipeResponse;
+import Fridge_Chef.team.common.BootTest;
 import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.image.domain.Image;
 import Fridge_Chef.team.image.repository.ImageRepository;
@@ -46,9 +47,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 
-@SpringBootTest
-@DisplayName("나만의 게시판")
-public class BorderServiceTest {
+@DisplayName("레시피 서비스")
+public class BorderServiceTest  extends BootTest {
     private static final Random random = new Random();
     @Autowired
     private ImageLocalService imageService;
