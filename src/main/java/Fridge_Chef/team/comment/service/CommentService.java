@@ -82,9 +82,7 @@ public class CommentService {
         comment.updateStar(request.star());
         comment.updateComment(request.comment());
 
-        List<MultipartFile> imageFiles = new ArrayList<>(request.images() == null ? List.of() :request.images());
-
-        if(imageFiles.isEmpty()){
+        if(!request.isImage()){
             return comment;
         }
 
@@ -92,7 +90,12 @@ public class CommentService {
             imageService.imageRemove(userId,image.getId());
             imageRepository.delete(image);
         }
+
         comment.removeImage();
+
+        if(request.images() == null){
+            return comment;
+        }
 
         List<Image> images = new ArrayList<>();
         request.images().forEach(image -> images.add(imageService.imageUpload(userId, image)));
