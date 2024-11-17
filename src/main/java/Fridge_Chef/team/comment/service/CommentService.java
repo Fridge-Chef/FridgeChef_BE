@@ -89,7 +89,7 @@ public class CommentService {
 
         comment.removeImage();
 
-        if(request.images() == null ){
+        if(request.images() == null || !request.isImage()){
             return comment;
         }
 
