@@ -59,6 +59,15 @@ public class Image extends BaseEntity {
     public static Image outUri(String imageUrl) {
         return new Image(imageUrl, ImageType.OUT_URI);
     }
+
+    public static Image outUri(Long id,String imageUrl) {
+        Image image = new Image(imageUrl, ImageType.OUT_URI);
+        image.updateId(id);
+        return image;
+    }
+    private void updateId(Long id){
+        this.id=id;
+    }
     public static Image none() {
         return new Image();
     }

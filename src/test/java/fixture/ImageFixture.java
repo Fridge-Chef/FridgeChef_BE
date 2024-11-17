@@ -12,6 +12,10 @@ public class ImageFixture {
         return Image.outUri("test.png");
     }
 
+    public static Image create(Long id) {
+        return Image.outUri(id,"test.png");
+    }
+
     public static MockMultipartFile getMultiFile(String name) throws IOException {
         return new MockMultipartFile(
                 name,
