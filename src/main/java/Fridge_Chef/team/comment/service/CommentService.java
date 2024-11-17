@@ -82,6 +82,10 @@ public class CommentService {
         comment.updateStar(request.star());
         comment.updateComment(request.comment());
 
+        if(!request.isImage()){
+            return comment;
+        }
+
         for(Image image : comment.getCommentImage()){
             imageService.imageRemove(userId,image.getId());
             imageRepository.delete(image);
@@ -89,7 +93,7 @@ public class CommentService {
 
         comment.removeImage();
 
-        if(request.images() == null || !request.isImage()){
+        if(request.images() == null){
             return comment;
         }
 
