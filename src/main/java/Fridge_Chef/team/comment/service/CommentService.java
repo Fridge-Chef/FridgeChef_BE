@@ -82,17 +82,16 @@ public class CommentService {
         comment.updateStar(request.star());
         comment.updateComment(request.comment());
 
-        List<MultipartFile> imageFiles = new ArrayList<>(request.images() == null ? List.of() :request.images());
-
-        if(imageFiles.isEmpty()){
-            return comment;
-        }
-
         for(Image image : comment.getCommentImage()){
             imageService.imageRemove(userId,image.getId());
             imageRepository.delete(image);
         }
+
         comment.removeImage();
+
+        if(request.images() == null ){
+            return comment;
+        }
 
         List<Image> images = new ArrayList<>();
         request.images().forEach(image -> images.add(imageService.imageUpload(userId, image)));
