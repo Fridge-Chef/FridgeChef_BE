@@ -102,9 +102,8 @@ jobs:
 
       - name: Deploy
         run: |
-          date=$(date +'%Y%m%d-%H%M%S')
           scp -i ssh_key build/libs/*.jar ${{ secrets.SERVER_NAME }}@${{ secrets.APP_SERVER_IP }}:/home/ubuntu/dev/server.jar
-          ssh -i ssh_key ${{ secrets.SERVER_NAME }}@${{ secrets.APP_SERVER_IP }}  "sudo systemctl restart boot_server.service"
+          ssh -i ssh_key ${{ secrets.SERVER_NAME }}@${{ secrets.APP_SERVER_IP }} "bash /home/ubuntu/dev/deply.sh "
 
       - name: Notify Discord
         if: ${{ success() }}

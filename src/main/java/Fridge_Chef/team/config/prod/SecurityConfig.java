@@ -71,7 +71,7 @@ public class SecurityConfig {
         commentMatchers(registry);
         ingredientsMatchers(registry);
         userMatchers(registry);
-        registry.requestMatchers("/", "/static/**", "/docs.html", "/favicon.ico")
+        registry.requestMatchers("/", "/static/**", "/docs.html", "/favicon.ico","/actuator/health")
                 .permitAll()
                 .anyRequest().authenticated();
     }

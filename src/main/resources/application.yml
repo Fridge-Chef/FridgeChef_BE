@@ -10,6 +10,17 @@ spring:
     ansi:
       enabled: always
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  health:
+    db:
+      enabled: true
+    diskspace:
+      enabled: true
+
 logging:
   level:
     web: debug

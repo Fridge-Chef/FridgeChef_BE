@@ -69,9 +69,9 @@ public class SecurityDevConfig {
         commentMatchers(registry);
         ingredientsMatchers(registry);
         userMatchers(registry);
-        registry.requestMatchers("/", "/static/**", "/docs.html", "/favicon.ico")
+        registry.requestMatchers("/", "/static/**", "/docs.html", "/favicon.ico","/actuator/health")
                 .permitAll()
-                .requestMatchers(PathRequest.toH2Console()).permitAll()
+//                .requestMatchers(PathRequest.toH2Console()).permitAll()
                 .anyRequest().authenticated();
     }
 
