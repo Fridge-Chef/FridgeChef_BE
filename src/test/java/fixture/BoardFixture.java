@@ -20,7 +20,16 @@ public class BoardFixture {
     private final static Random random = new Random();
 
     public static Board create(User user) {
-        Board board = new Board(user, "","title", new Context(List.of(), List.of()), ImageFixture.create(), BoardType.USER);
+        List<RecipeIngredient> ingredients = new ArrayList<>();
+        ingredients.add(RecipeIngredient.ofMyRecipe(new Ingredient(INGREDIENTS.get(random.nextInt(INGREDIENTS.size()))),"세부1"));
+        ingredients.add(RecipeIngredient.ofMyRecipe(new Ingredient(INGREDIENTS.get(random.nextInt(INGREDIENTS.size()))),"세부1"));
+        ingredients.add(RecipeIngredient.ofMyRecipe(new Ingredient(INGREDIENTS.get(random.nextInt(INGREDIENTS.size()))),"세부1"));
+
+        Board board = new Board(user, "소개 1 ","title",
+                Context.formMyUserRecipe("1분","보통","양념,치킨",
+                        ingredients,
+                        List.of()),
+                ImageFixture.create(), BoardType.USER);
         board.updateId(2L);
         return board;
     }
@@ -42,7 +51,7 @@ public class BoardFixture {
                 ingredients.add(RecipeIngredient.ofMyRecipe(new Ingredient(ingredient.getName()), ingredient.getDetails()));
             });
 
-            Board board = new Board(user,"소개글 ~~~~~ ", title, new Context(
+            Board board = new Board(user,"소개글 ~~~~~ ", title, Context.formMyUserRecipe("1분","보통","과일,종류",
                     ingredients,
                     descriptions
             ), ImageFixture.create(), BoardType.USER);

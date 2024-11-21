@@ -12,7 +12,6 @@ import java.util.List;
 @Setter
 @Getter
 @NoArgsConstructor
-@AllArgsConstructor
 public class BoardByRecipeUpdateRequest {
     private Long id;
     private String title;
@@ -49,6 +48,18 @@ public class BoardByRecipeUpdateRequest {
         private boolean isImageChange;
     }
 
+    public BoardByRecipeUpdateRequest(Long id, String title, String description, MultipartFile mainImage, Long mainImageId, boolean isMainImageChange, String dishTime, String dishLevel, String dishCategory) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.mainImage = mainImage;
+        this.mainImageId = mainImageId;
+        this.isMainImageChange = isMainImageChange;
+        this.dishTime = dishTime;
+        this.dishLevel = dishLevel;
+        this.dishCategory = dishCategory;
+    }
+
     public BoardByRecipeUpdateRequest(long board, String title, String description, MultipartFile mainImage, boolean isMainImageChange,
                                       List<BoardByRecipeUpdateRequest.RecipeIngredient> recipeIngredient,
                                       List<BoardByRecipeUpdateRequest.Instructions> Instructions) {
@@ -57,6 +68,7 @@ public class BoardByRecipeUpdateRequest {
         this.description = description;
         this.mainImage = mainImage;
         this.isMainImageChange = isMainImageChange;
+
         List<RecipeIngredient> recipeIngredients1 = new ArrayList<>();
         List<Instructions> inst = new ArrayList<>();
         for (BoardByRecipeUpdateRequest.RecipeIngredient recipes : recipeIngredient) {
@@ -65,6 +77,34 @@ public class BoardByRecipeUpdateRequest {
                     recipes.getDetails()));
         }
         for (BoardByRecipeUpdateRequest.Instructions entity : Instructions) {
+            inst.add(new Instructions(entity.getId(),
+                    entity.getContent(),
+                    entity.getImage(),
+                    entity.isImageChange()));
+        }
+        this.instructions = inst;
+        this.recipeIngredients = recipeIngredients1;
+    }
+
+    public BoardByRecipeUpdateRequest(Long id, String title, String description, MultipartFile mainImage, Long mainImageId, boolean isMainImageChange, String dishTime, String dishLevel, String dishCategory, List<RecipeIngredient> recipeIngredients, List<Instructions> instructions) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.mainImage = mainImage;
+        this.mainImageId = mainImageId;
+        this.isMainImageChange = isMainImageChange;
+        this.dishTime = dishTime;
+        this.dishLevel = dishLevel;
+        this.dishCategory = dishCategory;
+
+        List<RecipeIngredient> recipeIngredients1 = new ArrayList<>();
+        List<Instructions> inst = new ArrayList<>();
+        for (BoardByRecipeUpdateRequest.RecipeIngredient recipes : recipeIngredients) {
+            recipeIngredients1.add(new RecipeIngredient(recipes.getId(),
+                    recipes.getName(),
+                    recipes.getDetails()));
+        }
+        for (BoardByRecipeUpdateRequest.Instructions entity : instructions) {
             inst.add(new Instructions(entity.getId(),
                     entity.getContent(),
                     entity.getImage(),

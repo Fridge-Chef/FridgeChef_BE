@@ -125,7 +125,7 @@ public class BoardRecipeService {
     }
 
     private User findByUserId(UserId userId) {
-        return userRepository.findByUserId_Value(userId.getValue())
+        return userRepository.findByUserId(userId)
                 .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
     }
 }

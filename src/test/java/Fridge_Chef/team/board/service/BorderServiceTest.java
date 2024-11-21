@@ -10,11 +10,14 @@ import Fridge_Chef.team.board.repository.model.SortType;
 import Fridge_Chef.team.board.rest.request.BoardByRecipeRequest;
 import Fridge_Chef.team.board.rest.request.BoardByRecipeUpdateRequest;
 import Fridge_Chef.team.board.rest.request.BoardPageRequest;
+import Fridge_Chef.team.board.service.request.RecipeIngredientDto;
 import Fridge_Chef.team.board.service.response.BoardMyRecipePageResponse;
 import Fridge_Chef.team.board.service.response.BoardMyRecipeResponse;
+import Fridge_Chef.team.comment.domain.Comment;
 import Fridge_Chef.team.common.BootTest;
 import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.image.domain.Image;
+import Fridge_Chef.team.image.domain.ImageType;
 import Fridge_Chef.team.image.repository.ImageRepository;
 import Fridge_Chef.team.image.service.ImageLocalService;
 import Fridge_Chef.team.recipe.domain.RecipeIngredient;
@@ -22,6 +25,7 @@ import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.domain.UserId;
 import Fridge_Chef.team.user.repository.UserRepository;
 import fixture.BoardFixture;
+import fixture.CommentFixture;
 import fixture.UserFixture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -29,7 +33,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,7 +51,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 
 
 @DisplayName("레시피 서비스")
-public class BorderServiceTest  extends BootTest {
+public class BorderServiceTest extends BootTest {
     private static final Random random = new Random();
     @Autowired
     private ImageLocalService imageService;
@@ -130,21 +133,38 @@ public class BorderServiceTest  extends BootTest {
                     .isTrue();
             return result;
         });
+
+        BoardPageRequest request = new BoardPageRequest(0, 51, IssueType.ALL, SortType.LATEST);
+        assertThatThrownBy(() -> boardService.findMyRecipes(user.getUserId(), request))
+                .isInstanceOf(ApiException.class);
     }
 
     @Test
-    @DisplayName("삭제")
+    @DisplayName("Oracle image 삭제")
     @Transactional
-    void delete() {
+    void deleteOracle() {
         givenBoardContext();
 
         Board board = boardRepository.findByUserId(user.getUserId()).get().get(0);
-
+        board.updateMainImage(imageRepository.save(new Image("", ImageType.ORACLE_CLOUD)));
+        board.updateContext(
+                List.of(
+                        new Description("", new Image("", ImageType.ORACLE_CLOUD)),
+                        new Description("", new Image("", ImageType.ORACLE_CLOUD))
+                )
+                , "", "", "", "", ""
+        );
+        Comment comment1 = CommentFixture.create(board, user);
+        Comment comment2 = CommentFixture.create(board, user);
+        comment1.updateImage(List.of(new Image("", ImageType.ORACLE_CLOUD)));
+        comment2.updateImage(List.of(new Image("", ImageType.ORACLE_CLOUD)));
+        board.updateComment(List.of(comment2, comment1));
         boardService.delete(user.getUserId(), board.getId());
 
         assertThatThrownBy(() -> boardService.findById(board.getId()))
                 .isInstanceOf(ApiException.class);
     }
+
 
     @Test
     @DisplayName("게시자가 삭제")
@@ -157,28 +177,23 @@ public class BorderServiceTest  extends BootTest {
                 .hasMessage(BOARD_NOT_USER_CREATE.getMessage());
     }
 
-//    @Test
+    @Test
     @DisplayName("수정")
     @Transactional
     void update() {
         givenBoardContext();
         Board board = boardRepository.findByUserId(user.getUserId()).get().get(0);
+        List<RecipeIngredient> recipeIngredients = new ArrayList<>();
+        recipeIngredients.add(addRecipeIngredient(new RecipeIngredientDto(INGREDIENTS.get(random.nextInt(INGREDIENTS.size())) + "2", "디테일스2")));
+        recipeIngredients.add(addRecipeIngredient(new RecipeIngredientDto(INGREDIENTS.get(random.nextInt(INGREDIENTS.size())) + "2", "디테일스2")));
+        recipeIngredients.add(addRecipeIngredient(new RecipeIngredientDto(INGREDIENTS.get(random.nextInt(INGREDIENTS.size())) + "2", "디테일스2")));
+        recipeIngredients.add(addRecipeIngredient(new RecipeIngredientDto(INGREDIENTS.get(random.nextInt(INGREDIENTS.size())) + "2", "디테일스2")));
+
         BoardByRecipeUpdateRequest request = createDefault(board.getId(),
-                List.of(),
-                List.of());
+                recipeIngredients,
+                board.getContext().getDescriptions());
 
-        imageService.uploadImageWithId(user.getUserId(), request.isMainImageChange(),
-                request.getMainImageId(), request.getMainImage());
-
-        boardRecipeService.update(user.getUserId(), request);
-
-
-        Board after = boardRepository.findById(board.getId()).get();
-
-        assertAll(
-                () -> assertThat(board.getId()).isEqualTo(after.getId()),
-                () -> assertThat("").isNotEqualTo(after.getTitle())
-        );
+        boardRecipeService.update(board.getUser().getUserId(), request);
     }
 
     @Test
@@ -247,14 +262,17 @@ public class BorderServiceTest  extends BootTest {
         return Stream.generate(BoardFixture::boardProvider).limit(20);
     }
 
+
     private void givenBoardContexts() {
         List<BoardByRecipeRequest> requests = provideBoardFindsRequests().toList();
         for (BoardByRecipeRequest request : requests) {
-
-            Image mainImage = imageRepository.save(Image.none());
             List<Description> descriptions = boardIngredientService.uploadInstructionImages(user.getUserId(), request);
-            List<RecipeIngredient> ingredients = List.of();
-
+            List<RecipeIngredient> ingredients = boardRecipeService.findOrCreate(List.of(
+                            new BoardByRecipeRequest.RecipeIngredient(INGREDIENTS.get(random.nextInt(INGREDIENTS.size())), "재료1"),
+                            new BoardByRecipeRequest.RecipeIngredient(INGREDIENTS.get(random.nextInt(INGREDIENTS.size())), "재료2"),
+                            new BoardByRecipeRequest.RecipeIngredient(INGREDIENTS.get(random.nextInt(INGREDIENTS.size())), "재료3")
+                    )
+            );
             Board board = boardRecipeService.create(user.getUserId(), request);
             board.updateContext(ingredients, descriptions, "", "", "");
             assignRandomValues(board);
@@ -266,13 +284,26 @@ public class BorderServiceTest  extends BootTest {
 
         Image mainImage = imageRepository.save(Image.none());
         List<Description> descriptions = boardIngredientService.uploadInstructionImages(user.getUserId(), request);
-        List<RecipeIngredient> ingredients = List.of();
+        List<RecipeIngredient> ingredients = boardRecipeService.findOrCreate(List.of(
+                        new BoardByRecipeRequest.RecipeIngredient(INGREDIENTS.get(random.nextInt(INGREDIENTS.size())), "재료1"),
+                        new BoardByRecipeRequest.RecipeIngredient(INGREDIENTS.get(random.nextInt(INGREDIENTS.size())), "재료2"),
+                        new BoardByRecipeRequest.RecipeIngredient(INGREDIENTS.get(random.nextInt(INGREDIENTS.size())), "재료3")
+                )
+        );
         Board board = boardRecipeService.create(user.getUserId(), request);
-        board.updateContext(ingredients, descriptions, "", "", "");
+        board.updateContext(ingredients, descriptions, "1분", "보통", "간식,강아지");
 
         assignRandomValues(board);
         boardRepository.save(board);
     }
+
+    private static final List<String> INGREDIENTS = Arrays.asList(
+            "라면", "김치", "참치", "당근", "양파", "감자", "계란", "우유", "소금", "고추장",
+            "대파", "고구마", "소고기", "닭고기", "돼지고기", "마늘", "고춧가루", "참기름", "간장", "설탕",
+            "버섯", "미역", "치즈", "스파게티", "햄", "깻잎", "연두부", "콩나물", "멸치", "된장",
+            "쌀", "참깨", "새우", "오징어", "조개", "해파리", "토마토", "양상추", "버터", "브로콜리",
+            "베이컨", "연어", "떡", "쌀국수", "굴소스", "두부", "감자전분", "초콜릿", "아몬드", "피망"
+    );
 
     private void assignRandomValues(Board board) {
         board.updateCount(random.nextInt(1001));
@@ -280,4 +311,8 @@ public class BorderServiceTest  extends BootTest {
         board.updateStar((1.0 + (random.nextInt(9) * 0.5)));
     }
 
+    @Transactional
+    public RecipeIngredient addRecipeIngredient(RecipeIngredientDto dto) {
+        return boardIngredientService.findOrSaveIngredient(dto);
+    }
 }
