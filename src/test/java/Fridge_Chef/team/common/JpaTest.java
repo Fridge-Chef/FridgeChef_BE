@@ -112,7 +112,8 @@ public class JpaTest extends QueryDslTest {
             recipeIngredients.add(RecipeIngredient.ofMyRecipe(ingredient, recipeIngredient.getQuantity()));
         }
 
-        Board result = new Board(board.getUser(), board.getIntroduction(), board.getTitle(), new Context(
+        Board result = new Board(board.getUser(), board.getIntroduction(), board.getTitle(), Context.formMyUserRecipe(
+                board.getContext().getDishTime(),board.getContext().getDishLevel(), board.getContext().getDishCategory(),
                 recipeIngredientRepository.saveAll(recipeIngredients),
                 descriptionRepository.saveAll(descriptions)), saveImage(board.getMainImage()), board.getType());
         return boardRepository.save(result);

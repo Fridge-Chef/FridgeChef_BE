@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'jacoco'
     id 'org.springframework.boot' version '3.3.2'
     id 'io.spring.dependency-management' version '1.1.6'
     id 'org.springdoc.openapi-gradle-plugin' version '1.9.0'
@@ -107,6 +108,77 @@ ext {
 
 def docsDir = 'build/generated-snippets'
 
+jacoco {
+    toolVersion = "0.8.9";
+}
+
+jacocoTestReport {
+
+    reports {
+        xml.required = true
+        csv.required = false
+        html.outputLocation = layout.buildDirectory.dir('jacocoHTML')
+    }
+
+
+    def Qdomains = []
+    for (qPattern in "**/QA".."**/QZ") {
+        Qdomains.add(qPattern + "*")
+    }
+
+
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: ['**/config*',
+                                        '**/security*',
+                                        '**/image*',
+                                        "**/request*",
+                                        "**/response*",
+                                        '**/job*',
+                                        '**/mail*'] + Qdomains)
+        }))
+    }
+
+    finalizedBy 'jacocoTestCoverageVerification'
+}
+
+jacocoTestCoverageVerification {
+
+
+    // 디렉터리/파일명
+    def QDomains = []
+
+    for (qPattern in '**/QA'..'**/QZ') {
+        QDomains.add(qPattern + '*')
+    }
+
+    violationRules {
+        rule {
+            enabled = true
+            element = 'CLASS'
+            limit {
+                counter = 'LINE'
+                value = 'TOTALCOUNT'
+                minimum = 0.1
+            }
+            excludes = [
+                    '*.config*',
+                    '*.security*',
+                    '*.image*',
+                    '*.request*',
+                    '*.response*',
+                    '*.job*',
+                    '*.mail*'
+            ] + QDomains
+        }
+    }
+}
+
+task coverageTest() {
+    finalizedBy 'jacocoTestReport'
+    dependsOn test
+}
+
 test {
     delete file(docsDir)
     useJUnitPlatform()
@@ -128,11 +200,11 @@ task makeOAS(type: Exec) {
 task openapi3fix(type: Exec) {
     commandLine 'bash', '-c', 'source venv/bin/activate && ' +
             ' python fix-openapi-reload.py &&' +
-            ' python fix-openapi-yaml.py build/api-spec/openapi3.yaml > build/api-spec/openapi3_temp.yaml && mv build/api-spec/openapi3_temp.yaml build/api-spec/openapi3.yaml &&'+
+            ' python fix-openapi-yaml.py build/api-spec/openapi3.yaml > build/api-spec/openapi3_temp.yaml && mv build/api-spec/openapi3_temp.yaml build/api-spec/openapi3.yaml &&' +
             ' python fix-openapi-reload.py &&' +
-            ' python fix-openapi-required-yaml.py  &&'+
+            ' python fix-openapi-required-yaml.py  &&' +
             ' python fix-openapi-reload.py &&' +
-            ' python fix-openapi-form-yaml.py  &&'+
+            ' python fix-openapi-form-yaml.py  &&' +
             ' python fix-openapi-reload.py '
 }
 
@@ -156,4 +228,5 @@ def groupName = "automatic_documentation"
 makeOAS.group = groupName
 openapi3fix.group = groupName
 redocGenerationIntegration.group = groupName
+coverageTest.group = groupName
 

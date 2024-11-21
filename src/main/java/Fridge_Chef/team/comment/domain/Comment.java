@@ -43,7 +43,8 @@ public class Comment extends BaseEntity {
         this.comments = comments;
         this.star = star;
         this.totalHit = 0;
-        this.commentImage = images;
+        this.commentImage = new ArrayList<>();
+        this.commentImage.addAll(images);
         this.commentUserEvent = new ArrayList<>();
     }
 

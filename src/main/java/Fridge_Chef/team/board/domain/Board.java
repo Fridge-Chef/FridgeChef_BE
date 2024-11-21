@@ -156,4 +156,16 @@ public class Board extends BaseEntity {
     public int starTotalCount() {
         return comments.size();
     }
+
+    public void addHistory(BoardHistory boardHistory){
+        this.historys.add(boardHistory);
+    }
+
+    public void commentClear() {
+        this.comments.clear();
+    }
+
+    public void updateComment(List<Comment> comments) {
+        this.comments.addAll(comments);
+    }
 }

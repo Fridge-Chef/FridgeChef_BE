@@ -67,6 +67,11 @@ public class ImageLocalService implements ImageService {
         return null;
     }
 
+    @Override
+    public void imageRemove(Image image) {
+
+    }
+
     private String onlyNameChange(String name) {
         String uuidString = UUID.randomUUID().toString();
         return uuidString + "_" + name;

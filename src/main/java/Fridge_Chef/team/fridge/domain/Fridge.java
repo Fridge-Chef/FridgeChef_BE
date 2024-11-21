@@ -26,8 +26,7 @@ public class Fridge {
     @OneToMany(mappedBy = "fridge", fetch = FetchType.LAZY,orphanRemoval = true,cascade = CascadeType.PERSIST)
     private List<FridgeIngredient> fridgeIngredients;
 
-    @OneToOne
-    @JoinColumn(name = "user_id")
+    @OneToOne(fetch = FetchType.LAZY)
     private User user;
 
     public Fridge(List<FridgeIngredient> fridgeIngredients, User user) {

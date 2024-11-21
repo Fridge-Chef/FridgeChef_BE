@@ -33,24 +33,4 @@ public class ErrorResponse {
     public static ErrorResponse of(int status,String message){
         return new ErrorResponse(status,message);
     }
-
-    @Getter
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class FieldError {
-
-        private String field;
-        private String value;
-        private String reason;
-
-        public static List<FieldError> of(BindingResult bindingResult) {
-            List<org.springframework.validation.FieldError> fieldErrors = bindingResult.getFieldErrors();
-            return fieldErrors.stream()
-                    .map(error -> new FieldError(
-                            error.getField(),
-                            error.getRejectedValue() == null ? "" : error.getRejectedValue().toString(),
-                            error.getDefaultMessage()
-                    )).collect(Collectors.toList());
-        }
-    }
 }

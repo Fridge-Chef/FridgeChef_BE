@@ -25,4 +25,7 @@ public interface ImageService {
     void filters(List<MultipartFile> files);
 
     List<Image> imageUploads(UserId userId, List<MultipartFile> files);
+
+    void imageRemove(Image image);
+
 }

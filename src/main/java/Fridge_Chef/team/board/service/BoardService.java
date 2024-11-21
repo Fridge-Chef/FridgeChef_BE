@@ -1,20 +1,21 @@
 package Fridge_Chef.team.board.service;
 
 import Fridge_Chef.team.board.domain.*;
-import Fridge_Chef.team.board.repository.*;
-import Fridge_Chef.team.board.rest.request.BoardByRecipeRequest;
+import Fridge_Chef.team.board.repository.BoardDslRepository;
+import Fridge_Chef.team.board.repository.BoardHistoryRepository;
+import Fridge_Chef.team.board.repository.BoardRepository;
+import Fridge_Chef.team.board.repository.BoardUserEventRepository;
 import Fridge_Chef.team.board.rest.request.BoardPageRequest;
-import Fridge_Chef.team.board.rest.request.BoardStarRequest;
 import Fridge_Chef.team.board.service.response.BoardMyRecipePageResponse;
 import Fridge_Chef.team.board.service.response.BoardMyRecipeResponse;
 import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.exception.ErrorCode;
+import Fridge_Chef.team.image.domain.Image;
 import Fridge_Chef.team.image.domain.ImageType;
 import Fridge_Chef.team.image.service.ImageService;
 import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.domain.UserId;
 import Fridge_Chef.team.user.repository.UserRepository;
-import com.vane.badwordfiltering.BadWordFiltering;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -24,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -78,18 +78,19 @@ public class BoardService {
             imageService.imageRemove(userId, board.getMainImage().getId());
         }
 
-        descriptions.forEach(description -> {
-            if(description.getImage() != null && description.getImage().getType() != null && description.getImage().getType().equals(ImageType.ORACLE_CLOUD)){
-                imageService.imageRemove(userId, description.getImage().getId());
-            }
-        });
+        descriptions.stream()
+                .map(Description::getImage)
+                .filter(this::isOracleCloudImage)
+                .forEach(imageService::imageRemove);
 
-        context.getDescriptions().forEach(description -> {
-            if(description.getImage() != null && description.getImage().getType() != null && description.getImage().getType().equals(ImageType.ORACLE_CLOUD)){
-                imageService.imageRemove(userId, description.getImage().getId());
-            }
-        });
-
+        if (!board.getComments().isEmpty()) {
+            board.getComments().forEach(comment -> {
+                comment.getCommentImage().stream()
+                        .filter(this::isOracleCloudImage)
+                        .forEach(imageService::imageRemove);
+            });
+            board.commentClear();
+        }
         boardRepository.delete(board);
         log.info("삭제");
     }
@@ -129,6 +130,9 @@ public class BoardService {
                 .orElseThrow(() -> new ApiException(ErrorCode.BOARD_NOT_FOUND));
     }
 
+    private boolean isOracleCloudImage(Image image) {
+        return image != null && image.getType() != null && ImageType.ORACLE_CLOUD.equals(image.getType());
+    }
 
     private Board findByUserIdAndBoardId(UserId userId, Long boardId) {
         Board board = findById(boardId);
@@ -145,32 +149,5 @@ public class BoardService {
                 .orElse(boardUserEventRepository.save(new BoardUserEvent(board, user)));
         board.addUserEvent(event);
         return event;
-    }
-
-    public void textFilterPolicy(BoardByRecipeRequest request) {
-        List<String> filters = new ArrayList<>();
-        filters.add(request.getName());
-        filters.add(request.getDescription());
-        if (request.getDescriptions() != null) {
-            request.getDescriptions().forEach(text -> {
-                if (text.getContent() != null) {
-                    filters.add(text.getContent());
-                }
-            });
-        }
-        if (request.getRecipeIngredients() != null) {
-            request.getRecipeIngredients().forEach(text -> {
-                if (text.getName() != null) {
-                    filters.add("" + text.getName() + text.getDetails());
-                }
-            });
-        }
-        BadWordFiltering filtering = new BadWordFiltering();
-        filters.stream()
-                .filter(filtering::check)
-                .findAny()
-                .ifPresent(check -> {
-                    throw new ApiException(ErrorCode.TEXT_FILTER);
-                });
     }
 }
