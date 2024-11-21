@@ -22,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -32,11 +31,9 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 public class FridgeService {
-    private final UserRepository userRepository;
-
     private final UserService userService;
     private final IngredientService ingredientService;
-
+    private final UserRepository userRepository;
     private final FridgeIngredientRepository fridgeIngredientRepository;
     private final FridgeRepository fridgeRepository;
 
@@ -69,7 +66,7 @@ public class FridgeService {
 
     public Fridge getFridge(UserId userId) {
         Optional<Fridge> fridge = fridgeRepository.findByUserId(userId);
-        if(fridge.isEmpty()){
+        if (fridge.isEmpty()) {
             var user = userRepository.findByUserId(userId)
                     .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
             return fridgeRepository.save(Fridge.setup(user));
@@ -123,12 +120,12 @@ public class FridgeService {
 
     @Transactional
     public void updateIngredient(UserId userId, FridgeIngredientRequest request) {
-        log.info("fridge update req - name : "+request.getName() +", category : "+request.getCategory()+", date :"+request.getDate());
+        log.info("fridge update req - name : " + request.getName() + ", category : " + request.getCategory() + ", date :" + request.getDate());
 
         Fridge fridge = getFridge(userId);
         FridgeIngredient updateIngredient = getFridgeIngredient(fridge, request.getName());
-        updateIngredient.updateCategory( IngredientCategory.of(request.getCategory()));
-        log.info("fridge category :"+updateIngredient.getIngredientCategory());
+        updateIngredient.updateCategory(IngredientCategory.of(request.getCategory()));
+        log.info("fridge category :" + updateIngredient.getIngredientCategory());
 
         if (request.getDate() != null) {
             updateIngredient.updateExpirationDate(request.getDate());

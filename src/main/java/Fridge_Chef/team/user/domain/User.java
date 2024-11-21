@@ -107,8 +107,4 @@ public class User extends BaseEntity {
         }
         return "";
     }
-
-    public void addHistory() {
-        this.history.update();
-    }
 }
