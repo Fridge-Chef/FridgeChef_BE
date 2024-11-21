@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,9 +21,9 @@ public class Context {
     @Column(length = 500)
     private String pathIngredient;
     @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.PERSIST)
-    private List<RecipeIngredient> boardIngredients;
+    private List<RecipeIngredient> boardIngredients = new ArrayList<>();
     @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.PERSIST)
-    private List<Description> descriptions;
+    private List<Description> descriptions = new ArrayList<>();
 
     private Context(String dishTime, String dishLevel, String dishCategory, List<RecipeIngredient> boardIngredients, List<Description> descriptions) {
         this.dishLevel = dishLevel;
@@ -31,16 +32,6 @@ public class Context {
         this.boardIngredients = boardIngredients;
         this.descriptions = descriptions;
         slicePathIngredient();
-    }
-
-    public Context(List<RecipeIngredient> boardIngredients, List<Description> descriptions) {
-        this("", "", "", boardIngredients, descriptions);
-    }
-
-    public static Context formMyUserRecipe(
-            List<RecipeIngredient> boardIngredients,
-            List<Description> descriptions) {
-        return new Context(boardIngredients, descriptions);
     }
 
     public static Context formMyUserRecipe(
@@ -63,7 +54,7 @@ public class Context {
     }
 
     public void update(List<Description> descriptions, String dishTime, String dishLevel, String dishCategory) {
-        this.descriptions.clear();
+        this.descriptions = new ArrayList<>();
         this.descriptions.addAll(descriptions);
         this.dishTime = dishTime;
         this.dishLevel = dishLevel;
