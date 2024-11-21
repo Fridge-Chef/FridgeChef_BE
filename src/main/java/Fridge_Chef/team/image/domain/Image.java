@@ -69,7 +69,7 @@ public class Image extends BaseEntity {
         this.id=id;
     }
     public static Image none() {
-        return new Image();
+        return new Image("",ImageType.NONE);
     }
 
     public void updateOutUri(String path) {

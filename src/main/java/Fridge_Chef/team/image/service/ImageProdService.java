@@ -104,7 +104,11 @@ public class ImageProdService implements ImageService {
     public void imageRemove(Long imageId) {
         Image image = imageRepository.findById(imageId)
                 .orElseThrow(() -> new ApiException(ErrorCode.IMAGE_NOT_ID));
+        imageRemove(image);
+    }
 
+    @Override
+    public void imageRemove(Image image) {
         FileRemoveManager manager = new FileRemoveManager(objectStorageClient, imageConfigMeta, image);
         manager.remove();
         log.info("image.id remove success : " + image.getName());
@@ -137,6 +141,7 @@ public class ImageProdService implements ImageService {
                 .map(file -> imageUpload(userId, file))
                 .collect(Collectors.toList());
     }
+
 
     private String onlyNameChange(String name) {
         String cleanedName = name.replaceAll("\\s", "");
