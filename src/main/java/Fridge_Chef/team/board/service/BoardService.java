@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -112,6 +113,7 @@ public class BoardService {
         event.hitUp();
 
         int total = filterTotalHit(board);
+
         board.updateHit(total);
         log.info("게시글 좋아요 :" + event.getHit() + ",총함 :" + total);
         return total;
@@ -143,11 +145,14 @@ public class BoardService {
     }
 
     private BoardUserEvent getUserEvent(User user, Board board) {
-        BoardUserEvent event = board.getBoardUserEvent().stream()
+        Optional<BoardUserEvent> event = board.getBoardUserEvent().stream()
                 .filter(events -> events.getUser() != null && events.getUser().getUserId().equals(user.getUserId()))
-                .findAny()
-                .orElse(boardUserEventRepository.save(new BoardUserEvent(board, user)));
-        board.addUserEvent(event);
-        return event;
+                .findAny();
+
+        if (event.isEmpty()) {
+            event = Optional.of(boardUserEventRepository.save(new BoardUserEvent(board, user)));
+            board.addUserEvent(event.get());
+        }
+        return event.get();
     }
 }

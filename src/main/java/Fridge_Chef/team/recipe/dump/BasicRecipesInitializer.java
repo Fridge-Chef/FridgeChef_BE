@@ -54,9 +54,9 @@ public class BasicRecipesInitializer {
 
     @PostConstruct
     public void init() throws IOException {
-        log.info("recipe init()");
         String email = "recipeUser@fridge.chef";
         if (!userRepository.existsByProfileEmail(email)) {
+            log.info("recipe init()");
             User user = createAdminUser(email);
             createBasicRecipes(user);
         }
