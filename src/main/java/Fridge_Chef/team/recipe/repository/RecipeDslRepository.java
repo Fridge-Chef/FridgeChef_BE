@@ -40,7 +40,7 @@ import static Fridge_Chef.team.user.domain.QUser.user;
  * con = 400ms
  * cache = 218ms
  *
- * @author kang history
+ * @author JHKoder
  */
 @Slf4j
 @Repository
@@ -63,11 +63,11 @@ public class RecipeDslRepository {
                 .leftJoin(recipeIngredient.ingredient, ingredient)
                 .groupBy(board);
 
-        validTask(must,
+        validNotNullTask(must,
                 () -> must.forEach(find -> mustBuilder.and(board.context.pathIngredient.contains(find))),
                 () -> query.where(mustBuilder));
 
-        validTask(ingredients,
+        validNotNullTask(ingredients,
                 () -> pickBuilder.or(recipeIngredient.ingredient.name.in(pick)),
                 () -> query.where(pickBuilder));
 
@@ -101,7 +101,7 @@ public class RecipeDslRepository {
         return new ArrayList<>();
     }
 
-    private void validTask(List<String> ingredient, Runnable... runnables) {
+    private void validNotNullTask(List<String> ingredient, Runnable... runnables) {
         if (ingredient != null && !ingredient.isEmpty()) {
             Arrays.stream(runnables).forEach(Runnable::run);
         }
@@ -114,6 +114,7 @@ public class RecipeDslRepository {
             case LIKE -> query.orderBy(board.hit.desc());
             default -> query.orderBy(board.createTime.desc());
         }
+        query.orderBy(board.createTime.desc());
     }
 
     private List<String> merge(List<String> left, List<String> right) {
