@@ -31,16 +31,14 @@ public class BoardJob {
     }
 
     @Transactional
-    @Scheduled(cron = "0 0/10 * * * ?")
+    @Scheduled(cron = "0 0/30 * * * ?")
     void recipeIssueUp() {
         log.info("추천 레시피 스케줄러 run()");
-        List<Board> boards = boardRepository.findAll();
+        List<Board> boards = boardRepository.findAll().stream().filter(board -> board.getCount() >= 10).toList();
         int userSize = userRepository.findAll().size();
 
-        // 오늘의 시작과 끝 시각 계산
         LocalDateTime startOfDay = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
         LocalDateTime endOfDay = startOfDay.plusDays(1).minusNanos(1);
-
 
         for (Board board : boards) {
             if (board.getCount() <= 10) {
@@ -75,19 +73,22 @@ public class BoardJob {
 
             int countDifference = thisWeekCount - lastWeekCount;
 
-            if (countDifference == 0) {
+            if (thisWeekCount + lastWeekCount != 0 || countDifference >= 1) {
                 return;
             }
 
-            boolean shouldSave = isShouldSave(userSize,countDifference);
-            if (shouldSave &&! boardIssueRepository.existsByBoardAndCreateTimeBetween(board,startOfDay,endOfDay)) {
-                log.info(" 이슈 등록 "+ board.getTitle() +","+board.getId());
-                boardIssueRepository.save(new BoardIssue(board));
+            boolean shouldSave = isShouldSave(userSize, countDifference);
+            if (shouldSave && !boardIssueRepository.existsByBoardAndCreateTimeBetween(board, startOfDay, endOfDay)) {
+                log.info(" 이슈 등록 " + board.getTitle() + "," + board.getId());
+                var issue = boardIssueRepository.save(new BoardIssue(board));
+                board.addIssue(issue);
+            } else {
+                log.info(" 이슈 이미 등록됨");
             }
         }
     }
 
-    private boolean isShouldSave(int userSize,int size){
+    private boolean isShouldSave(int userSize, int size) {
         if (userSize <= 10) {
             return true;
         } else if (userSize <= 100 && size >= 10) {

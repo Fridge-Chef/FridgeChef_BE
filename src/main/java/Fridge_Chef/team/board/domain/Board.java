@@ -168,4 +168,8 @@ public class Board extends BaseEntity {
     public void updateComment(List<Comment> comments) {
         this.comments.addAll(comments);
     }
+
+    public void addIssue(BoardIssue issue) {
+        this.boardIssues.add(issue);
+    }
 }
