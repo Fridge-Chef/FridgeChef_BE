@@ -171,7 +171,7 @@ public class BasicRecipesInitializer {
     }
 
     private void recipeToBoard(User user, Recipe recipe, int index) {
-        Context context = Context.formMyUserRecipe(recipe.getCookTime(), String.valueOf(recipe.getDifficult()), recipe.getCategory(),
+        Context context = Context.formMyUserRecipe(recipe.getCookTime(),recipe.getDifficult().getValue(), recipe.getCategory(),
                 toRecipeIngredient(recipe.getRecipeIngredients()), toDescriptions(recipe.getDescriptions()));
         Image image = Image.outUri("https://objectstorage.ap-chuncheon-1.oraclecloud.com/p/RO5Ur4yw-jzifHvgLdMG4nkUmU_UJpzy3YQnWXaJnTIAygJO3qDzSwMy0ulHEwxt/n/axqoa2bp7wqg/b/fridge/o/" + index + "_recipe.png");
         imageRepository.save(image);
