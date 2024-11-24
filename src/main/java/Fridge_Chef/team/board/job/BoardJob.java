@@ -82,8 +82,6 @@ public class BoardJob {
                 log.info(" 이슈 등록 " + board.getTitle() + "," + board.getId());
                 var issue = boardIssueRepository.save(new BoardIssue(board));
                 board.addIssue(issue);
-            } else {
-                log.info(" 이슈 이미 등록됨");
             }
         }
     }
