@@ -28,26 +28,12 @@ import static Fridge_Chef.team.ingredient.domain.QIngredient.ingredient;
 import static Fridge_Chef.team.recipe.domain.QRecipeIngredient.recipeIngredient;
 import static Fridge_Chef.team.user.domain.QUser.user;
 
-/**
- * 100개 레시피 단어 검색 [ 성능 최적화 기록 ]
- * 기존 단어만 검색시 Time: 1262ms (1 s 262 ms) ~ 1294ms (1 s 294 ms);
- * <p>
- * 이슈 : n+1 문제
- * n+1 문제 해결후 0.039ms 으로 해결
- * 이슈 : [게시판] - 1:N - [레시피-재료] - 1:1 - [재료]
- * 필수,선택 재료 매칭 정렬순 문제 해결
- * <p>
- * con = 400ms
- * cache = 218ms
- *
- * @author JHKoder
- */
+
 @Slf4j
 @Repository
 @RequiredArgsConstructor
 public class RecipeDslRepository {
     private final JPAQueryFactory factory;
-
 
     @Transactional(readOnly = true)
     public Page<RecipeSearchResponse> findRecipesByIngredients(PageRequest pageable, RecipePageRequest request, List<String> must, List<String> ingredients, Optional<UserId> userId) {
