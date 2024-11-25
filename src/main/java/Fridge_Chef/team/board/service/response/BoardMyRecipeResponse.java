@@ -95,7 +95,8 @@ public class BoardMyRecipeResponse {
 
         List<BoardIssue> boardIssues = board.getBoardIssues();
         String issueInfo = generateIssueInfo(boardIssues);
-
+        Difficult diff = Difficult.of(board.getContext().getDishLevel());
+        String level = diff.getValue();
         return new BoardMyRecipeResponse(board.getTitle(),
                 board.getUser().getUsername(),
                 board.getIntroduction(),
@@ -105,7 +106,7 @@ public class BoardMyRecipeResponse {
                 board.getMainImageLink(),
                 issueInfo,
                 board.getContext().getDishTime(),
-                board.getContext().getDishLevel(),
+                level,
                 board.getContext().getDishCategory(),
                 ownedIngredients,
                 recipeIngredients,
@@ -117,16 +118,21 @@ public class BoardMyRecipeResponse {
         Difficult difficult = Difficult.of(level);
         return difficult.getValue();
     }
+
     private static String generateIssueInfo(List<BoardIssue> boardIssues) {
         if (boardIssues == null || boardIssues.isEmpty()) {
             return "";
         }
         LocalDateTime now = LocalDateTime.now();
-        return boardIssues.stream().anyMatch(issue -> isThisMonth(issue.getCreateTime(), now))
-                ? "이달의 레시피"
-                : boardIssues.stream().anyMatch(issue -> isThisWeek(issue.getCreateTime(), now))
-                ? "이주의 레시피"
-                : "";
+        boolean isWeek = boardIssues.stream().anyMatch(issue -> isThisWeek(issue.getCreateTime(), now));
+        boolean isMoon = boardIssues.stream().anyMatch(issue -> isThisMonth(issue.getCreateTime(), now));
+        if(isWeek){
+            return "이주의 레시피";
+        }
+        if(isMoon){
+            return "이달의 레시피";
+        }
+        return "";
     }
 
     private static boolean isThisMonth(LocalDateTime issueTime, LocalDateTime now) {

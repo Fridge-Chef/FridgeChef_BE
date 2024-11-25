@@ -54,7 +54,7 @@ public class Context {
     }
 
     public void update(List<Description> descriptions, String dishTime, String dishLevel, String dishCategory) {
-        this.descriptions = new ArrayList<>();
+        this.descriptions.clear();
         this.descriptions.addAll(descriptions);
         this.dishTime = dishTime;
         this.dishLevel = dishLevel;

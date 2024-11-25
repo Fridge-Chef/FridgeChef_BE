@@ -18,6 +18,10 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,11 +43,20 @@ public class BookDslRepository {
 
         if (request.getBookType().equals(BookType.MYRECIPE)) {
             query.where(board.user.userId.eq(userId));
-        } else {
+        }else if(request.getBookType().equals(BookType.COMMENT) && request.getSortType().equals(SortType.MONTHLY_RECIPE)){
+            LocalDateTime startOfMonth = LocalDate.now().withDayOfMonth(1).atStartOfDay();
+            LocalDateTime endOfMonth = LocalDate.now().with(TemporalAdjusters.lastDayOfMonth()).atTime(23, 59, 59);
+
+            query.where(board.boardIssues.any().createTime.between(startOfMonth, endOfMonth));
+        } else if (request.getBookType().equals(BookType.COMMENT) && request.getSortType().equals(SortType.WEEKLY_RECIPE)) {
+            LocalDateTime startOfWeek = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).atStartOfDay();
+            LocalDateTime endOfWeek = LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)).atTime(23, 59, 59);
+
+            query.where(board.boardIssues.any().createTime.between(startOfWeek, endOfWeek));
+        } else if(request.getBookType().equals(BookType.LIKE)){
             query.where(boardUserEvent.user.userId.eq(userId)
                     .and(boardUserEvent.hit.eq(1)));
         }
-
         applyBoardSort(query, request.getSortType());
 
         List<BookBoardResponse> results = query.fetch()

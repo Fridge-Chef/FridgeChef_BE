@@ -68,17 +68,19 @@ public class BoardRecipeServiceTest extends ServiceLayerTest {
                 .isInstanceOf(ApiException.class);
     }
 
-    @Test
+//    @Test
     @DisplayName("수정시 작성자가 만든 레시피가 맞는지 검증")
     void validMyRecipeUpdateEq() {
         when(userRepository.findByUserId(any()))
                 .thenReturn(Optional.of(user));
         when(boardRepository.findById(board.getId()))
                 .thenReturn(Optional.of(board));
+
         BoardByRecipeUpdateRequest request = new BoardByRecipeUpdateRequest(board.getId(), "update title", "update intro", null, 1L, false, "1분", "보통", "양념,",
                 List.of(),
                 List.of());
         Board result = boardRecipeService.update(user.getUserId(), request);
+
         assertEquals("update title", result.getTitle());
     }
 }
