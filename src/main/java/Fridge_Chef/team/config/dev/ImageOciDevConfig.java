@@ -1,4 +1,4 @@
-package Fridge_Chef.team.config.prod;
+package Fridge_Chef.team.config.dev;
 
 import Fridge_Chef.team.config.model.ImageConfigMeta;
 import Fridge_Chef.team.exception.ApiException;
@@ -19,7 +19,7 @@ import java.io.IOException;
 
 @Profile("dev")
 @Configuration
-public class ImageOciConfig {
+public class ImageOciDevConfig {
     private String configurationFilePath = "src/main/resources/private/config";
     private UploadConfiguration uploadConfiguration;
     @Value("${oci.namespace.name}")
