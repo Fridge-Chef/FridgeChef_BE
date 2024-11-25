@@ -106,6 +106,10 @@
 
 ![user](docs/user.png)
 
+### Oracle cloud Object Storage ( 이미지 저장소 )
+
+![image](docs/image.png)
+
 ## 서비스
 ### 유저
 - 로그인/회원가입 기능
