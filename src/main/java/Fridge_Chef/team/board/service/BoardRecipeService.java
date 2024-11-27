@@ -96,7 +96,7 @@ public class BoardRecipeService {
             boolean isData = false;
             for (var data : myRecipe) {
                 if (ingredient.getName().equals(data.getIngredient().getName())) {
-                    data.updateQuantity(ingredient.getDetails());
+                    data.updateQuantity(ingredient.getDetails()==null? "" :ingredient.getDetails());
                     isData = true;
                     break;
                 }
