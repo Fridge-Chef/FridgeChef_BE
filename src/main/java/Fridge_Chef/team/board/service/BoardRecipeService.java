@@ -110,7 +110,7 @@ public class BoardRecipeService {
 
         if (request.isMainImageChange()) {
             Image mainImage = imageService.uploadImageWithId(userId, request.isMainImageChange(),
-                    request.getMainImageId(), request.getMainImage());
+                    board.getMainImageId(), request.getMainImage());
             board.updateMainImage(mainImage);
         }
 

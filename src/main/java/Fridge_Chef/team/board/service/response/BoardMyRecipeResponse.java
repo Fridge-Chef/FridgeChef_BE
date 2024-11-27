@@ -26,6 +26,7 @@ public class BoardMyRecipeResponse {
     private int hitTotal;
     private int starTotal;
     private String mainImage;
+    private Long mainImageId;
     private String issueInfo;
     private String dishTime;
     private String dishLevel;
@@ -50,6 +51,11 @@ public class BoardMyRecipeResponse {
         private Long id;
         private String name;
         private String details;
+
+        public String getDetails(){
+            return details == null ? "" : details;
+        }
+
     }
 
     @Getter
@@ -59,7 +65,7 @@ public class BoardMyRecipeResponse {
         private String imageLink;
     }
 
-    public BoardMyRecipeResponse(String title, String username, String intro,double rating, int hitTotal, int starTotal, String mainImage, String issueInfo, String dishTime, String dishLevel, String dishCategory, List<OwnedIngredientResponse> ownedIngredients, List<RecipeIngredientResponse> recipeIngredients, List<StepResponse> instructions, Long boardId) {
+    public BoardMyRecipeResponse(String title, String username, String intro,double rating, int hitTotal, int starTotal, String mainImage,Long imageId, String issueInfo, String dishTime, String dishLevel, String dishCategory, List<OwnedIngredientResponse> ownedIngredients, List<RecipeIngredientResponse> recipeIngredients, List<StepResponse> instructions, Long boardId) {
         this.title = title;
         this.username = username;
         this.rating = rating;
@@ -67,6 +73,7 @@ public class BoardMyRecipeResponse {
         this.hitTotal = hitTotal;
         this.starTotal = starTotal;
         this.mainImage = mainImage;
+        this.mainImageId=imageId;
         this.issueInfo = issueInfo;
         this.dishTime = dishTime;
         this.dishLevel = dishLevel;
@@ -104,6 +111,7 @@ public class BoardMyRecipeResponse {
                 board.hitTotalCount(),
                 board.starTotalCount(),
                 board.getMainImageLink(),
+                board.getMainImageId(),
                 issueInfo,
                 board.getContext().getDishTime(),
                 level,
@@ -112,11 +120,6 @@ public class BoardMyRecipeResponse {
                 recipeIngredients,
                 instructions,
                 board.getId());
-    }
-
-    private static String level(String level){
-        Difficult difficult = Difficult.of(level);
-        return difficult.getValue();
     }
 
     private static String generateIssueInfo(List<BoardIssue> boardIssues) {
