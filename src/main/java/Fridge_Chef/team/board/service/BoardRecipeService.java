@@ -96,7 +96,7 @@ public class BoardRecipeService {
             boolean isData = false;
             for (var data : myRecipe) {
                 if (ingredient.getName().equals(data.getIngredient().getName())) {
-                    data.updateQuantity(ingredient.getDetails());
+                    data.updateQuantity(ingredient.getDetails()==null ? "" :ingredient.getDetails());
                     isData = true;
                     break;
                 }
@@ -110,7 +110,7 @@ public class BoardRecipeService {
 
         if (request.isMainImageChange()) {
             Image mainImage = imageService.uploadImageWithId(userId, request.isMainImageChange(),
-                    request.getMainImageId(), request.getMainImage());
+                    board.getMainImageId(), request.getMainImage());
             board.updateMainImage(mainImage);
         }
 

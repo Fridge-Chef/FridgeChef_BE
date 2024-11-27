@@ -61,6 +61,7 @@ public class BoardService {
 
     @Transactional(readOnly = true)
     public Page<BoardMyRecipePageResponse> findMyRecipes(UserId userId, BoardPageRequest request) {
+        log.info("레시피 페이징 조회  size :"+request.getSize() +", page :"+request.getPage()+", sort : "+request.getSortType()+" issue: "+request.getIssueType());
         if (request.getSize() > 50) {
             throw new ApiException(ErrorCode.VALID_SIZE_50);
         }
