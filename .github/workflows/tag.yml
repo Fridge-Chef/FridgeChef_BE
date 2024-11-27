@@ -1,136 +1,136 @@
-name: 'Add Labels on Push or PR'
-
-on:
-  push:
-    branches:
-      - "**"
-  pull_request:
-    branches:
-      - "**"
-
-jobs:
-  add-labels:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0  # 모든 히스토리를 가져옵니다.
-
-      - name: Fetch all branches
-        run: |
-          # PR 소스 브랜치와 타겟 브랜치를 가져옵니다.
-          git fetch origin ${{ github.base_ref }} --prune
-          git fetch origin ${{ github.head_ref }} --prune
-
-      - name: Set up environment variables
-        run: |
-          echo "DOMAIN_TAGS=image,user,board,security,recipe,mail,ingredient,tag,feat,ingredients,board,api,Api,comment,test,Test,book,User,Security,검색,냉장고,레시피,재료,유저,에러" >> $GITHUB_ENV
-          echo "SETTING_TAGS=ci/cd,config,gradle,build,bug,action,리팩토링,서비스,Service,service,refactor,Refactor,coupang,naver,event,manager,meemo" >> $GITHUB_ENV
-          echo "CODE_TAGS=refactor,update,style" >> $GITHUB_ENV
-
-      - name: Get commits between branches
-        run: |
-          BASE_BRANCH=${{ github.base_ref }}  # 예: main
-          PR_BRANCH=${{ github.head_ref }}    # PR 브랜치 (예: action/tag)
-          
-          echo "Checking out $BASE_BRANCH"
-          git checkout $BASE_BRANCH
-          
-          echo "Commits from $BASE_BRANCH to $PR_BRANCH:"
-          # 커밋 메시지를 따옴표로 감싸서 특수 문자를 처리
-          COMMITS=$(git log --no-merges --oneline origin/$BASE_BRANCH..origin/$PR_BRANCH --pretty=format:"%s" | jq -R -s .)
-          echo "Commits: \"$COMMITS\""
-          
-          # 환경 변수에 커밋 메시지를 저장할 때 이모지와 특수 문자를 따옴표로 처리하여 저장
-          echo "COMMITS=\"$COMMITS\"" >> $GITHUB_ENV
-
-      - name: Checkout the PR to ensure all references are available
-        run: |
-          git fetch origin $BASE_BRANCH --prune
-          git checkout $BASE_BRANCH
-
-      - name: Display commits
-        run: |
-          printf "Commits: %s\n" "${{ env.COMMITS }}"
-
-      - name: Determine labels based on commits
-        id: determine_labels
-        run: |
-          DOMAIN_TAGS=(${DOMAIN_TAGS//,/ })
-          SETTING_TAGS=(${SETTING_TAGS//,/ })
-          CODE_TAGS=(${CODE_TAGS//,/ })
-          
-          LABELS=()
-          # 커밋 메시지 체크
-            for COMMIT in $COMMITS; do
-          echo "Checking commit: $COMMIT"
-          
-          # DOMAIN_TAGS에서 태그 매칭
-            for TAG in "${DOMAIN_TAGS[@]}"; do
-            if [[ "$COMMIT" == *"$TAG"* ]]; then
-            if [[ ! " ${LABELS[@]} " =~ " ${TAG} " ]]; then  # 중복 체크
-            LABELS+=("$TAG")
-          echo "Matched DOMAIN_TAG: $TAG"
-            if [ ${#LABELS[@]} -ge 5 ]; then break 2; fi
-            fi
-            fi
-            done
-            done
-            
-            # SETTING_TAGS에서 태그 매칭
-            if [ ${#LABELS[@]} -lt 5 ]; then
-            for TAG in "${SETTING_TAGS[@]}"; do
-            if [[ "$COMMIT" == *"$TAG"* ]]; then
-            if [[ ! " ${LABELS[@]} " =~ " ${TAG} " ]]; then  # 중복 체크
-            LABELS+=("$TAG")
-          echo "Matched SETTING_TAG: $TAG"
-            if [ ${#LABELS[@]} -ge 5 ]; then break; fi
-            fi
-            fi
-            done
-            fi
-            
-            # CODE_TAGS에서 태그 매칭
-            if [ ${#LABELS[@]} -lt 5 ]; then
-            for TAG in "${CODE_TAGS[@]}"; do
-            if [[ "$COMMIT" == *"$TAG"* ]]; then
-            if [[ ! " ${LABELS[@]} " =~ " ${TAG} " ]]; then  # 중복 체크
-            LABELS+=("$TAG")
-          echo "Matched CODE_TAG: $TAG"
-            if [ ${#LABELS[@]} -ge 5 ]; then break; fi
-            fi
-            fi
-            done
-            fi
-            
-            # 최종 레이블 설정
-            FINAL_LABELS=$(IFS=,; echo "${LABELS[*]}")
-            echo "FINAL_LABELS=$FINAL_LABELS" >> $GITHUB_ENV
-          
-
-      - name: Create missing labels
-        run: |
-          IFS=',' read -r -a LABEL_ARRAY <<< "${{ env.FINAL_LABELS }}"
-          for LABEL in "${LABEL_ARRAY[@]}"; do
-            if ! gh label list | grep -q "^$LABEL$"; then
-              echo "Creating label: $LABEL"
-              gh label create "$LABEL" --color "$(printf '#%06X\n' $((RANDOM%16777215)))"
-            else
-              echo "Label '$LABEL' already exists, updating..."
-              gh label edit "$LABEL" --color "$(printf '#%06X\n' $((RANDOM%16777215)))"
-            fi
-          done
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Add labels to PR
-        if: github.event_name == 'pull_request'
-        run: |
-            IFS=',' read -r -a LABEL_ARRAY <<< "${{ env.FINAL_LABELS }}"
-            for LABEL in "${LABEL_ARRAY[@]}"; do
-              echo "Adding label: $LABEL to PR #${{ github.event.pull_request.number }}"
-              gh pr edit ${{ github.event.pull_request.number }} --add-label "$LABEL"
-            done
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#name: 'Add Labels on Push or PR'
+#
+#on:
+#  push:
+#    branches:
+#      - "**"
+#  pull_request:
+#    branches:
+#      - "**"
+#
+#jobs:
+#  add-labels:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v2
+#        with:
+#          fetch-depth: 0  # 모든 히스토리를 가져옵니다.
+#
+#      - name: Fetch all branches
+#        run: |
+#          # PR 소스 브랜치와 타겟 브랜치를 가져옵니다.
+#          git fetch origin ${{ github.base_ref }} --prune
+#          git fetch origin ${{ github.head_ref }} --prune
+#
+#      - name: Set up environment variables
+#        run: |
+#          echo "DOMAIN_TAGS=image,user,board,security,recipe,mail,ingredient,tag,feat,ingredients,board,api,Api,comment,test,Test,book,User,Security,검색,냉장고,레시피,재료,유저,에러" >> $GITHUB_ENV
+#          echo "SETTING_TAGS=ci/cd,config,gradle,build,bug,action,리팩토링,서비스,Service,service,refactor,Refactor,coupang,naver,event,manager,meemo" >> $GITHUB_ENV
+#          echo "CODE_TAGS=refactor,update,style" >> $GITHUB_ENV
+#
+#      - name: Get commits between branches
+#        run: |
+#          BASE_BRANCH=${{ github.base_ref }}  # 예: main
+#          PR_BRANCH=${{ github.head_ref }}    # PR 브랜치 (예: action/tag)
+#
+#          echo "Checking out $BASE_BRANCH"
+#          git checkout $BASE_BRANCH
+#
+#          echo "Commits from $BASE_BRANCH to $PR_BRANCH:"
+#          # 커밋 메시지를 따옴표로 감싸서 특수 문자를 처리
+#          COMMITS=$(git log --no-merges --oneline origin/$BASE_BRANCH..origin/$PR_BRANCH --pretty=format:"%s" | jq -R -s .)
+#          echo "Commits: \"$COMMITS\""
+#
+#          # 환경 변수에 커밋 메시지를 저장할 때 이모지와 특수 문자를 따옴표로 처리하여 저장
+#          echo "COMMITS=\"$COMMITS\"" >> $GITHUB_ENV
+#
+#      - name: Checkout the PR to ensure all references are available
+#        run: |
+#          git fetch origin $BASE_BRANCH --prune
+#          git checkout $BASE_BRANCH
+#
+#      - name: Display commits
+#        run: |
+#          printf "Commits: %s\n" "${{ env.COMMITS }}"
+#
+#      - name: Determine labels based on commits
+#        id: determine_labels
+#        run: |
+#          DOMAIN_TAGS=(${DOMAIN_TAGS//,/ })
+#          SETTING_TAGS=(${SETTING_TAGS//,/ })
+#          CODE_TAGS=(${CODE_TAGS//,/ })
+#
+#          LABELS=()
+#          # 커밋 메시지 체크
+#            for COMMIT in $COMMITS; do
+#          echo "Checking commit: $COMMIT"
+#
+#          # DOMAIN_TAGS에서 태그 매칭
+#            for TAG in "${DOMAIN_TAGS[@]}"; do
+#            if [[ "$COMMIT" == *"$TAG"* ]]; then
+#            if [[ ! " ${LABELS[@]} " =~ " ${TAG} " ]]; then  # 중복 체크
+#            LABELS+=("$TAG")
+#          echo "Matched DOMAIN_TAG: $TAG"
+#            if [ ${#LABELS[@]} -ge 5 ]; then break 2; fi
+#            fi
+#            fi
+#            done
+#            done
+#
+#            # SETTING_TAGS에서 태그 매칭
+#            if [ ${#LABELS[@]} -lt 5 ]; then
+#            for TAG in "${SETTING_TAGS[@]}"; do
+#            if [[ "$COMMIT" == *"$TAG"* ]]; then
+#            if [[ ! " ${LABELS[@]} " =~ " ${TAG} " ]]; then  # 중복 체크
+#            LABELS+=("$TAG")
+#          echo "Matched SETTING_TAG: $TAG"
+#            if [ ${#LABELS[@]} -ge 5 ]; then break; fi
+#            fi
+#            fi
+#            done
+#            fi
+#
+#            # CODE_TAGS에서 태그 매칭
+#            if [ ${#LABELS[@]} -lt 5 ]; then
+#            for TAG in "${CODE_TAGS[@]}"; do
+#            if [[ "$COMMIT" == *"$TAG"* ]]; then
+#            if [[ ! " ${LABELS[@]} " =~ " ${TAG} " ]]; then  # 중복 체크
+#            LABELS+=("$TAG")
+#          echo "Matched CODE_TAG: $TAG"
+#            if [ ${#LABELS[@]} -ge 5 ]; then break; fi
+#            fi
+#            fi
+#            done
+#            fi
+#
+#            # 최종 레이블 설정
+#            FINAL_LABELS=$(IFS=,; echo "${LABELS[*]}")
+#            echo "FINAL_LABELS=$FINAL_LABELS" >> $GITHUB_ENV
+#
+#
+#      - name: Create missing labels
+#        run: |
+#          IFS=',' read -r -a LABEL_ARRAY <<< "${{ env.FINAL_LABELS }}"
+#          for LABEL in "${LABEL_ARRAY[@]}"; do
+#            if ! gh label list | grep -q "^$LABEL$"; then
+#              echo "Creating label: $LABEL"
+#              gh label create "$LABEL" --color "$(printf '#%06X\n' $((RANDOM%16777215)))"
+#            else
+#              echo "Label '$LABEL' already exists, updating..."
+#              gh label edit "$LABEL" --color "$(printf '#%06X\n' $((RANDOM%16777215)))"
+#            fi
+#          done
+#        env:
+#          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#
+#      - name: Add labels to PR
+#        if: github.event_name == 'pull_request'
+#        run: |
+#            IFS=',' read -r -a LABEL_ARRAY <<< "${{ env.FINAL_LABELS }}"
+#            for LABEL in "${LABEL_ARRAY[@]}"; do
+#              echo "Adding label: $LABEL to PR #${{ github.event.pull_request.number }}"
+#              gh pr edit ${{ github.event.pull_request.number }} --add-label "$LABEL"
+#            done
+#        env:
+#          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
