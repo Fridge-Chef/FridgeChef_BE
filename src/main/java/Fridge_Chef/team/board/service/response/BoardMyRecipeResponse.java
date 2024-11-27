@@ -51,11 +51,6 @@ public class BoardMyRecipeResponse {
         private Long id;
         private String name;
         private String details;
-
-        public String getDetails(){
-            return details == null ? "" : details;
-        }
-
     }
 
     @Getter
@@ -90,7 +85,9 @@ public class BoardMyRecipeResponse {
                 .collect(Collectors.toList());
 
         var recipeIngredients = board.getContext().getBoardIngredients().stream()
-                .map(ingredient -> new RecipeIngredientResponse(ingredient.getIngredient().getId(), ingredient.getIngredient().getName(), ingredient.getQuantity()))
+                .map(ingredient -> new RecipeIngredientResponse(ingredient.getIngredient().getId(),
+                        ingredient.getIngredient().getName(),
+                        ingredient.getQuantity() == null ? "" :ingredient.getQuantity()))
                 .collect(Collectors.toList());
 
 
