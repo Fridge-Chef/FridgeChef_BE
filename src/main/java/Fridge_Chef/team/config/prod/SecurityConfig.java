@@ -20,12 +20,14 @@ import org.springframework.security.config.annotation.web.configurers.AuthorizeH
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 import java.security.interfaces.RSAPublicKey;
+
+import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
+
 @Slf4j
 @Profile({"prod"})
 @Configuration
@@ -43,10 +45,9 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
                 .headers(this::configureHeaders)
                 .authorizeHttpRequests(this::configureAuthorization)
-                .logout(logoutConfigurer -> logoutConfigurer.logoutSuccessUrl("/"))
                 .oauth2ResourceServer(this::configureJwt)
                 .oauth2Login(this::configureOAuth2Login)
                 .build();
