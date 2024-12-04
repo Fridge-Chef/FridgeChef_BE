@@ -56,12 +56,15 @@ public class CommentResponse {
     }
 
     public static CommentResponse fromMyEntity(Comment comment, UserId userId) {
-        int hit = comment.getCommentUserEvent()
-                .stream()
-                .filter(v -> v.getUser().getId().equals(userId))
+        boolean myHit = false;
+        int hit = comment.getCommentUserEvent().stream()
+                .filter(v -> v.getUser().getId().equals(userId.getValue()))
                 .findFirst()
                 .map(CommentUserEvent::getHit)
                 .orElse(0);
+        if (hit == 1) {
+            myHit = true;
+        }
 
         return new CommentResponse(
                 comment.getId(),
@@ -69,7 +72,7 @@ public class CommentResponse {
                 comment.getComments(),
                 comment.getStar(),
                 comment.getTotalHit(),
-                hit == 1 ,
+                myHit,
                 comment.getUsers().getUsername(),
                 comment.getImageLinks(),
                 comment.getBoard().getId(),
