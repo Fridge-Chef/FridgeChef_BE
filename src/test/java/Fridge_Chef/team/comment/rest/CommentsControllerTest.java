@@ -88,7 +88,7 @@ public class CommentsControllerTest extends RestDocControllerTests {
     @DisplayName("좋아요 클릭")
     void addLikeClick() throws Exception {
         // When
-        ResultActions result = jwtPatchPathWhen("/api/boards/{board_id}/comments/{comment_id}/like", 1, 1);
+        ResultActions result = jwtPatchPathWhen("/api/boards/{board_id}/comments/{comment_id}/hit", 1, 1);
 
         // Then
         result.andExpect(status().isOk())
