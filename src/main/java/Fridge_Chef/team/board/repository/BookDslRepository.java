@@ -53,7 +53,7 @@ public class BookDslRepository {
             LocalDateTime endOfWeek = LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)).atTime(23, 59, 59);
 
             query.where(board.boardIssues.any().createTime.between(startOfWeek, endOfWeek));
-        } else if (request.getBookType().equals(BookType.LIKE)) {
+        } else if (request.getBookType().equals(BookType.HIT)) {
             query.where(boardUserEvent.user.userId.eq(userId)
                     .and(boardUserEvent.hit.eq(1)));
         }
