@@ -78,7 +78,7 @@ public class BookControllerTest extends RestDocControllerTests {
                         queryParameters(
                                 parameterWithName("page").description("페이지 번호 (0부터 시작)"),
                                 parameterWithName("size").description("한 페이지에 출력할 레시피 개수 (1~50 사이즈 제한)"),
-                                parameterWithName("book").description("북 타입 : (좋아요,나만의레시피,후기) [LIKE,MYRECIPE,LIKE]"),
+                                parameterWithName("book").description("북 타입 : (좋아요,나만의레시피) [HIT ,MYRECIPE]"),
                                 parameterWithName("sort").description("정렬 방식 (예: WEEKLY_RECIPE, MONTHLY_RECIPE, LATEST ,RATING ,CLICKS ,HIT )").optional()
                         ),
                         responseFields(
@@ -118,7 +118,7 @@ public class BookControllerTest extends RestDocControllerTests {
                         queryParameters(
                                 parameterWithName("page").description("페이지 번호 "),
                                 parameterWithName("size").description("사이즈 크기 "),
-                                parameterWithName("book").description("북 타입 : (좋아요,나만의레시피,후기) [LIKE,MYRECIPE,LIKE]"),
+                                parameterWithName("book").description("북 타입 : (좋아요,나만의레시피,후기) [HIT,MYRECIPE]"),
                                 parameterWithName("sort").description("정렬 타입 :(최신순,별점순,클릭순,좋아요순) [ LATEST, RATING , CLICKS, HIT ] ")
                         ),
                         responseFields(

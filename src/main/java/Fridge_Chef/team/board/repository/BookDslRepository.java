@@ -37,8 +37,6 @@ public class BookDslRepository {
 
     public Page<BookBoardResponse> findByBoard(PageRequest pageable, UserId userId, BookRecipeRequest request) {
         JPAQuery<Board> query = factory.selectFrom(board)
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
                 .leftJoin(board.boardUserEvent, boardUserEvent);
 
         if (request.getBookType().equals(BookType.MYRECIPE)) {
@@ -57,6 +55,12 @@ public class BookDslRepository {
             query.where(boardUserEvent.user.userId.eq(userId)
                     .and(boardUserEvent.hit.eq(1)));
         }
+
+        int size = query.fetch().size();
+
+        query.offset(pageable.getOffset())
+                .limit(pageable.getPageSize());
+
         applyBoardSort(query, request.getSortType());
 
         List<BookBoardResponse> results = query.fetch()
@@ -64,7 +68,7 @@ public class BookDslRepository {
                 .map(BookBoardResponse::new)
                 .collect(Collectors.toList());
 
-        return new PageImpl<>(results, pageable, results.size());
+        return new PageImpl<>(results, pageable, size);
     }
 
     public Page<CommentResponse> findByComment(PageRequest pageable, UserId userId, BookCommentRequest request) {
