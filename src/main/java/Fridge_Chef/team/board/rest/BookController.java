@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class BookController {
     private final BookService bookService;
-    private final CommentService commentService;
 
     @GetMapping("/recipe")
     public Page<BookBoardResponse> selectLike(
