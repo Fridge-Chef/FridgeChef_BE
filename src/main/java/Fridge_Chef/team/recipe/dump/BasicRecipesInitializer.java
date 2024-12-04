@@ -55,10 +55,15 @@ public class BasicRecipesInitializer {
     @PostConstruct
     public void init() throws IOException {
         String email = "recipeUser@fridge.chef";
+
         if (!userRepository.existsByProfileEmail(email)) {
-            log.info("recipe init()");
             User user = createAdminUser(email);
+            log.info("recipe init()");
+            final long startTime = System.nanoTime();
             createBasicRecipes(user);
+            final long endTime = System.nanoTime();
+            final long duration = (endTime - startTime) / 1_000_000;
+            log.info("end " + duration);
         }
     }
 
@@ -83,7 +88,6 @@ public class BasicRecipesInitializer {
         while ((line = reader.readLine()) != null) {
             List<String> fields = parseLine(line);
             recipeToBoard(user, createRecipe(fields), index++);
-            log.info("board insert >");
         }
     }
 

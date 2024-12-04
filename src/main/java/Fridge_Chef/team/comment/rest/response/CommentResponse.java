@@ -30,14 +30,14 @@ public class CommentResponse {
 
     public static CommentResponse fromEntity(Comment comment, Optional<UserId> optional) {
         boolean myHit = false;
-        if(optional.isPresent()){
-            int hit =comment.getCommentUserEvent().stream()
+        if (optional.isPresent()) {
+            int hit = comment.getCommentUserEvent().stream()
                     .filter(v -> v.getUser().getId().equals(optional.get().getValue()))
                     .findFirst()
                     .map(CommentUserEvent::getHit)
                     .orElse(0);
-            if(hit == 1){
-                myHit=true;
+            if (hit == 1) {
+                myHit = true;
             }
         }
         return new CommentResponse(
@@ -46,6 +46,27 @@ public class CommentResponse {
                 comment.getStar(),
                 comment.getTotalHit(),
                 myHit,
+                comment.getUsers().getUsername(),
+                comment.getImageLinks(),
+                comment.getBoard().getId(),
+                comment.getCreateTime()
+        );
+    }
+
+    public static CommentResponse fromMyEntity(Comment comment, UserId userId) {
+        int hit = comment.getCommentUserEvent()
+                .stream()
+                .filter(v -> v.getUser().getId().equals(userId))
+                .findFirst()
+                .map(CommentUserEvent::getHit)
+                .orElse(0);
+
+        return new CommentResponse(
+                comment.getId(),
+                comment.getComments(),
+                comment.getStar(),
+                comment.getTotalHit(),
+                hit == 1 ,
                 comment.getUsers().getUsername(),
                 comment.getImageLinks(),
                 comment.getBoard().getId(),

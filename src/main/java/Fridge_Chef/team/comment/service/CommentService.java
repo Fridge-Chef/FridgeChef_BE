@@ -2,6 +2,7 @@ package Fridge_Chef.team.comment.service;
 
 import Fridge_Chef.team.board.domain.Board;
 import Fridge_Chef.team.board.repository.BoardRepository;
+import Fridge_Chef.team.board.rest.request.BookCommentRequest;
 import Fridge_Chef.team.comment.domain.Comment;
 import Fridge_Chef.team.comment.domain.CommentUserEvent;
 import Fridge_Chef.team.comment.repository.CommentRepository;
@@ -24,10 +25,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -151,6 +150,21 @@ public class CommentService {
         return CommentResponse.fromEntity(comment, user);
     }
 
+
+    @Transactional(readOnly = true)
+    public Page<CommentResponse> selectUserComment(UserId userId, BookCommentRequest request) {
+        PageRequest pageable = PageRequest.of(request.getPage(), request.getSize());
+        User user = findByUser(userId);
+        List<Comment> comments = commentRepository.findByUsers(user)
+                .orElse(List.of());
+
+        List<CommentResponse> responses = comments.stream()
+                .map(entity -> CommentResponse.fromMyEntity(entity, user.getUserId()))
+                .toList();
+
+        return new PageImpl<>(responses, pageable, responses.size());
+    }
+
     @Transactional
     public int updateHit(Long boardId, Long commentId, UserId userId) {
         Board board = findByBoard(boardId);
@@ -218,4 +232,5 @@ public class CommentService {
             throw new ApiException(ErrorCode.COMMENT_NOT_USER_AUTHOR);
         }
     }
+
 }

@@ -1,13 +1,12 @@
 package Fridge_Chef.team.board.rest;
 
 import Fridge_Chef.team.board.repository.BookDslRepository;
-import Fridge_Chef.team.board.repository.model.BookType;
-import Fridge_Chef.team.board.repository.model.SortType;
 import Fridge_Chef.team.board.rest.request.BookCommentRequest;
 import Fridge_Chef.team.board.rest.request.BookRecipeRequest;
 import Fridge_Chef.team.board.rest.response.BookBoardResponse;
-import Fridge_Chef.team.board.rest.response.BookCommentResponse;
 import Fridge_Chef.team.board.service.BookService;
+import Fridge_Chef.team.comment.rest.response.CommentResponse;
+import Fridge_Chef.team.comment.service.CommentService;
 import Fridge_Chef.team.common.RestDocControllerTests;
 import Fridge_Chef.team.common.auth.WithMockCustomUser;
 import Fridge_Chef.team.user.domain.User;
@@ -33,7 +32,8 @@ import java.util.List;
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
 
@@ -42,6 +42,8 @@ import static org.springframework.restdocs.request.RequestDocumentation.queryPar
 public class BookControllerTest extends RestDocControllerTests {
     @MockBean
     private BookService bookService;
+    @MockBean
+    private CommentService commentService;
     @MockBean
     private BookDslRepository bookDslRepository;
     @MockBean
@@ -68,7 +70,7 @@ public class BookControllerTest extends RestDocControllerTests {
         params.add("book", "MYRECIPE");
         params.add("sort", "LATEST");
 
-        ResultActions actions = jwtJsonGetParamWhen("/api/books/recipe",params);
+        ResultActions actions = jwtJsonGetParamWhen("/api/books/recipe", params);
 
         actions.andExpect(status().isOk())
                 .andDo(document("좋아요",
@@ -139,7 +141,7 @@ public class BookControllerTest extends RestDocControllerTests {
     @WithMockCustomUser
     @DisplayName("레시피 후기 페이징 조회")
     void findComments() throws Exception {
-        when(bookService.selectComment(any(UserId.class), any(BookCommentRequest.class)))
+        when(commentService.selectUserComment(any(UserId.class), any(BookCommentRequest.class)))
                 .thenReturn(commentPagesProvider());
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
@@ -158,27 +160,29 @@ public class BookControllerTest extends RestDocControllerTests {
                                 parameterWithName("sort").description("정렬 타입 :(최신순,별점순,클릭순,좋아요순) [ LATEST, RATING , CLICKS, HIT ] ")
                         ),
                         responseFields(
-                                fieldWithPath("content[]").description("코멘트 목록"),
-                                fieldWithPath("content[].boardId").description("게시글 ID"),
-                                fieldWithPath("content[].commentId").description("코멘트 ID"),
-                                fieldWithPath("content[].name").description("작성자 이름"),
+                                fieldWithPath("content[]").description("후기 리스트"),
+                                fieldWithPath("content[].id").description("ID"),
+                                fieldWithPath("content[].comments").description("후기 내용"),
+                                fieldWithPath("content[].like").description("좋아요 수 "),
+                                fieldWithPath("content[].myHit").description("내 좋아요 여부 "),
                                 fieldWithPath("content[].star").description("별점"),
-                                fieldWithPath("content[].context").description("코멘트 내용"),
-                                fieldWithPath("page").description("페이지"),
-                                fieldWithPath("page.size").description("사이즈"),
-                                fieldWithPath("page.number").description("번호"),
-                                fieldWithPath("page.totalElements").description("총 요소 "),
-                                fieldWithPath("page.totalPages").description("총 페이지 ")
-                        )
-                ));
+                                fieldWithPath("content[].userName").description("사용자 이름"),
+                                fieldWithPath("content[].imageLink[]").description("이미지 주소"),
+                                fieldWithPath("content[].boardId").description("게시판 ID"),
+                                fieldWithPath("content[].createdAt").description("작성일"),
+                                fieldWithPath("page.size").description("페이지 크기"),
+                                fieldWithPath("page.number").description("현재 페이지 번호"),
+                                fieldWithPath("page.totalElements").description("전체 요소 수"),
+                                fieldWithPath("page.totalPages").description("전체 페이지 수")
+                        )));
     }
 
-    private Page<BookCommentResponse> commentPagesProvider() {
+    private Page<CommentResponse> commentPagesProvider() {
         User user1 = UserFixture.create("test1@gmail.com");
         User user2 = UserFixture.create("test2@gmail.com");
-        List<BookCommentResponse> responses = List.of(
-                new BookCommentResponse(CommentFixture.create(BoardFixture.create(user1), user1)),
-                new BookCommentResponse(CommentFixture.create(BoardFixture.create(user2), user2))
+        List<CommentResponse> responses = List.of(
+                CommentResponse.fromMyEntity(CommentFixture.create(BoardFixture.create(user1), user1), user1.getUserId()),
+                CommentResponse.fromMyEntity(CommentFixture.create(BoardFixture.create(user2), user2), user2.getUserId())
         );
         return new PageImpl<>(responses, PageRequest.of(1, 50), responses.size());
     }
