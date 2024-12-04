@@ -98,7 +98,7 @@ public class RecipeDslRepository {
         switch (sortType) {
             case MATCH -> query.orderBy(recipeIngredient.ingredient.name.count().desc());
             case RATING -> query.orderBy(board.totalStar.desc());
-            case LIKE -> query.orderBy(board.hit.desc());
+            case HIT -> query.orderBy(board.hit.desc());
             default -> query.orderBy(board.createTime.desc());
         }
         query.orderBy(board.createTime.desc());
