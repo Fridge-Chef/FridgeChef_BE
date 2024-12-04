@@ -25,13 +25,13 @@ public class Board extends BaseEntity {
     @Column(name = "id")
     private Long id;
     @OneToMany(mappedBy = "board", fetch = FetchType.LAZY, orphanRemoval = true,cascade = CascadeType.PERSIST)
-    private List<BoardUserEvent> boardUserEvent;
+    private List<BoardUserEvent> boardUserEvent = new ArrayList<>();
     @OneToMany(mappedBy = "board", fetch = FetchType.LAZY, orphanRemoval = true,cascade = CascadeType.PERSIST)
-    private List<BoardIssue> boardIssues;
+    private List<BoardIssue> boardIssues= new ArrayList<>();
     @OneToMany(mappedBy = "board", fetch = FetchType.LAZY, orphanRemoval = true,cascade = CascadeType.PERSIST)
-    private List<BoardHistory> historys;
+    private List<BoardHistory> historys= new ArrayList<>();
     @OneToMany(mappedBy = "board", fetch = FetchType.LAZY, orphanRemoval = true,cascade = CascadeType.PERSIST)
-    private List<Comment> comments;
+    private List<Comment> comments= new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
@@ -58,11 +58,6 @@ public class Board extends BaseEntity {
         this.totalStar = 0L;
         this.hit = 0;
         this.count = 0;
-
-        this.boardUserEvent = new ArrayList<>();
-        this.historys = new ArrayList<>();
-        this.comments=new ArrayList<>();
-        this.boardIssues = new ArrayList<>();
 
         if(mainImage != null){
             pathMainImage = mainImage.getLink();
@@ -93,11 +88,6 @@ public class Board extends BaseEntity {
         return mainImage == null;
     }
 
-
-    public void updateTitle(String title) {
-        this.title = title;
-    }
-
     public void updateMainImage(Image mainImage) {
         this.mainImage = mainImage;
     }
@@ -117,9 +107,6 @@ public class Board extends BaseEntity {
         this.id = id;
     }
 
-    public void updateContext(Context context) {
-        this.context = context;
-    }
 
     public boolean getIsMyHit(UserId userId) {
         if(userId == null){
