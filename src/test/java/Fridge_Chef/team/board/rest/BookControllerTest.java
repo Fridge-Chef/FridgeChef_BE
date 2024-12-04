@@ -141,7 +141,7 @@ public class BookControllerTest extends RestDocControllerTests {
     @WithMockCustomUser
     @DisplayName("레시피 후기 페이징 조회")
     void findComments() throws Exception {
-        when(commentService.selectUserComment(any(UserId.class), any(BookCommentRequest.class)))
+        when(bookService.selectComment(any(UserId.class), any(BookCommentRequest.class)))
                 .thenReturn(commentPagesProvider());
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
