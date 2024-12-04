@@ -150,21 +150,6 @@ public class CommentService {
         return CommentResponse.fromEntity(comment, user);
     }
 
-
-    @Transactional(readOnly = true)
-    public Page<CommentResponse> selectUserComment(UserId userId, BookCommentRequest request) {
-        PageRequest pageable = PageRequest.of(request.getPage(), request.getSize());
-        User user = findByUser(userId);
-        List<Comment> comments = commentRepository.findByUsers(user)
-                .orElse(List.of());
-
-        List<CommentResponse> responses = comments.stream()
-                .map(entity -> CommentResponse.fromMyEntity(entity, user.getUserId()))
-                .toList();
-
-        return new PageImpl<>(responses, pageable, responses.size());
-    }
-
     @Transactional
     public int updateHit(Long boardId, Long commentId, UserId userId) {
         Board board = findByBoard(boardId);
