@@ -17,6 +17,7 @@ import java.util.Optional;
 @AllArgsConstructor
 public class CommentResponse {
     private Long id;
+    private String title;
     private String comments;
     private double star;
 
@@ -42,6 +43,7 @@ public class CommentResponse {
         }
         return new CommentResponse(
                 comment.getId(),
+                comment.getBoard().getTitle(),
                 comment.getComments(),
                 comment.getStar(),
                 comment.getTotalHit(),
@@ -63,6 +65,7 @@ public class CommentResponse {
 
         return new CommentResponse(
                 comment.getId(),
+                comment.getBoard().getTitle(),
                 comment.getComments(),
                 comment.getStar(),
                 comment.getTotalHit(),

@@ -219,8 +219,8 @@ public class CommentsControllerTest extends RestDocControllerTests {
 
     private static Page<CommentResponse> getAllCommentsProvider() {
         return new PageImpl<>(List.of(
-                new CommentResponse(1L, "후기 내용", 4.5, 1, false,"User1", List.of("test.png"), 1L, LocalDateTime.now()),
-                new CommentResponse(2L, "또 다른 후기", 5.0, 1,false, "User2", List.of("test.png", "test2.png"), 1L, LocalDateTime.now())
+                new CommentResponse(1L,"레시피명", "후기 내용", 4.5, 1, false,"User1", List.of("test.png"), 1L, LocalDateTime.now()),
+                new CommentResponse(2L, "레시피명","또 다른 후기", 5.0, 1,false, "User2", List.of("test.png", "test2.png"), 1L, LocalDateTime.now())
         ), PageRequest.of(0, 10), 2);
     }
 }
