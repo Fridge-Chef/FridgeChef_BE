@@ -78,7 +78,7 @@ public class BookControllerTest extends RestDocControllerTests {
                         queryParameters(
                                 parameterWithName("page").description("페이지 번호 (0부터 시작)"),
                                 parameterWithName("size").description("한 페이지에 출력할 레시피 개수 (1~50 사이즈 제한)"),
-                                parameterWithName("book").description("북 타입 : (좋아요,나만의레시피,후기) [LIKE,MYRECIPE,LIKE]"),
+                                parameterWithName("book").description("북 타입 : (좋아요,나만의레시피) [HIT ,MYRECIPE]"),
                                 parameterWithName("sort").description("정렬 방식 (예: WEEKLY_RECIPE, MONTHLY_RECIPE, LATEST ,RATING ,CLICKS ,HIT )").optional()
                         ),
                         responseFields(
@@ -118,7 +118,7 @@ public class BookControllerTest extends RestDocControllerTests {
                         queryParameters(
                                 parameterWithName("page").description("페이지 번호 "),
                                 parameterWithName("size").description("사이즈 크기 "),
-                                parameterWithName("book").description("북 타입 : (좋아요,나만의레시피,후기) [LIKE,MYRECIPE,LIKE]"),
+                                parameterWithName("book").description("북 타입 : (좋아요,나만의레시피,후기) [HIT,MYRECIPE]"),
                                 parameterWithName("sort").description("정렬 타입 :(최신순,별점순,클릭순,좋아요순) [ LATEST, RATING , CLICKS, HIT ] ")
                         ),
                         responseFields(
@@ -141,7 +141,7 @@ public class BookControllerTest extends RestDocControllerTests {
     @WithMockCustomUser
     @DisplayName("레시피 후기 페이징 조회")
     void findComments() throws Exception {
-        when(commentService.selectUserComment(any(UserId.class), any(BookCommentRequest.class)))
+        when(bookService.selectComment(any(UserId.class), any(BookCommentRequest.class)))
                 .thenReturn(commentPagesProvider());
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
@@ -162,6 +162,7 @@ public class BookControllerTest extends RestDocControllerTests {
                         responseFields(
                                 fieldWithPath("content[]").description("후기 리스트"),
                                 fieldWithPath("content[].id").description("ID"),
+                                fieldWithPath("content[].title").description("레시피 명"),
                                 fieldWithPath("content[].comments").description("후기 내용"),
                                 fieldWithPath("content[].like").description("좋아요 수 "),
                                 fieldWithPath("content[].myHit").description("내 좋아요 여부 "),

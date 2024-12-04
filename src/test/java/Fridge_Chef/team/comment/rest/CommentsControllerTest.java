@@ -88,7 +88,7 @@ public class CommentsControllerTest extends RestDocControllerTests {
     @DisplayName("좋아요 클릭")
     void addLikeClick() throws Exception {
         // When
-        ResultActions result = jwtPatchPathWhen("/api/boards/{board_id}/comments/{comment_id}/like", 1, 1);
+        ResultActions result = jwtPatchPathWhen("/api/boards/{board_id}/comments/{comment_id}/hit", 1, 1);
 
         // Then
         result.andExpect(status().isOk())
@@ -175,6 +175,7 @@ public class CommentsControllerTest extends RestDocControllerTests {
                         responseFields(
                                 fieldWithPath("content[]").description("후기 리스트"),
                                 fieldWithPath("content[].id").description("ID"),
+                                fieldWithPath("content[].title").description("레시피 명"),
                                 fieldWithPath("content[].comments").description("후기 내용"),
                                 fieldWithPath("content[].like").description("좋아요 수 "),
                                 fieldWithPath("content[].myHit").description("내 좋아요 여부 "),
@@ -206,6 +207,7 @@ public class CommentsControllerTest extends RestDocControllerTests {
                         ),
                         responseFields(
                                 fieldWithPath("id").description(" ID"),
+                                fieldWithPath("title").description("레시피 명"),
                                 fieldWithPath("comments").description("내용"),
                                 fieldWithPath("like").description("좋아요 수 "),
                                 fieldWithPath("myHit").description("내 좋아요 여부"),
@@ -219,8 +221,8 @@ public class CommentsControllerTest extends RestDocControllerTests {
 
     private static Page<CommentResponse> getAllCommentsProvider() {
         return new PageImpl<>(List.of(
-                new CommentResponse(1L, "후기 내용", 4.5, 1, false,"User1", List.of("test.png"), 1L, LocalDateTime.now()),
-                new CommentResponse(2L, "또 다른 후기", 5.0, 1,false, "User2", List.of("test.png", "test2.png"), 1L, LocalDateTime.now())
+                new CommentResponse(1L,"레시피명", "후기 내용", 4.5, 1, false,"User1", List.of("test.png"), 1L, LocalDateTime.now()),
+                new CommentResponse(2L, "레시피명","또 다른 후기", 5.0, 1,false, "User2", List.of("test.png", "test2.png"), 1L, LocalDateTime.now())
         ), PageRequest.of(0, 10), 2);
     }
 }

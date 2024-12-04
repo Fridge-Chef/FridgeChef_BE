@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class BookController {
     private final BookService bookService;
-    private final CommentService commentService;
 
     @GetMapping("/recipe")
     public Page<BookBoardResponse> selectLike(
@@ -40,6 +39,6 @@ public class BookController {
             @RequestParam(defaultValue = "0", required = false) int page,
             @RequestParam(defaultValue = "10", required = false) int size,
             @RequestParam(defaultValue = "LATEST", required = false) SortType sort) {
-        return commentService.selectUserComment(user.userId(), new BookCommentRequest(page, size, sort));
+        return bookService.selectComment(user.userId(), new BookCommentRequest(page, size, sort));
     }
 }

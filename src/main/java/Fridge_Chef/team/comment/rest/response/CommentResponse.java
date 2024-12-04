@@ -17,6 +17,7 @@ import java.util.Optional;
 @AllArgsConstructor
 public class CommentResponse {
     private Long id;
+    private String title;
     private String comments;
     private double star;
 
@@ -42,6 +43,7 @@ public class CommentResponse {
         }
         return new CommentResponse(
                 comment.getId(),
+                comment.getBoard().getTitle(),
                 comment.getComments(),
                 comment.getStar(),
                 comment.getTotalHit(),
@@ -54,19 +56,19 @@ public class CommentResponse {
     }
 
     public static CommentResponse fromMyEntity(Comment comment, UserId userId) {
-        int hit = comment.getCommentUserEvent()
-                .stream()
-                .filter(v -> v.getUser().getId().equals(userId))
+        boolean isMyHit = comment.getCommentUserEvent().stream()
+                .filter(v -> v.getUser().getId().equals(userId.getValue()))
                 .findFirst()
                 .map(CommentUserEvent::getHit)
-                .orElse(0);
+                .orElse(0) == 1;
 
         return new CommentResponse(
                 comment.getId(),
+                comment.getBoard().getTitle(),
                 comment.getComments(),
                 comment.getStar(),
                 comment.getTotalHit(),
-                hit == 1 ,
+                isMyHit,
                 comment.getUsers().getUsername(),
                 comment.getImageLinks(),
                 comment.getBoard().getId(),

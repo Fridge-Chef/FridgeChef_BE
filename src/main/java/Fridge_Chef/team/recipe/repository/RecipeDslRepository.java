@@ -43,8 +43,6 @@ public class RecipeDslRepository {
 
         var query = factory
                 .selectFrom(board)
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
                 .leftJoin(board.context.boardIngredients, recipeIngredient)
                 .leftJoin(recipeIngredient.ingredient, ingredient)
                 .groupBy(board);
@@ -58,6 +56,9 @@ public class RecipeDslRepository {
                 () -> query.where(pickBuilder));
 
         int totalSize = query.fetch().size();
+
+        query.offset(pageable.getOffset())
+                .limit(pageable.getPageSize());
 
         applySort(query, request.sortType());
 
@@ -97,7 +98,7 @@ public class RecipeDslRepository {
         switch (sortType) {
             case MATCH -> query.orderBy(recipeIngredient.ingredient.name.count().desc());
             case RATING -> query.orderBy(board.totalStar.desc());
-            case LIKE -> query.orderBy(board.hit.desc());
+            case HIT -> query.orderBy(board.hit.desc());
             default -> query.orderBy(board.createTime.desc());
         }
         query.orderBy(board.createTime.desc());
