@@ -162,6 +162,7 @@ public class BookControllerTest extends RestDocControllerTests {
                         responseFields(
                                 fieldWithPath("content[]").description("후기 리스트"),
                                 fieldWithPath("content[].id").description("ID"),
+                                fieldWithPath("content[].title").description("레시피 명"),
                                 fieldWithPath("content[].comments").description("후기 내용"),
                                 fieldWithPath("content[].like").description("좋아요 수 "),
                                 fieldWithPath("content[].myHit").description("내 좋아요 여부 "),
