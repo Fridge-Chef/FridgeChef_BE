@@ -68,16 +68,16 @@ public class UserService {
         findByUserId(userId).updateUsername(request.username());
     }
 
-    private User findByUserId(UserId userId) {
-        return userRepository.findByUserId(userId)
-                .filter(user -> !user.getDeleteStatus().bool())
-                .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
-    }
-
     @Transactional(readOnly = true)
     public UserProfileMyPageResponse findByMyPage(UserId userId) {
         List<Board> boards = boardRepository.findByUserId(userId).orElse(List.of());
         List<Comment> comments = commentRepository.findByUsers(findByUserId(userId)).orElse(List.of());
         return new UserProfileMyPageResponse(boards.size(),comments.size());
+    }
+
+    private User findByUserId(UserId userId) {
+        return userRepository.findByUserId(userId)
+                .filter(user -> !user.getDeleteStatus().bool())
+                .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
     }
 }
