@@ -43,8 +43,6 @@ public class RecipeDslRepository {
 
         var query = factory
                 .selectFrom(board)
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
                 .leftJoin(board.context.boardIngredients, recipeIngredient)
                 .leftJoin(recipeIngredient.ingredient, ingredient)
                 .groupBy(board);
@@ -58,6 +56,9 @@ public class RecipeDslRepository {
                 () -> query.where(pickBuilder));
 
         int totalSize = query.fetch().size();
+
+        query.offset(pageable.getOffset())
+                .limit(pageable.getPageSize());
 
         applySort(query, request.sortType());
 
