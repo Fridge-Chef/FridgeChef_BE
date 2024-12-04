@@ -83,7 +83,11 @@ public class BookDslRepository {
                 .map(comments -> CommentResponse.fromMyEntity(comments, userId))
                 .collect(Collectors.toList());
 
-        return new PageImpl<>(results, pageable, results.size());
+        int size = factory.selectFrom(comment)
+                .leftJoin(comment.commentUserEvent, commentUserEvent)
+                .where(comment.users.userId.eq(userId)).fetch().size();
+
+        return new PageImpl<>(results, pageable, size);
     }
 
     private void applyBoardSort(JPAQuery<Board> query, SortType sortType) {
