@@ -20,10 +20,10 @@ public class BoardsController {
     private final BoardService boardService;
 
     @GetMapping("/{board_id}")
-    public BoardMyRecipeResponse targetFind(@PathVariable("board_id") Long boardId) {
+    public BoardMyRecipeResponse targetFind(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable("board_id") Long boardId) {
         boardService.counting(boardId);
 
-        return boardService.findMyRecipeId(boardId);
+        return boardService.findMyRecipeId(boardId, AuthenticatedUser.anonymousUser(user));
     }
 
     @GetMapping
@@ -33,8 +33,7 @@ public class BoardsController {
             @RequestParam(defaultValue = "10", required = false) int size,
             @RequestParam(defaultValue = "ALL", required = false) IssueType issue,
             @RequestParam(defaultValue = "LATEST", required = false) SortType sort) {
-        UserId userId = openUserId(user);
-        return boardService.findMyRecipes(userId, new BoardPageRequest(page, size, issue, sort));
+        return boardService.findMyRecipes(openUserId(user), new BoardPageRequest(page, size, issue, sort));
     }
 
     @PatchMapping("/{board_id}/hit")

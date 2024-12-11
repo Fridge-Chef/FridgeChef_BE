@@ -166,6 +166,7 @@ public class BookControllerTest extends RestDocControllerTests {
                                 fieldWithPath("content[].comments").description("후기 내용"),
                                 fieldWithPath("content[].like").description("좋아요 수 "),
                                 fieldWithPath("content[].myHit").description("내 좋아요 여부 "),
+                                fieldWithPath("content[].myMe").description("내가 작성한 여부"),
                                 fieldWithPath("content[].star").description("별점"),
                                 fieldWithPath("content[].userName").description("사용자 이름"),
                                 fieldWithPath("content[].imageLink[]").description("이미지 주소"),

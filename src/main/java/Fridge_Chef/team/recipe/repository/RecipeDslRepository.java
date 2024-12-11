@@ -66,7 +66,7 @@ public class RecipeDslRepository {
         List<BoardUserEvent> userEvent = getUserEvent(result, userId);
 
         return PageableExecutionUtils.getPage(
-                RecipeSearchResponse.of(result, pick, userEvent),
+                RecipeSearchResponse.of(result, pick, userEvent,userId),
                 pageable,
                 () -> totalSize);
     }

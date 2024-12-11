@@ -7,6 +7,7 @@ import Fridge_Chef.team.board.repository.BoardRepository;
 import Fridge_Chef.team.board.service.response.BoardMyRecipeResponse;
 import Fridge_Chef.team.common.ServiceLayerTest;
 import Fridge_Chef.team.user.domain.User;
+import Fridge_Chef.team.user.domain.UserId;
 import fixture.BoardFixture;
 import fixture.UserFixture;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,7 +48,7 @@ public class BoardsServiceTest extends ServiceLayerTest {
         when(boardHistoryRepository.save(any(BoardHistory.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        BoardMyRecipeResponse response = boardService.findMyRecipeId(1L);
+        BoardMyRecipeResponse response = boardService.findMyRecipeId(1L,Optional.of(UserId.create()));
 
         verify(boardRepository, times(1)).findById(1L);
         verify(boardHistoryRepository, times(1)).save(any(BoardHistory.class));
@@ -63,7 +64,7 @@ public class BoardsServiceTest extends ServiceLayerTest {
         board.addHistory(existingHistory);
 
         when(boardRepository.findById(any())).thenReturn(Optional.of(board));
-        BoardMyRecipeResponse response = boardService.findMyRecipeId(1L);
+        BoardMyRecipeResponse response = boardService.findMyRecipeId(1L,Optional.of(UserId.create()));
 
         verify(boardRepository, times(1)).findById(1L);
         verify(boardHistoryRepository, never()).save(existingHistory);
