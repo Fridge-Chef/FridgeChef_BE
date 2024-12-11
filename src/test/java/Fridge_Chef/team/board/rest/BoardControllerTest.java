@@ -297,7 +297,7 @@ public class BoardControllerTest extends RestDocControllerTests {
         Part ingredientDetailsPart2 = new MockPart("recipeIngredients[1].details", "상세정보3".getBytes());
 
         Part instructionContentPart1 = new MockPart("instructions[0].content", "설명1".getBytes());
-        Part instructionContentIdPart1 = new MockPart("instructions[0].id", "설명 id".getBytes());
+        Part instructionContentIdPart1 = new MockPart("instructions[0].id", "2".getBytes());
         Part instructionImagePart1 = new MockPart("instructions[0].imageChange", "false".getBytes());
         MockMultipartFile instructionImage1 = getMultiFile("instructions[0].image");
 
