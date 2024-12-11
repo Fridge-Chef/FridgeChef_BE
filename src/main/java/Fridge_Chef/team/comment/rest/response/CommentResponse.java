@@ -25,13 +25,19 @@ public class CommentResponse {
     private boolean myHit;
 
     private String userName;
+    private boolean myMe;
     private List<String> imageLink;
     private Long boardId;
     private LocalDateTime createdAt;
 
     public static CommentResponse fromEntity(Comment comment, Optional<UserId> optional) {
         boolean myHit = false;
+        boolean myMe =false;
+
         if (optional.isPresent()) {
+            if(comment.getUsers().getUserId().equals(optional.get())){
+                myMe=true;
+            }
             int hit = comment.getCommentUserEvent().stream()
                     .filter(v -> v.getUser().getId().equals(optional.get().getValue()))
                     .findFirst()
@@ -49,6 +55,7 @@ public class CommentResponse {
                 comment.getTotalHit(),
                 myHit,
                 comment.getUsers().getUsername(),
+                myMe,
                 comment.getImageLinks(),
                 comment.getBoard().getId(),
                 comment.getCreateTime()
@@ -70,6 +77,7 @@ public class CommentResponse {
                 comment.getTotalHit(),
                 isMyHit,
                 comment.getUsers().getUsername(),
+                comment.getUsers().getUserId().equals(userId),
                 comment.getImageLinks(),
                 comment.getBoard().getId(),
                 comment.getCreateTime()
