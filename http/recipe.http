@@ -1,25 +1,26 @@
 ### 추천 레시피 조회
-GET {{http-api}}/api/recipes/?must=계란&ingredients=소금&page=0&size=50&sort=MATCH
+GET  {{http-api}}/api/recipes/?must=재료4&page=0&size=50&sort=HIT
 Authorization: Bearer {{token}}
 
 ### 레시피 단일 id 조회
-GET {{http-api}}/api/boards/1
+GET {{http-api}}/api/boards/162
+Authorization: Bearer {{token}}
 
 ### ===== 레시피 북
 ### 레시피북 댓글 조회
-GET {{http-api}}/api/books/comment
+GET {{http-api}}/api/books/comment?sort=HIT
 Authorization: Bearer {{token}}
 
 ### 레시피 북(찜하기) 레시피 조회
-GET {{http-api}}/api/books/recipe?book=LIKE
+GET {{http-api}}/api/books/recipe?book=HIT&sort=HIT
 Authorization: Bearer {{token}}
 
 ### 나의 레시피 보기
-GET {{http-api}}/api/books/recipe?book=MYRECIPE
+GET {{http-api}}/api/books/recipe?book=MYRECIPE&sort=HIT
 Authorization: Bearer {{token}}
 
 ### 찜하기 클릭
-PATCH {{http-api}}/api/boards/21/like
+PATCH {{http-api}}/api/boards/55/hit
 Authorization: Bearer {{token}}
 
 ### 구매 버튼
