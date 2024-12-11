@@ -70,4 +70,9 @@ public class Context {
     public void addRecipeIngredient(RecipeIngredient recipeIngredient) {
         this.boardIngredients.add(recipeIngredient);
     }
+
+    public void clearRecipe() {
+        this.boardIngredients.clear();
+        this.descriptions.clear();
+    }
 }
