@@ -268,7 +268,7 @@ public class BoardControllerTest extends RestDocControllerTests {
         when(imageService.uploadImageWithId(any(UserId.class), any(Boolean.class), any(Long.class), any(MultipartFile.class)))
                 .thenReturn(mockImage);
 
-        when(boardIngredientService.uploadInstructionImages(any(UserId.class), any(BoardByRecipeUpdateRequest.class)))
+        when(boardIngredientService.uploadInstructionImages(any(UserId.class), any(BoardByRecipeUpdateRequest.class),anyList()))
                 .thenReturn(mockDescriptions);
 
         when(boardRecipeService.findOrCreate(any()))
@@ -297,6 +297,7 @@ public class BoardControllerTest extends RestDocControllerTests {
         Part ingredientDetailsPart2 = new MockPart("recipeIngredients[1].details", "상세정보3".getBytes());
 
         Part instructionContentPart1 = new MockPart("instructions[0].content", "설명1".getBytes());
+        Part instructionContentIdPart1 = new MockPart("instructions[0].id", "설명 id".getBytes());
         Part instructionImagePart1 = new MockPart("instructions[0].imageChange", "false".getBytes());
         MockMultipartFile instructionImage1 = getMultiFile("instructions[0].image");
 
@@ -317,6 +318,7 @@ public class BoardControllerTest extends RestDocControllerTests {
                         .part(ingredientDetailsPart2)
                         .part(instructionContentPart1)
                         .part(instructionImagePart1)
+                        .part(instructionContentIdPart1)
                         .file(instructionImage1)
                         .header(AUTHORIZATION, "Bearer ")
                         .contentType(MediaType.MULTIPART_FORM_DATA);
@@ -345,6 +347,7 @@ public class BoardControllerTest extends RestDocControllerTests {
                                 partWithName("recipeIngredients[0].details").description("첫 번째 재료의 상세 정보 (예: '다진 양파 100g')"),
                                 partWithName("recipeIngredients[1].name").description("두 번째 재료 이름 "),
                                 partWithName("recipeIngredients[1].details").description("두 번째 재료의 상세 정보"),
+                                partWithName("instructions[0].id").description("조리 단계 이미지 변경 여부 id"),
                                 partWithName("instructions[0].content").description("첫 번째 조리 단계 설명 (예: '양파를 볶는다.')"),
                                 partWithName("instructions[0].imageChange").description("조리 단계 이미지 변경 여부 (true: 이미지 변경, false: 유지)"),
                                 partWithName("instructions[0].image").description("첫 번째 조리 단계 이미지 파일 (Optional: 이미지를 변경할 때만 필요)")
