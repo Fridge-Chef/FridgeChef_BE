@@ -20,13 +20,14 @@ public class BoardMyRecipePageResponse {
     private double star;
     private int hit;
     private boolean myHit;
+    private boolean myMe;
     private int click;
     private LocalDateTime createTime;
 
-    public static BoardMyRecipePageResponse ofEntity(SortType sortType, Board entity,UserId userId) {
-        String link="";
-        if(entity.getMainImage() != null && entity.getMainImage().getType() != null){
-            link=entity.getMainImageLink();
+    public static BoardMyRecipePageResponse ofEntity(SortType sortType, Board entity, UserId userId) {
+        String link = "";
+        if (entity.getMainImage() != null && entity.getMainImage().getType() != null) {
+            link = entity.getMainImageLink();
         }
         return new BoardMyRecipePageResponse(
                 sortType,
@@ -38,6 +39,7 @@ public class BoardMyRecipePageResponse {
                 entity.getTotalStar(),
                 entity.getHit(),
                 entity.getIsMyHit(userId),
+                entity.getUser().getUserId().equals(userId),
                 entity.getCount(),
                 entity.getCreateTime()
         );

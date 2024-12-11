@@ -2,6 +2,7 @@ package Fridge_Chef.team.recipe.rest.response;
 
 import Fridge_Chef.team.board.domain.Board;
 import Fridge_Chef.team.board.domain.BoardUserEvent;
+import Fridge_Chef.team.user.domain.UserId;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,6 +11,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Data
 @Builder
@@ -23,6 +25,7 @@ public class RecipeSearchResponse {
     private double star;
     private int hit;
     private boolean myHit;
+    private boolean myMe;
     private int click;
     private LocalDateTime createTime;
 
@@ -30,7 +33,7 @@ public class RecipeSearchResponse {
     private long withoutCount;
     private List<String> without;
 
-    public static RecipeSearchResponse of(Board board, List<String> pick, List<BoardUserEvent> boardUserEvents) {
+    private static RecipeSearchResponse of(Board board, List<String> pick, List<BoardUserEvent> boardUserEvents, Optional<UserId> user) {
         List<String> ingredients = Arrays.stream(board.getContext().getPathIngredient().split(","))
                 .toList();
 
@@ -39,11 +42,16 @@ public class RecipeSearchResponse {
                 .toList();
 
         boolean isUserHit = false;
-
+        boolean isMyMe = false;
+        if (user.isPresent()) {
+            if (board.getUser().getUserId().equals(user.get())) {
+                isMyMe = true;
+            }
+        }
         var events = boardUserEvents.stream()
                 .filter(event -> event.getBoard().getId().equals(board.getId()))
                 .findFirst();
-        if(events.isPresent()){
+        if (events.isPresent()) {
             isUserHit = events.get().isUserHit();
         }
 
@@ -54,6 +62,7 @@ public class RecipeSearchResponse {
                 board.getTotalStar(),
                 board.getHit(),
                 isUserHit,
+                isMyMe,
                 board.getCount(),
                 board.getCreateTime(),
                 ingredients.size() - without.size(),
@@ -62,15 +71,9 @@ public class RecipeSearchResponse {
         );
     }
 
-    public static List<RecipeSearchResponse> of(List<Board> board, List<String> pick, List<BoardUserEvent> boardUserEvents) {
+    public static List<RecipeSearchResponse> of(List<Board> board, List<String> pick, List<BoardUserEvent> boardUserEvents, Optional<UserId> userId) {
         return board.stream()
-                .map(v -> RecipeSearchResponse.of(v, pick,boardUserEvents))
-                .toList();
-    }
-
-    public static List<RecipeSearchResponse> of(List<Board> board, List<String> pick,boolean ignore) {
-        return board.stream()
-                .map(v -> RecipeSearchResponse.of(v, pick,List.of()))
+                .map(v -> RecipeSearchResponse.of(v, pick, boardUserEvents, userId))
                 .toList();
     }
 }

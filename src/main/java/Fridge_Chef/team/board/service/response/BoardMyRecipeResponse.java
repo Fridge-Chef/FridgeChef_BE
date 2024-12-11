@@ -3,6 +3,7 @@ package Fridge_Chef.team.board.service.response;
 import Fridge_Chef.team.board.domain.Board;
 import Fridge_Chef.team.board.domain.BoardIssue;
 import Fridge_Chef.team.recipe.domain.Difficult;
+import Fridge_Chef.team.user.domain.UserId;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,8 +12,8 @@ import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 public class BoardMyRecipeResponse {
     private String title;
     private String username;
+    private boolean myMe;
     private String description;
     private double rating;
     private int hitTotal;
@@ -60,15 +62,16 @@ public class BoardMyRecipeResponse {
         private String imageLink;
     }
 
-    public BoardMyRecipeResponse(String title, String username, String intro,double rating, int hitTotal, int starTotal, String mainImage,Long imageId, String issueInfo, String dishTime, String dishLevel, String dishCategory, List<OwnedIngredientResponse> ownedIngredients, List<RecipeIngredientResponse> recipeIngredients, List<StepResponse> instructions, Long boardId) {
+    public BoardMyRecipeResponse(String title, boolean myMe, String username, String intro, double rating, int hitTotal, int starTotal, String mainImage, Long imageId, String issueInfo, String dishTime, String dishLevel, String dishCategory, List<OwnedIngredientResponse> ownedIngredients, List<RecipeIngredientResponse> recipeIngredients, List<StepResponse> instructions, Long boardId) {
         this.title = title;
         this.username = username;
+        this.myMe = myMe;
         this.rating = rating;
-        this.description=intro;
+        this.description = intro;
         this.hitTotal = hitTotal;
         this.starTotal = starTotal;
         this.mainImage = mainImage;
-        this.mainImageId=imageId;
+        this.mainImageId = imageId;
         this.issueInfo = issueInfo;
         this.dishTime = dishTime;
         this.dishLevel = dishLevel;
@@ -79,7 +82,7 @@ public class BoardMyRecipeResponse {
         this.boardId = boardId;
     }
 
-    public static BoardMyRecipeResponse of(Board board) {
+    public static BoardMyRecipeResponse of(Board board, Optional<UserId> userId) {
         var ownedIngredients = board.getContext().getBoardIngredients().stream()
                 .map(ingredient -> new OwnedIngredientResponse(ingredient.getId(), ingredient.getIngredient().getName()))
                 .collect(Collectors.toList());
@@ -87,7 +90,7 @@ public class BoardMyRecipeResponse {
         var recipeIngredients = board.getContext().getBoardIngredients().stream()
                 .map(ingredient -> new RecipeIngredientResponse(ingredient.getIngredient().getId(),
                         ingredient.getIngredient().getName(),
-                        ingredient.getQuantity() == null ? "" :ingredient.getQuantity()))
+                        ingredient.getQuantity() == null ? "" : ingredient.getQuantity()))
                 .collect(Collectors.toList());
 
 
@@ -101,7 +104,15 @@ public class BoardMyRecipeResponse {
         String issueInfo = generateIssueInfo(boardIssues);
         Difficult diff = Difficult.of(board.getContext().getDishLevel());
         String level = diff.getValue();
+        boolean myMe = false;
+        if (userId.isPresent()) {
+            if (userId.get().equals(board.getUser().getUserId())) {
+                myMe = true;
+            }
+        }
+
         return new BoardMyRecipeResponse(board.getTitle(),
+                myMe,
                 board.getUser().getUsername(),
                 board.getIntroduction(),
                 board.getTotalStar(),
@@ -126,10 +137,10 @@ public class BoardMyRecipeResponse {
         LocalDateTime now = LocalDateTime.now();
         boolean isWeek = boardIssues.stream().anyMatch(issue -> isThisWeek(issue.getCreateTime(), now));
         boolean isMoon = boardIssues.stream().anyMatch(issue -> isThisMonth(issue.getCreateTime(), now));
-        if(isWeek){
+        if (isWeek) {
             return "이주의 레시피";
         }
-        if(isMoon){
+        if (isMoon) {
             return "이달의 레시피";
         }
         return "";
