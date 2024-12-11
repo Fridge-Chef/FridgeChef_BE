@@ -40,7 +40,7 @@ public class BoardService {
     private final BoardHistoryRepository boardHistoryRepository;
 
     @Transactional(readOnly = true)
-    public BoardMyRecipeResponse findMyRecipeId(Long boardId) {
+    public BoardMyRecipeResponse findMyRecipeId(Long boardId,Optional<UserId> userId) {
         Board board = findById(boardId);
 
         var todayStart = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
@@ -56,7 +56,7 @@ public class BoardService {
 
         todayHistory.countUp();
         board.updateCount();
-        return BoardMyRecipeResponse.of(board);
+        return BoardMyRecipeResponse.of(board,userId);
     }
 
     @Transactional(readOnly = true)
