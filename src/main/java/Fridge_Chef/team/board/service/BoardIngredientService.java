@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -48,19 +49,30 @@ public class BoardIngredientService {
     }
 
     @Transactional
-    public List<Description> uploadInstructionImages(UserId userId, BoardByRecipeUpdateRequest request) {
+    public List<Description> uploadInstructionImages(UserId userId, BoardByRecipeUpdateRequest request, List<Description> descriptions) {
         if (request.getInstructions() == null) {
             return List.of();
         }
 
         return request.getInstructions()
                 .stream().map(instruction -> {
-                    if (instruction.isImageChange() && instruction.getImage() == null) {
-                        return new Description(instruction.getContent(), null);
+                    Optional<Description> optionalDescription = descriptions.stream()
+                            .filter(value -> value.getId().equals(instruction.getId()))
+                            .findFirst();
+
+                    if(optionalDescription.isPresent()){
+                        Description description = optionalDescription.get();
+                        description.update(instruction.getContent());
+
+                        if(instruction.isImageChange()) {
+                            description.update(imageService.imageUpload(userId, instruction.getImage()));
+                        }
+                        return description;
                     }
-                    Image instructionImage = imageService.imageUpload(userId, instruction.getImage());
-                    return new Description(instruction.getContent(), instructionImage);
-                }).collect(Collectors.toList());
+
+                    return descriptionRepository.save(new Description(instruction.getContent(), imageService.imageUpload(userId, instruction.getImage())));
+                })
+                .collect(Collectors.toList());
     }
 
     private RecipeIngredient findOrSaveIngredient(String name, String details) {
@@ -68,6 +80,7 @@ public class BoardIngredientService {
         RecipeIngredient findRecipeIngredient = RecipeIngredient.ofMyRecipe(ingredient, details);
         return recipeIngredientRepository.save(findRecipeIngredient);
     }
+
     private Ingredient updateRecipeIngredient(String name) {
         return ingredientRepository.findByName(name)
                 .orElseGet(() -> saveNewIngredient(name));
