@@ -1,10 +1,19 @@
 ### 특정 레시피 댓글조회
-GET {{http-api}}/api/boards/{{board_id}}/comments
+GET {{http-api}}/api/boards/94/comments
+Authorization: Bearer {{token}}
 
 ### 특정 레시피 댓글조회 [ 내 댓글 우선순위 ]
 GET {{http-api}}/api/boards/{{board_id}}/comments
 Authorization: Bearer {{token}}
 
 ### 레시피에 댓글 등록
-POST {{http-api}}/api/boards/{{board_id}}/comment?codmmit=댓글&star=1.5
+POST {{http-api}}/api/boards/100?comment=댓글&star=2.0
+Authorization: Bearer {{token}}
+
+### 레시피북 댓글 조회
+GET {{http-api}}/api/books/comment?size=1
+Authorization: Bearer {{token}}
+
+### 댓글 좋아요
+PATCH {{http-api}}/api/boards/55/comments/1/like
 Authorization: Bearer {{token}}

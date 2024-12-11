@@ -55,7 +55,7 @@ public class CommentsController {
         commentService.deleteComment(boardId, commentId, user.userId());
     }
 
-    @PatchMapping("/{comment_id}/like")
+    @PatchMapping("/{comment_id}/hit")
     public CommentLikeResponse addLike(
             @AuthenticationPrincipal AuthenticatedUser user,
             @PathVariable("board_id") Long boardId,

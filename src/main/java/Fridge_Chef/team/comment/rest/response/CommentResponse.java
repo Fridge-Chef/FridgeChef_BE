@@ -17,6 +17,7 @@ import java.util.Optional;
 @AllArgsConstructor
 public class CommentResponse {
     private Long id;
+    private String title;
     private String comments;
     private double star;
 
@@ -24,13 +25,19 @@ public class CommentResponse {
     private boolean myHit;
 
     private String userName;
+    private boolean myMe;
     private List<String> imageLink;
     private Long boardId;
     private LocalDateTime createdAt;
 
     public static CommentResponse fromEntity(Comment comment, Optional<UserId> optional) {
         boolean myHit = false;
+        boolean myMe =false;
+
         if (optional.isPresent()) {
+            if(comment.getUsers().getUserId().equals(optional.get())){
+                myMe=true;
+            }
             int hit = comment.getCommentUserEvent().stream()
                     .filter(v -> v.getUser().getId().equals(optional.get().getValue()))
                     .findFirst()
@@ -42,11 +49,13 @@ public class CommentResponse {
         }
         return new CommentResponse(
                 comment.getId(),
+                comment.getBoard().getTitle(),
                 comment.getComments(),
                 comment.getStar(),
                 comment.getTotalHit(),
                 myHit,
                 comment.getUsers().getUsername(),
+                myMe,
                 comment.getImageLinks(),
                 comment.getBoard().getId(),
                 comment.getCreateTime()
@@ -54,20 +63,21 @@ public class CommentResponse {
     }
 
     public static CommentResponse fromMyEntity(Comment comment, UserId userId) {
-        int hit = comment.getCommentUserEvent()
-                .stream()
-                .filter(v -> v.getUser().getId().equals(userId))
+        boolean isMyHit = comment.getCommentUserEvent().stream()
+                .filter(v -> v.getUser().getId().equals(userId.getValue()))
                 .findFirst()
                 .map(CommentUserEvent::getHit)
-                .orElse(0);
+                .orElse(0) == 1;
 
         return new CommentResponse(
                 comment.getId(),
+                comment.getBoard().getTitle(),
                 comment.getComments(),
                 comment.getStar(),
                 comment.getTotalHit(),
-                hit == 1 ,
+                isMyHit,
                 comment.getUsers().getUsername(),
+                comment.getUsers().getUserId().equals(userId),
                 comment.getImageLinks(),
                 comment.getBoard().getId(),
                 comment.getCreateTime()
