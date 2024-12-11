@@ -42,10 +42,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
 import static fixture.ImageFixture.getMultiFile;
@@ -152,7 +149,7 @@ public class BoardControllerTest extends RestDocControllerTests {
     void find() throws Exception {
         doNothing().when(boardService).counting(any(Long.class));
 
-        when(boardService.findMyRecipeId(any(Long.class)))
+        when(boardService.findMyRecipeId(any(Long.class), any(Optional.class)))
                 .thenReturn(createBoardMyRecipeResponse());
 
         ResultActions actions = jsonGetPathWhen("/api/boards/{board_id}", 1L);
@@ -163,6 +160,7 @@ public class BoardControllerTest extends RestDocControllerTests {
                                 fieldWithPath("boardId").description("레시피 ID"),
                                 fieldWithPath("title").description("레시피 제목"),
                                 fieldWithPath("username").description("작성자 명"),
+                                fieldWithPath("myMe").description("내가 작성한 레시피 여부"),
                                 fieldWithPath("description").description("레시피 소개"),
                                 fieldWithPath("hitTotal").description("총 좋아요 "),
                                 fieldWithPath("starTotal").description("총 별점 개수"),
@@ -192,8 +190,8 @@ public class BoardControllerTest extends RestDocControllerTests {
     void finds() throws Exception {
         Page<BoardMyRecipePageResponse> responsePage = new PageImpl<>(
                 List.of(
-                        new BoardMyRecipePageResponse(SortType.RATING, 1L, "Delicious Recipe", "User1", "null", 1L, 4.5, 100, true, 50, LocalDateTime.now()),
-                        new BoardMyRecipePageResponse(SortType.RATING, 2L, "Another Recipe", "User2", "", 22L, 4.0, 90, false, 50, LocalDateTime.now())
+                        new BoardMyRecipePageResponse(SortType.RATING, 1L, "Delicious Recipe", "User1", "null", 1L, 4.5, 100, true, true, 50, LocalDateTime.now()),
+                        new BoardMyRecipePageResponse(SortType.RATING, 2L, "Another Recipe", "User2", "", 22L, 4.0, 90, false, true, 50, LocalDateTime.now())
                 )
         );
 
@@ -227,6 +225,7 @@ public class BoardControllerTest extends RestDocControllerTests {
                                 fieldWithPath("content[].star").description("레시피 평점"),
                                 fieldWithPath("content[].hit").description("조회수"),
                                 fieldWithPath("content[].myHit").description("내가 좋아요 클릭 여부"),
+                                fieldWithPath("content[].myMe").description("내가 작성한 여부"),
                                 fieldWithPath("content[].click").description("클릭 수"),
                                 fieldWithPath("content[].createTime").description("레시피 생성 시간"),
                                 fieldWithPath("page").description("페이지"),
@@ -417,6 +416,7 @@ public class BoardControllerTest extends RestDocControllerTests {
     public static BoardMyRecipeResponse createBoardMyRecipeResponse() {
         return new BoardMyRecipeResponse(
                 "Delicious Recipe",
+                false,
                 "username",
                 "intro",
                 4.5,

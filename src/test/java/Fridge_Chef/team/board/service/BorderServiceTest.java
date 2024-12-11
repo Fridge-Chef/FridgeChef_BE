@@ -37,10 +37,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static Fridge_Chef.team.common.UtilTest.executionTime;
@@ -93,7 +90,7 @@ public class BorderServiceTest extends BootTest {
     void find() {
         givenBoardContext();
         Board board = boardRepository.findByUserId(user.getUserId()).get().get(0);
-        BoardMyRecipeResponse response = boardService.findMyRecipeId(board.getId());
+        BoardMyRecipeResponse response = boardService.findMyRecipeId(board.getId(), Optional.of(UserId.create()));
         assertAll(() -> board.getId().equals(response.getBoardId()),
                 () -> board.getTitle().equals(response.getTitle()));
     }
