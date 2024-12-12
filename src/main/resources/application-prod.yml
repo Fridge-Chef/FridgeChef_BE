@@ -2,7 +2,11 @@ server:
   shutdown: graceful
   port: 0
   ssl:
-    enabled: false
+    enabled: true
+    key-store: /home/ubuntu/dev/fridgebe-site.p12
+    key-store-password: ENC(hszW13G6NdoeC8AcwJ/qenix8O6jiGXL)
+    key-store-type: PKCS12
+    key-alias: fridgebe-site
 
 jwt:
   secret:

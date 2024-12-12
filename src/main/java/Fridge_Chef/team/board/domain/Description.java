@@ -27,10 +27,23 @@ public class Description {
         this.image = image;
     }
 
+    public Description(Long id, Board board, String description, Image image) {
+        this.id = id;
+        this.board = board;
+        this.description = description;
+        this.image = image;
+    }
+
     public Description update(String description, Image image) {
         this.description = description;
         this.image = image;
         return this;
+    }
+    public void update(String description){
+        this.description=description;
+    }
+    public  void update(Image image){
+        this.image=image;
     }
 
     public String getLink() {

@@ -30,8 +30,6 @@ public class BoardRecipeServiceTest extends ServiceLayerTest {
     @InjectMocks
     private BoardRecipeService boardRecipeService;
     @Mock
-    protected BoardIngredientService boardIngredientService;
-    @Mock
     protected BoardRepository boardRepository;
     @Mock
     protected BoardUserEventRepository boardUserEventRepository;
@@ -56,10 +54,9 @@ public class BoardRecipeServiceTest extends ServiceLayerTest {
         User newUser = UserFixture.create("test2@test.com");
         Board newBoard = BoardFixture.create(newUser);
 
-        when(userRepository.findByUserId(any()))
-                .thenReturn(Optional.of(newUser));
         when(boardRepository.findById(newBoard.getId()))
                 .thenReturn(Optional.of(board));
+
         BoardByRecipeUpdateRequest request = new BoardByRecipeUpdateRequest(board.getId(), "update title", "update intro", null, 1L, false, "1분", "보통", "양념,",
                 List.of(),
                 List.of());

@@ -9,7 +9,6 @@ import Fridge_Chef.team.board.rest.request.BoardByRecipeDeleteRequest;
 import Fridge_Chef.team.board.rest.request.BoardByRecipeRequest;
 import Fridge_Chef.team.board.rest.request.BoardByRecipeUpdateRequest;
 import Fridge_Chef.team.board.rest.request.BoardPageRequest;
-import Fridge_Chef.team.board.service.BoardIngredientService;
 import Fridge_Chef.team.board.service.BoardRecipeService;
 import Fridge_Chef.team.board.service.BoardService;
 import Fridge_Chef.team.board.service.response.BoardMyRecipePageResponse;
@@ -60,8 +59,6 @@ public class BoardControllerTest extends RestDocControllerTests {
     @MockBean
     private BoardRecipeService boardRecipeService;
     @MockBean
-    private BoardIngredientService boardIngredientService;
-    @MockBean
     private BoardService boardService;
     @MockBean
     private ImageLocalService imageService;
@@ -86,7 +83,7 @@ public class BoardControllerTest extends RestDocControllerTests {
         when(imageService.imageUpload(any(UserId.class), any(MultipartFile.class)))
                 .thenReturn(new Image("Fridge_chef.team.image-path", ImageType.ORACLE_CLOUD));
 
-        when(boardIngredientService.uploadInstructionImages(any(UserId.class), any(BoardByRecipeRequest.class)))
+        when(boardRecipeService.uploadInstructionImages(any(UserId.class), any(BoardByRecipeRequest.class)))
                 .thenReturn(Collections.emptyList());
 
         when(boardRecipeService.findOrCreate(any()))
@@ -179,6 +176,7 @@ public class BoardControllerTest extends RestDocControllerTests {
                                 fieldWithPath("recipeIngredients[].name").description("재료 이름"),
                                 fieldWithPath("recipeIngredients[].details").description("재료의 세부 설명"),
                                 fieldWithPath("instructions[]").description("조리 방법들"),
+                                fieldWithPath("instructions[].id").description("조리 id"),
                                 fieldWithPath("instructions[].content").description("설명"),
                                 fieldWithPath("instructions[].imageLink").description("이미지 URL")
                         )
@@ -268,7 +266,7 @@ public class BoardControllerTest extends RestDocControllerTests {
         when(imageService.uploadImageWithId(any(UserId.class), any(Boolean.class), any(Long.class), any(MultipartFile.class)))
                 .thenReturn(mockImage);
 
-        when(boardIngredientService.uploadInstructionImages(any(UserId.class), any(BoardByRecipeUpdateRequest.class)))
+        when(boardRecipeService.uploadInstructionImages(any(UserId.class), any(BoardByRecipeUpdateRequest.class),anyList()))
                 .thenReturn(mockDescriptions);
 
         when(boardRecipeService.findOrCreate(any()))
@@ -297,6 +295,7 @@ public class BoardControllerTest extends RestDocControllerTests {
         Part ingredientDetailsPart2 = new MockPart("recipeIngredients[1].details", "상세정보3".getBytes());
 
         Part instructionContentPart1 = new MockPart("instructions[0].content", "설명1".getBytes());
+        Part instructionContentIdPart1 = new MockPart("instructions[0].id", "2".getBytes());
         Part instructionImagePart1 = new MockPart("instructions[0].imageChange", "false".getBytes());
         MockMultipartFile instructionImage1 = getMultiFile("instructions[0].image");
 
@@ -317,6 +316,7 @@ public class BoardControllerTest extends RestDocControllerTests {
                         .part(ingredientDetailsPart2)
                         .part(instructionContentPart1)
                         .part(instructionImagePart1)
+                        .part(instructionContentIdPart1)
                         .file(instructionImage1)
                         .header(AUTHORIZATION, "Bearer ")
                         .contentType(MediaType.MULTIPART_FORM_DATA);
@@ -345,6 +345,7 @@ public class BoardControllerTest extends RestDocControllerTests {
                                 partWithName("recipeIngredients[0].details").description("첫 번째 재료의 상세 정보 (예: '다진 양파 100g')"),
                                 partWithName("recipeIngredients[1].name").description("두 번째 재료 이름 "),
                                 partWithName("recipeIngredients[1].details").description("두 번째 재료의 상세 정보"),
+                                partWithName("instructions[0].id").description("조리 단계 이미지 변경 여부 id"),
                                 partWithName("instructions[0].content").description("첫 번째 조리 단계 설명 (예: '양파를 볶는다.')"),
                                 partWithName("instructions[0].imageChange").description("조리 단계 이미지 변경 여부 (true: 이미지 변경, false: 유지)"),
                                 partWithName("instructions[0].image").description("첫 번째 조리 단계 이미지 파일 (Optional: 이미지를 변경할 때만 필요)")
@@ -451,8 +452,8 @@ public class BoardControllerTest extends RestDocControllerTests {
 
     private static List<BoardMyRecipeResponse.StepResponse> createInstructions() {
         return List.of(
-                new BoardMyRecipeResponse.StepResponse("Chop the chicken into small pieces.", "https://objectstorage.ap-chuncheon-1.oraclecloud.com/p/RO5Ur4yw-jzifHvgLdMG4nkUmU_UJpzy3YQnWXaJnTIAygJO3qDzSwMy0ulHEwxt/n/axqoa2bp7wqg/b/fridge/o/notfound.png"),
-                new BoardMyRecipeResponse.StepResponse("Add garlic and fry until golden brown.", "https://objectstorage.ap-chuncheon-1.oraclecloud.com/p/RO5Ur4yw-jzifHvgLdMG4nkUmU_UJpzy3YQnWXaJnTIAygJO3qDzSwMy0ulHEwxt/n/axqoa2bp7wqg/b/fridge/o/notfound.png")
+                new BoardMyRecipeResponse.StepResponse(1L,"Chop the chicken into small pieces.", "https://objectstorage.ap-chuncheon-1.oraclecloud.com/p/RO5Ur4yw-jzifHvgLdMG4nkUmU_UJpzy3YQnWXaJnTIAygJO3qDzSwMy0ulHEwxt/n/axqoa2bp7wqg/b/fridge/o/notfound.png"),
+                new BoardMyRecipeResponse.StepResponse(2L,"Add garlic and fry until golden brown.", "https://objectstorage.ap-chuncheon-1.oraclecloud.com/p/RO5Ur4yw-jzifHvgLdMG4nkUmU_UJpzy3YQnWXaJnTIAygJO3qDzSwMy0ulHEwxt/n/axqoa2bp7wqg/b/fridge/o/notfound.png")
         );
     }
 }

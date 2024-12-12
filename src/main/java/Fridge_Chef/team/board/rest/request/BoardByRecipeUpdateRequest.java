@@ -48,18 +48,6 @@ public class BoardByRecipeUpdateRequest {
         private boolean isImageChange;
     }
 
-    public BoardByRecipeUpdateRequest(Long id, String title, String description, MultipartFile mainImage, Long mainImageId, boolean isMainImageChange, String dishTime, String dishLevel, String dishCategory) {
-        this.id = id;
-        this.title = title;
-        this.description = description;
-        this.mainImage = mainImage;
-        this.mainImageId = mainImageId;
-        this.isMainImageChange = isMainImageChange;
-        this.dishTime = dishTime;
-        this.dishLevel = dishLevel;
-        this.dishCategory = dishCategory;
-    }
-
     public BoardByRecipeUpdateRequest(long board, String title, String description, MultipartFile mainImage, boolean isMainImageChange,
                                       List<BoardByRecipeUpdateRequest.RecipeIngredient> recipeIngredient,
                                       List<BoardByRecipeUpdateRequest.Instructions> Instructions) {

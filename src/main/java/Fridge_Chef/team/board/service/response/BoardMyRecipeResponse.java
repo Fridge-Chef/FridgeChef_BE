@@ -58,6 +58,7 @@ public class BoardMyRecipeResponse {
     @Getter
     @AllArgsConstructor
     public static class StepResponse {
+        private Long id;
         private String content;
         private String imageLink;
     }
@@ -96,7 +97,7 @@ public class BoardMyRecipeResponse {
 
         var instructions = board.getContext().getDescriptions()
                 .stream()
-                .map(step -> new StepResponse(step.getDescription(), step.getLink()))
+                .map(step -> new StepResponse(step.getId(),step.getDescription(), step.getLink()))
                 .collect(Collectors.toList());
 
 
