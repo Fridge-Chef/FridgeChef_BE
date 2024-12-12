@@ -59,8 +59,6 @@ public class BorderServiceTest extends BootTest {
     @Autowired
     private BoardUserEventRepository boardUserEventRepository;
     @Autowired
-    private BoardIngredientService boardIngredientService;
-    @Autowired
     private BoardRecipeService boardRecipeService;
     @Autowired
     private BoardService boardService;
@@ -79,7 +77,7 @@ public class BorderServiceTest extends BootTest {
     @Transactional
     void create(BoardByRecipeRequest request) {
         imageService.imageUpload(user.getUserId(), request.getMainImage());
-        boardIngredientService.uploadInstructionImages(user.getUserId(), request);
+        boardRecipeService.uploadInstructionImages(user.getUserId(), request);
         boardRecipeService.create(user.getUserId(), request);
     }
 
@@ -263,7 +261,7 @@ public class BorderServiceTest extends BootTest {
     private void givenBoardContexts() {
         List<BoardByRecipeRequest> requests = provideBoardFindsRequests().toList();
         for (BoardByRecipeRequest request : requests) {
-            List<Description> descriptions = boardIngredientService.uploadInstructionImages(user.getUserId(), request);
+            List<Description> descriptions = boardRecipeService.uploadInstructionImages(user.getUserId(), request);
             List<RecipeIngredient> ingredients = boardRecipeService.findOrCreate(List.of(
                             new BoardByRecipeRequest.RecipeIngredient(INGREDIENTS.get(random.nextInt(INGREDIENTS.size())), "재료1"),
                             new BoardByRecipeRequest.RecipeIngredient(INGREDIENTS.get(random.nextInt(INGREDIENTS.size())), "재료2"),
@@ -280,7 +278,7 @@ public class BorderServiceTest extends BootTest {
         BoardByRecipeRequest request = provideBoardFindsRequests().toList().get(1);
 
         Image mainImage = imageRepository.save(Image.none());
-        List<Description> descriptions = boardIngredientService.uploadInstructionImages(user.getUserId(), request);
+        List<Description> descriptions = boardRecipeService.uploadInstructionImages(user.getUserId(), request);
         List<RecipeIngredient> ingredients = boardRecipeService.findOrCreate(List.of(
                         new BoardByRecipeRequest.RecipeIngredient(INGREDIENTS.get(random.nextInt(INGREDIENTS.size())), "재료1"),
                         new BoardByRecipeRequest.RecipeIngredient(INGREDIENTS.get(random.nextInt(INGREDIENTS.size())), "재료2"),
@@ -310,6 +308,6 @@ public class BorderServiceTest extends BootTest {
 
     @Transactional
     public RecipeIngredient addRecipeIngredient(RecipeIngredientDto dto) {
-        return boardIngredientService.findOrSaveIngredient(dto);
+        return boardRecipeService.findOrSaveIngredient(dto);
     }
 }

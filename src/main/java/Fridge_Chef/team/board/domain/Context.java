@@ -73,6 +73,5 @@ public class Context {
 
     public void clearRecipe() {
         this.boardIngredients.clear();
-        this.descriptions.clear();
     }
 }

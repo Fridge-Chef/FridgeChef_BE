@@ -30,8 +30,6 @@ public class BoardRecipeServiceTest extends ServiceLayerTest {
     @InjectMocks
     private BoardRecipeService boardRecipeService;
     @Mock
-    protected BoardIngredientService boardIngredientService;
-    @Mock
     protected BoardRepository boardRepository;
     @Mock
     protected BoardUserEventRepository boardUserEventRepository;
