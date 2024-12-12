@@ -26,7 +26,7 @@ import static org.mockito.Mockito.*;
 
 public class BoardIngredientServiceTest extends ServiceLayerTest {
     @InjectMocks
-    private BoardIngredientService boardIngredientService;
+    private BoardRecipeService boardRecipeService;
     @Mock
     private ImageService imageService;
     @Mock
@@ -49,7 +49,7 @@ public class BoardIngredientServiceTest extends ServiceLayerTest {
         BoardByRecipeUpdateRequest request = new BoardByRecipeUpdateRequest(board.getId(), "update title", "update intro", null, 1L, false, "1분", "보통", "양념,",
                 List.of(),
                 List.of());
-        boardIngredientService.uploadInstructionImages(user.getUserId(), request,List.of());
+        boardRecipeService.uploadInstructionImages(user.getUserId(), request,List.of());
 
         verify(imageService, never()).imageUpload(user.getUserId(), file);
     }
@@ -70,7 +70,7 @@ public class BoardIngredientServiceTest extends ServiceLayerTest {
         when(descriptionRepository.save(any(Description.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        boardIngredientService.uploadInstructionImages(user.getUserId(), request,
+        boardRecipeService.uploadInstructionImages(user.getUserId(), request,
                 List.of(new Description(1L, null, "1", null), new Description(3L, null, "2", null)));
 
         verify(imageService, times(2)).imageUpload(user.getUserId(), file);
