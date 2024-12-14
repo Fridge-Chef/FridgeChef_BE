@@ -6,6 +6,7 @@ import Fridge_Chef.team.fridge.domain.Fridge;
 import Fridge_Chef.team.fridge.repository.FridgeRepository;
 import Fridge_Chef.team.image.domain.Image;
 import Fridge_Chef.team.image.repository.ImageRepository;
+import Fridge_Chef.team.security.service.dto.GoogleTokenDTO;
 import Fridge_Chef.team.security.service.dto.OAuthAttributes;
 import Fridge_Chef.team.security.service.factory.OAuthAttributesAdapterFactory;
 import Fridge_Chef.team.user.domain.*;
@@ -14,6 +15,7 @@ import Fridge_Chef.team.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -23,6 +25,7 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.List;
@@ -37,16 +40,15 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     private final UserHistoryRepository userHistoryRepository;
     private final FridgeRepository fridgeRepository;
 
-
+    private final RestTemplate restTemplate=new RestTemplate();
     private final OAuthAttributesAdapterFactory oAuthAttributesAdapterFactory;
     private final DefaultOAuth2UserService defaultOAuth2UserService = new DefaultOAuth2UserService();
 
     @Override
     @Transactional
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-        var oAuth2User = defaultOAuth2UserService.loadUser(userRequest);
-
-        var registrationId = userRequest.getClientRegistration().getRegistrationId();
+        OAuth2User oAuth2User = defaultOAuth2UserService.loadUser(userRequest);
+        String registrationId = userRequest.getClientRegistration().getRegistrationId();
         var attributes = oAuthAttributes(registrationId, oAuth2User);
         var user = saveOrUpdate(attributes);
 
@@ -59,26 +61,44 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                 attributes.nameAttributeKey()
         );
     }
-    public User loadUserToId(OAuth2UserRequest userRequest){
-        OAuth2User oAuth2User = loadUser(userRequest);
-        UserId userId = new UserId((String) oAuth2User.getAttributes().get("userId"));
-        return userRepository.findByUserId(userId)
-                .orElseThrow(() -> new ApiException(ErrorCode.TOKEN_ACCESS_NOT_USER));
+
+    public User loadMoblieToUser(OAuth2UserRequest userRequest) {
+        log.info("모바일 로그인 시도 ");
+        OAuthAttributes attributes = loadMoblie(userRequest);
+        return saveOrUpdate(attributes);
     }
 
-    public OAuthAttributes oAuthAttributes(String registrationId, OAuth2User oAuth2User) {
+    private OAuthAttributes loadMoblie(OAuth2UserRequest userRequest){
+        if (userRequest.getClientRegistration().getRegistrationId().equals("google")) {
+            try {
+                ResponseEntity<GoogleTokenDTO> response = restTemplate.getForEntity("https://oauth2.googleapis.com/tokeninfo?id_token=" + userRequest.getAccessToken().getTokenValue(),
+                        GoogleTokenDTO.class);
+                if (response.getStatusCode().is2xxSuccessful()) {
+                    return response.getBody().toOAuthAttributes();
+                }
+            }catch (Exception e){
+                throw new ApiException(ErrorCode.TOKEN_ACCESS_EXPIRED_FAIL);
+            }
+        }else if (userRequest.getClientRegistration().getRegistrationId().equals("kakao")){
+            OAuth2User oAuth2User = defaultOAuth2UserService.loadUser(userRequest);
+            String registrationId = userRequest.getClientRegistration().getRegistrationId();
+            return  oAuthAttributes(registrationId, oAuth2User);
+        }
+        throw new ApiException(ErrorCode.TOKEN_ACCESS_EXPIRED_FAIL);
+    }
+
+    private OAuthAttributes oAuthAttributes(String registrationId, OAuth2User oAuth2User) {
         return oAuthAttributesAdapterFactory.factory(registrationId)
                 .toOAuthAttributes(oAuth2User.getAttributes());
     }
 
-    public User saveOrUpdate(OAuthAttributes attributes) {
+    private User saveOrUpdate(OAuthAttributes attributes) {
         userLog(attributes, " 로그인 시도 ");
         Social loginType = Social.valueOf(attributes.registrationId().toUpperCase());
 
         return userRepository.findByProfileEmailAndProfileSocial(attributes.email(), loginType)
                 .orElseGet(() -> registerNewUser(attributes, loginType));
     }
-
 
     private User signup(OAuthAttributes attributes) {
         userLog(attributes, " 회원가입 ");
