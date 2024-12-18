@@ -133,7 +133,8 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     }
 
     private void withdrawalAccountRecovery(User user) {
-        if (user.getDeleteStatus().equals(OracleBoolean.T)) {
+        if (user.isDeleteStatus()) {
+            log.info("휴먼 계정 복구 : "+user.getEmail());
             user.accountDelete(false);
         }
     }
