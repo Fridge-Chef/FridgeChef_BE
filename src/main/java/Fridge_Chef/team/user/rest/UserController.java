@@ -23,8 +23,7 @@ public class UserController {
 
     @GetMapping
     public UserProfileResponse get(@AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
-        User user = userService.findByUser(authenticatedUser.userId());
-        return UserProfileResponse.from(user);
+        return userService.findBysUserProfile(authenticatedUser.userId());
     }
 
     @GetMapping("/mypage")
