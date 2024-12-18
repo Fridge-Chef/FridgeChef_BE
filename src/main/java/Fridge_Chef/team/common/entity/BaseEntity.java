@@ -29,6 +29,10 @@ public class BaseEntity {
         this.deleteStatus = OracleBoolean.of(isDelete);
     }
 
+    public boolean isDeleteStatus(){
+        return deleteStatus.equals(OracleBoolean.T);
+    }
+
     public void updateCreateDate(LocalDateTime now) {
         this.createTime=now;
     }
