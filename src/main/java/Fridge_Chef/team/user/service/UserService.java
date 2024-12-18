@@ -14,13 +14,13 @@ import Fridge_Chef.team.user.repository.UserRepository;
 import Fridge_Chef.team.user.rest.model.AuthenticatedUser;
 import Fridge_Chef.team.user.rest.request.UserProfileNameUpdateRequest;
 import Fridge_Chef.team.user.rest.response.UserProfileMyPageResponse;
+import Fridge_Chef.team.user.rest.response.UserProfileResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -31,8 +31,15 @@ public class UserService {
     private final BoardRepository boardRepository;
 
     @Transactional(readOnly = true)
-    public Optional<User> findByUserId(AuthenticatedUser userId) {
-        return userRepository.findByUserId(userId.userId());
+    public User findByUserId(AuthenticatedUser userId) {
+        User user = userRepository.findByUserId(userId.userId())
+                .orElseThrow(() -> new ApiException(ErrorCode.TOKEN_ACCESS_NOT_USER));
+
+        if (user.getDeleteStatus() != null && user.getDeleteStatus().bool()) {
+            throw new ApiException(ErrorCode.USER_ACCOUNT_DELETE);
+        }
+
+        return user;
     }
 
     @Transactional
@@ -52,10 +59,12 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public User findByUser(UserId userId) {
-        User user =  findByUserId(userId);
-        user.getImageLink();
-        user.getProfile().getUsername();
-        return user;
+        return findByUserId(userId);
+    }
+
+    @Transactional(readOnly = true)
+    public UserProfileResponse findBysUserProfile(UserId userId) {
+        return UserProfileResponse.from(findByUserId(userId));
     }
 
     @Transactional
@@ -72,7 +81,7 @@ public class UserService {
     public UserProfileMyPageResponse findByMyPage(UserId userId) {
         List<Board> boards = boardRepository.findByUserId(userId).orElse(List.of());
         List<Comment> comments = commentRepository.findByUsers(findByUserId(userId)).orElse(List.of());
-        return new UserProfileMyPageResponse(boards.size(),comments.size());
+        return new UserProfileMyPageResponse(boards.size(), comments.size());
     }
 
     private User findByUserId(UserId userId) {
