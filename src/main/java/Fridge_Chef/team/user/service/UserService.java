@@ -5,7 +5,6 @@ import Fridge_Chef.team.board.domain.Board;
 import Fridge_Chef.team.board.repository.BoardRepository;
 import Fridge_Chef.team.comment.domain.Comment;
 import Fridge_Chef.team.comment.repository.CommentRepository;
-import Fridge_Chef.team.common.entity.OracleBoolean;
 import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.exception.ErrorCode;
 import Fridge_Chef.team.image.domain.Image;
@@ -22,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -33,24 +33,12 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public User findByUserId(AuthenticatedUser userId) {
-        User user = userRepository.findByUserId(userId.userId())
-                .orElseThrow(() -> new ApiException(ErrorCode.TOKEN_ACCESS_NOT_USER));
-
-        if (user.isDeleteStatus()) {
-            throw new ApiException(ErrorCode.USER_ACCOUNT_DELETE);
-        }
-
-        return user;
+        return findByUserId(userId.userId());
     }
 
     @Transactional
     public void accountDelete(UserId userId, String username) {
-        User user = userRepository.findByUserId(userId)
-                .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
-
-        if (user.isDeleteStatus()) {
-            throw new ApiException(ErrorCode.USER_ACCOUNT_DELETE);
-        }
+        User user = findByUserId(userId);
 
         if (!user.getProfile().getUsername().equals(username)) {
             throw new ApiException(ErrorCode.USER_ACCOUNT_DELETE_NAME_INCORRECT);
@@ -86,8 +74,14 @@ public class UserService {
     }
 
     private User findByUserId(UserId userId) {
-        return userRepository.findByUserId(userId)
-                .filter(user -> !user.getDeleteStatus().bool())
-                .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
+        Optional<User> userOptional = userRepository.findByUserId(userId);
+
+        if (userOptional.isEmpty()) {
+            throw new ApiException(ErrorCode.USER_NOT_FOUND);
+        }
+        if (userOptional.get().isDeleteStatus()) {
+            throw new ApiException(ErrorCode.USER_ACCOUNT_DELETE);
+        }
+        return userOptional.get();
     }
 }

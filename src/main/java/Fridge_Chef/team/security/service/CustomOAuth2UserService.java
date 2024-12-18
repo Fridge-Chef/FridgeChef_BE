@@ -69,6 +69,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         );
     }
 
+    @Transactional
     public User loadMoblieToUser(OAuth2UserRequest userRequest) {
         return saveOrUpdate(loadMoblie(userRequest));
     }
@@ -133,7 +134,9 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     }
 
     private void withdrawalAccountRecovery(User user) {
-        if (user.getDeleteStatus().equals(OracleBoolean.T)) {
+        log.info("휴먼 계정 검사");
+        if (user.isDeleteStatus()) {
+            log.info("휴먼 계정 복구 : "+user.getEmail());
             user.accountDelete(false);
         }
     }
