@@ -36,7 +36,7 @@ public class UserService {
         User user = userRepository.findByUserId(userId.userId())
                 .orElseThrow(() -> new ApiException(ErrorCode.TOKEN_ACCESS_NOT_USER));
 
-        if (user.getDeleteStatus() != null && user.getDeleteStatus().bool()) {
+        if (user.isDeleteStatus()) {
             throw new ApiException(ErrorCode.USER_ACCOUNT_DELETE);
         }
 
@@ -48,7 +48,7 @@ public class UserService {
         User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
 
-        if (user.getDeleteStatus().equals(OracleBoolean.T)) {
+        if (user.isDeleteStatus()) {
             throw new ApiException(ErrorCode.USER_ACCOUNT_DELETE);
         }
 
