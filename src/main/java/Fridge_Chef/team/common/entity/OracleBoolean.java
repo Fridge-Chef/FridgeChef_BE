@@ -18,6 +18,6 @@ public enum OracleBoolean {
     }
 
     public int jdbcInsert(){
-        return this == T ? 1 : 0;
+        return this == T ? 0 : 1;
     }
 }

@@ -5,6 +5,7 @@ import Fridge_Chef.team.board.domain.Board;
 import Fridge_Chef.team.board.repository.BoardRepository;
 import Fridge_Chef.team.comment.domain.Comment;
 import Fridge_Chef.team.comment.repository.CommentRepository;
+import Fridge_Chef.team.common.entity.OracleBoolean;
 import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.exception.ErrorCode;
 import Fridge_Chef.team.image.domain.Image;
@@ -47,7 +48,7 @@ public class UserService {
         User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
 
-        if (user.getDeleteStatus() != null && user.getDeleteStatus().bool()) {
+        if (user.getDeleteStatus().equals(OracleBoolean.T)) {
             throw new ApiException(ErrorCode.USER_ACCOUNT_DELETE);
         }
 
