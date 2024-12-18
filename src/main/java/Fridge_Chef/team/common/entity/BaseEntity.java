@@ -1,9 +1,7 @@
 package Fridge_Chef.team.common.entity;
 
 
-import jakarta.persistence.Column;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,7 +22,8 @@ public class BaseEntity {
     @Column(name = "update_time")
     @LastModifiedDate
     private LocalDateTime updateTime;
-    private OracleBoolean deleteStatus;
+    @Enumerated(EnumType.STRING)
+    private OracleBoolean deleteStatus = OracleBoolean.F;
 
     protected void updateIsDelete(boolean isDelete){
         this.deleteStatus = OracleBoolean.of(isDelete);
