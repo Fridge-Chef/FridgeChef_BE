@@ -9,7 +9,10 @@ import Fridge_Chef.team.image.repository.ImageRepository;
 import Fridge_Chef.team.security.service.dto.GoogleTokenDTO;
 import Fridge_Chef.team.security.service.dto.OAuthAttributes;
 import Fridge_Chef.team.security.service.factory.OAuthAttributesAdapterFactory;
-import Fridge_Chef.team.user.domain.*;
+import Fridge_Chef.team.user.domain.Role;
+import Fridge_Chef.team.user.domain.Social;
+import Fridge_Chef.team.user.domain.User;
+import Fridge_Chef.team.user.domain.UserHistory;
 import Fridge_Chef.team.user.repository.UserHistoryRepository;
 import Fridge_Chef.team.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,19 +33,22 @@ import org.springframework.web.client.RestTemplate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
+    private static final String GOOGLE_GET_TOKEN_URI = "https://oauth2.googleapis.com/tokeninfo?id_token";
     private final UserRepository userRepository;
     private final ImageRepository imageRepository;
     private final UserHistoryRepository userHistoryRepository;
     private final FridgeRepository fridgeRepository;
 
-    private final RestTemplate restTemplate=new RestTemplate();
     private final OAuthAttributesAdapterFactory oAuthAttributesAdapterFactory;
     private final DefaultOAuth2UserService defaultOAuth2UserService = new DefaultOAuth2UserService();
+    private final RestTemplate restTemplate = new RestTemplate();
+
 
     @Override
     @Transactional
@@ -63,26 +69,17 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     }
 
     public User loadMoblieToUser(OAuth2UserRequest userRequest) {
-        log.info("모바일 로그인 시도 ");
-        OAuthAttributes attributes = loadMoblie(userRequest);
-        return saveOrUpdate(attributes);
+        return saveOrUpdate(loadMoblie(userRequest));
     }
 
-    private OAuthAttributes loadMoblie(OAuth2UserRequest userRequest){
-        if (userRequest.getClientRegistration().getRegistrationId().equals("google")) {
-            try {
-                ResponseEntity<GoogleTokenDTO> response = restTemplate.getForEntity("https://oauth2.googleapis.com/tokeninfo?id_token=" + userRequest.getAccessToken().getTokenValue(),
-                        GoogleTokenDTO.class);
-                if (response.getStatusCode().is2xxSuccessful()) {
-                    return response.getBody().toOAuthAttributes();
-                }
-            }catch (Exception e){
-                throw new ApiException(ErrorCode.TOKEN_ACCESS_EXPIRED_FAIL);
-            }
-        }else if (userRequest.getClientRegistration().getRegistrationId().equals("kakao")){
+
+    private OAuthAttributes loadMoblie(OAuth2UserRequest userRequest) {
+        if (userRequest.getClientRegistration().getRegistrationId().equals("kakao")) {
             OAuth2User oAuth2User = defaultOAuth2UserService.loadUser(userRequest);
             String registrationId = userRequest.getClientRegistration().getRegistrationId();
-            return  oAuthAttributes(registrationId, oAuth2User);
+            return oAuthAttributes(registrationId, oAuth2User);
+        } else if (userRequest.getClientRegistration().getRegistrationId().equals("google")) {
+            return getGoogleToken(userRequest);
         }
         throw new ApiException(ErrorCode.TOKEN_ACCESS_EXPIRED_FAIL);
     }
@@ -96,8 +93,12 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         userLog(attributes, " 로그인 시도 ");
         Social loginType = Social.valueOf(attributes.registrationId().toUpperCase());
 
-        return userRepository.findByProfileEmailAndProfileSocial(attributes.email(), loginType)
+        User user = userRepository.findByProfileEmailAndProfileSocial(attributes.email(), loginType)
                 .orElseGet(() -> registerNewUser(attributes, loginType));
+
+        withdrawalAccountRecovery(user);
+
+        return user;
     }
 
     private User signup(OAuthAttributes attributes) {
@@ -128,6 +129,23 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         User user = signup(attributes);
         userHistoryRepository.save(new UserHistory(user));
         return user;
+    }
+
+    private void withdrawalAccountRecovery(User user) {
+        if (user.getDeleteStatus() != null && !user.getDeleteStatus().bool()) {
+            user.accountDelete(false);
+        }
+    }
+
+    private OAuthAttributes getGoogleToken(OAuth2UserRequest request) {
+        try {
+            ResponseEntity<GoogleTokenDTO> response = restTemplate.getForEntity(GOOGLE_GET_TOKEN_URI + "=" + request.getAccessToken(), GoogleTokenDTO.class);
+            if (response.getStatusCode().is2xxSuccessful()) {
+                return Objects.requireNonNull(response.getBody()).toOAuthAttributes();
+            }
+        } catch (Exception ignored) {
+        }
+        throw new ApiException(ErrorCode.TOKEN_ACCESS_EXPIRED_FAIL);
     }
 
     private void userLog(OAuthAttributes attributes, String message) {
