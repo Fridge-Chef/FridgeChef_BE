@@ -24,15 +24,13 @@ public class TokenController {
 
     @GetMapping("/access")
     public UserResponse accessLogin(@AuthenticationPrincipal AuthenticatedUser userId) {
-        User user = userService.findByUserId(userId)
-                .orElseThrow(() -> new ApiException(ErrorCode.TOKEN_ACCESS_NOT_USER));
+        User user = userService.findByUserId(userId);
         return createUserResponse(user);
     }
 
     @GetMapping("/refresh")
     public TokenRefreshResponse isValidToken(@AuthenticationPrincipal AuthenticatedUser userId) {
-        User user = userService.findByUserId(userId)
-                .orElseThrow(() -> new ApiException(ErrorCode.TOKEN_ACCESS_NOT_USER));
+        User user = userService.findByUserId(userId);
         return createUserRefreshTokenResponse(user);
     }
 
