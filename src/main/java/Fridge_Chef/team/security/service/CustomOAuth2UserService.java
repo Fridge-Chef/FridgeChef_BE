@@ -1,5 +1,6 @@
 package Fridge_Chef.team.security.service;
 
+import Fridge_Chef.team.common.entity.OracleBoolean;
 import Fridge_Chef.team.exception.ApiException;
 import Fridge_Chef.team.exception.ErrorCode;
 import Fridge_Chef.team.fridge.domain.Fridge;
@@ -132,7 +133,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     }
 
     private void withdrawalAccountRecovery(User user) {
-        if (user.getDeleteStatus() != null && !user.getDeleteStatus().bool()) {
+        if (user.getDeleteStatus().equals(OracleBoolean.T)) {
             user.accountDelete(false);
         }
     }
