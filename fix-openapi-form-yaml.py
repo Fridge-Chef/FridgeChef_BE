@@ -66,11 +66,9 @@ def extract_curl_request(file_content):
     # 값 반환 및 출력
     # print(f"URI: {uri}, Method: {method}")
     return uri, method
-# 함수: request-parts.adoc에서 part와 description 추출
 def extract_request_parts(file_content):
-    parts = re.findall(r"\|`(.+?)`\s*\|\s*(.+)", file_content)
-    return [{'part': part.strip(), 'description': desc.strip()} for part, desc in parts]
-
+    parts = re.findall(r"\|`(.+?)`\s*\|\s*(.+)\s*\|\s*(.+)\s*\|\s*(.+)", file_content)
+    return [{'part': part.strip(), 'description': desc.strip(), 'type': type.strip(), 'required': required.strip()} for part, desc, type, required in parts]
 
 # 함수: openapi.yaml을 업데이트
 def update_openapi_yaml(uri, method, parts):
@@ -113,7 +111,8 @@ def update_openapi_yaml(uri, method, parts):
     # 스키마 작성
     schema_structure = {
         'type': 'object',
-        'properties': {}
+        'properties': {},
+        'required': [],
     }
 
 
@@ -135,9 +134,13 @@ def update_openapi_yaml(uri, method, parts):
 
         # properties에 추가
         schema_structure['properties'][field_name] = {
-            'type': 'string',  # 기본값 string, 필요한 경우 확장
-            'description': part['description']
+            'type': part['type'],
+            'description': part['description'],
         }
+
+        if part['required'] == 'true':
+            schema_structure['required'].append(field_name)
+
 
     openapi_data['components']['schemas'][schema_ref] = schema_structure
 

@@ -23,6 +23,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -53,7 +54,7 @@ public class BookControllerTest extends RestDocControllerTests {
 
     @BeforeEach
     void setup() {
-        user = UserFixture.createId("test@gmail.com");
+        user = UserFixture.create("test@gmail.com");
     }
 
 
@@ -76,23 +77,23 @@ public class BookControllerTest extends RestDocControllerTests {
                 .andDo(document("좋아요",
                         jwtTokenRequest(),
                         queryParameters(
-                                parameterWithName("page").description("페이지 번호 (0부터 시작)"),
-                                parameterWithName("size").description("한 페이지에 출력할 레시피 개수 (1~50 사이즈 제한)"),
-                                parameterWithName("book").description("북 타입 : (좋아요,나만의레시피) [HIT ,MYRECIPE]"),
+                                parameterWithName("page").description("페이지 번호 (0부터 시작)").optional(),
+                                parameterWithName("size").description("한 페이지에 출력할 레시피 개수 (1~50 사이즈 제한)").optional(),
+                                parameterWithName("book").description("북 타입 : (좋아요,나만의레시피) [HIT ,MYRECIPE]").optional(),
                                 parameterWithName("sort").description("정렬 방식 (예: WEEKLY_RECIPE, MONTHLY_RECIPE, LATEST ,RATING ,CLICKS ,HIT )").optional()
                         ),
                         responseFields(
-                                fieldWithPath("content[]").description("책 목록"),
-                                fieldWithPath("content[].id").description("ID 게시글"),
-                                fieldWithPath("content[].mainImageLink").description("이미지 주소"),
-                                fieldWithPath("content[].title").description("레시피 이름"),
-                                fieldWithPath("content[].star").description("별점"),
-                                fieldWithPath("content[].hit").description("하트"),
-                                fieldWithPath("page").description("페이지"),
-                                fieldWithPath("page.size").description("사이즈"),
-                                fieldWithPath("page.number").description("번호"),
-                                fieldWithPath("page.totalElements").description("총 요소 "),
-                                fieldWithPath("page.totalPages").description("총 페이지 ")
+                                fieldWithPath("content[]").description("책 목록").type(JsonFieldType.ARRAY),
+                                fieldWithPath("content[].id").description("ID 게시글").type(JsonFieldType.NUMBER),
+                                fieldWithPath("content[].mainImageLink").description("이미지 주소").type(JsonFieldType.STRING),
+                                fieldWithPath("content[].title").description("레시피 이름").type(JsonFieldType.STRING),
+                                fieldWithPath("content[].star").description("별점").type(JsonFieldType.NUMBER),
+                                fieldWithPath("content[].hit").description("하트").type(JsonFieldType.NUMBER),
+                                fieldWithPath("page").description("페이지").type(JsonFieldType.OBJECT),
+                                fieldWithPath("page.size").description("사이즈").type(JsonFieldType.NUMBER),
+                                fieldWithPath("page.number").description("번호").type(JsonFieldType.NUMBER),
+                                fieldWithPath("page.totalElements").description("총 요소 ").type(JsonFieldType.NUMBER),
+                                fieldWithPath("page.totalPages").description("총 페이지 ").type(JsonFieldType.NUMBER)
                         )
                 ));
     }
@@ -116,24 +117,25 @@ public class BookControllerTest extends RestDocControllerTests {
                 .andDo(document("나만의 레시피,",
                         jwtTokenRequest(),
                         queryParameters(
-                                parameterWithName("page").description("페이지 번호 "),
-                                parameterWithName("size").description("사이즈 크기 "),
-                                parameterWithName("book").description("북 타입 : (좋아요,나만의레시피,후기) [HIT,MYRECIPE]"),
-                                parameterWithName("sort").description("정렬 타입 :(최신순,별점순,클릭순,좋아요순) [ LATEST, RATING , CLICKS, HIT ] ")
+                                parameterWithName("page").description("페이지 번호 ").optional(),
+                                parameterWithName("size").description("사이즈 크기 ").optional(),
+                                parameterWithName("book").description("북 타입 : (좋아요,나만의레시피,후기) [HIT,MYRECIPE]").optional(),
+                                parameterWithName("sort").description("정렬 타입 :(최신순,별점순,클릭순,좋아요순) [ LATEST, RATING , CLICKS, HIT ] ").optional()
                         ),
                         responseFields(
-                                fieldWithPath("content[]").description("책 목록"),
-                                fieldWithPath("content[].id").description("ID 게시글"),
-                                fieldWithPath("content[].mainImageLink").description("이미지 주소"),
-                                fieldWithPath("content[].title").description("레시피 이름"),
-                                fieldWithPath("content[].star").description("별점"),
-                                fieldWithPath("content[].hit").description("하트"), fieldWithPath("page").description("페이지"),
-                                fieldWithPath("page").description("페이지"),
-                                fieldWithPath("page.size").description("사이즈"),
-                                fieldWithPath("page.number").description("번호"),
-                                fieldWithPath("page.totalElements").description("총 요소 "),
-                                fieldWithPath("page.totalPages").description("총 페이지 ")
+                                fieldWithPath("content[]").description("책 목록").type(JsonFieldType.ARRAY),
+                                fieldWithPath("content[].id").description("ID 게시글").type(JsonFieldType.NUMBER),
+                                fieldWithPath("content[].mainImageLink").description("이미지 주소").type(JsonFieldType.STRING),
+                                fieldWithPath("content[].title").description("레시피 이름").type(JsonFieldType.STRING),
+                                fieldWithPath("content[].star").description("별점").type(JsonFieldType.NUMBER),
+                                fieldWithPath("content[].hit").description("하트").type(JsonFieldType.NUMBER),
+                                fieldWithPath("page").description("페이지").type(JsonFieldType.OBJECT),
+                                fieldWithPath("page.size").description("사이즈").type(JsonFieldType.NUMBER),
+                                fieldWithPath("page.number").description("번호").type(JsonFieldType.NUMBER),
+                                fieldWithPath("page.totalElements").description("총 요소 ").type(JsonFieldType.NUMBER),
+                                fieldWithPath("page.totalPages").description("총 페이지 ").type(JsonFieldType.NUMBER)
                         )
+
                 ));
     }
 
@@ -155,27 +157,28 @@ public class BookControllerTest extends RestDocControllerTests {
                 .andDo(document("레시피 후기",
                         jwtTokenRequest(),
                         queryParameters(
-                                parameterWithName("page").description("페이지 번호 "),
-                                parameterWithName("size").description("사이즈 크기 "),
-                                parameterWithName("sort").description("정렬 타입 :(최신순,별점순,클릭순,좋아요순) [ LATEST, RATING , CLICKS, HIT ] ")
+                                parameterWithName("page").description("페이지 번호 ").optional(),
+                                parameterWithName("size").description("사이즈 크기 ").optional(),
+                                parameterWithName("sort").description("정렬 타입 :(최신순,별점순,클릭순,좋아요순) [ LATEST, RATING , CLICKS, HIT ] ").optional()
                         ),
                         responseFields(
-                                fieldWithPath("content[]").description("후기 리스트"),
-                                fieldWithPath("content[].id").description("ID"),
+                                fieldWithPath("content[]").description("후기 리스트").type(JsonFieldType.ARRAY),
+                                fieldWithPath("content[].id").description("ID").type(JsonFieldType.NUMBER),
                                 fieldWithPath("content[].title").description("레시피 명"),
-                                fieldWithPath("content[].comments").description("후기 내용"),
-                                fieldWithPath("content[].like").description("좋아요 수 "),
-                                fieldWithPath("content[].myHit").description("내 좋아요 여부 "),
-                                fieldWithPath("content[].myMe").description("내가 작성한 여부"),
-                                fieldWithPath("content[].star").description("별점"),
+                                fieldWithPath("content[].comments").description("후기 내용").type(JsonFieldType.STRING),
+                                fieldWithPath("content[].like").description("좋아요 수 ").type(JsonFieldType.NUMBER),
+                                fieldWithPath("content[].myHit").description("내 좋아요 여부 ").type(JsonFieldType.BOOLEAN),
+                                fieldWithPath("content[].myMe").description("내가 작성한 여부").type(JsonFieldType.BOOLEAN),
+                                fieldWithPath("content[].star").description("별점").type(JsonFieldType.NUMBER),
                                 fieldWithPath("content[].userName").description("사용자 이름"),
-                                fieldWithPath("content[].imageLink[]").description("이미지 주소"),
-                                fieldWithPath("content[].boardId").description("게시판 ID"),
+                                fieldWithPath("content[].imageLink[]").description("이미지 주소").type(JsonFieldType.ARRAY),
+                                fieldWithPath("content[].boardId").description("게시판 ID").type(JsonFieldType.NUMBER),
                                 fieldWithPath("content[].createdAt").description("작성일"),
-                                fieldWithPath("page.size").description("페이지 크기"),
-                                fieldWithPath("page.number").description("현재 페이지 번호"),
-                                fieldWithPath("page.totalElements").description("전체 요소 수"),
-                                fieldWithPath("page.totalPages").description("전체 페이지 수")
+                                fieldWithPath("page").description("페이지").type(JsonFieldType.OBJECT),
+                                fieldWithPath("page.size").description("사이즈").type(JsonFieldType.NUMBER),
+                                fieldWithPath("page.number").description("번호").type(JsonFieldType.NUMBER),
+                                fieldWithPath("page.totalElements").description("총 요소 ").type(JsonFieldType.NUMBER),
+                                fieldWithPath("page.totalPages").description("총 페이지 ").type(JsonFieldType.NUMBER)
                         )));
     }
 

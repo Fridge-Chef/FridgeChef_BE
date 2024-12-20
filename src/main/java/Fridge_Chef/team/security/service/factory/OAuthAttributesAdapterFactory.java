@@ -1,6 +1,7 @@
 package Fridge_Chef.team.security.service.factory;
 
-import Fridge_Chef.team.security.service.factory.adapter.NotSupportedOAuthVendorException;
+import Fridge_Chef.team.exception.ApiException;
+import Fridge_Chef.team.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,6 +16,6 @@ public class OAuthAttributesAdapterFactory {
         return oAuthAttributesAdapters.stream()
                 .filter(oAuthAttributesAdapter -> oAuthAttributesAdapter.supports(registrationId))
                 .findFirst()
-                .orElseThrow(() -> new NotSupportedOAuthVendorException("해당 OAuth2 벤더는 지원되지 않습니다."));
+                .orElseThrow(() -> new ApiException(ErrorCode.SIGNUP_SNS_NOT_SUPPORT));
     }
 }
