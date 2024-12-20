@@ -30,7 +30,7 @@ public class UserSignService {
 
     @Transactional
     public User saveOrUpdate(OAuthAttributes attributes) {
-        userLog(attributes, " 로그인 시도 ");
+        log.info(attributes.registrationId() + attributes.email() + " : 로그인 시도");
         Social loginType = Social.valueOf(attributes.registrationId().toUpperCase());
 
         User user = userRepository.findByProfileEmailAndProfileSocial(attributes.email(), loginType)
@@ -42,7 +42,7 @@ public class UserSignService {
     }
 
     private User signup(OAuthAttributes attributes) {
-        userLog(attributes, " 회원가입 ");
+        log.info(attributes.registrationId() + attributes.email() + " : 회원가입 시도");
         Social social = Social.signupOf(attributes.registrationId().toUpperCase());
         User user = User.createSocialUser(
                 attributes.email(),
@@ -50,8 +50,7 @@ public class UserSignService {
                 Role.USER,
                 social);
 
-        Image image = imageRepository.save(Image.outUri(attributes.picture()));
-        user.updatePicture(image);
+        user.updatePicture(imageRepository.save(Image.outUri(attributes.picture())));
 
         try {
             User signup = userRepository.save(user);
@@ -72,14 +71,9 @@ public class UserSignService {
     }
 
     private void withdrawalAccountRecovery(User user) {
-        log.info("휴먼 계정 검사");
         if (user.isDeleteStatus()) {
             log.info("휴먼 계정 복구 : "+user.getEmail());
             user.accountDelete(false);
         }
-    }
-
-    private void userLog(OAuthAttributes attributes, String message) {
-        log.info(attributes.registrationId() + attributes.email() + " : " + message);
     }
 }

@@ -36,16 +36,6 @@ public class UserService {
         return findByUserId(userId.userId());
     }
 
-    @Transactional
-    public void accountDelete(UserId userId, String username) {
-        User user = findByUserId(userId);
-
-        if (!user.getProfile().getUsername().equals(username)) {
-            throw new ApiException(ErrorCode.USER_ACCOUNT_DELETE_NAME_INCORRECT);
-        }
-        user.accountDelete(true);
-    }
-
     @Transactional(readOnly = true)
     public User findByUser(UserId userId) {
         return findByUserId(userId);
@@ -56,6 +46,23 @@ public class UserService {
         return UserProfileResponse.from(findByUserId(userId));
     }
 
+    @Transactional(readOnly = true)
+    public UserProfileMyPageResponse findByMyPage(UserId userId) {
+        List<Board> boards = boardRepository.findByUserId(userId).orElse(List.of());
+        List<Comment> comments = commentRepository.findByUsers(findByUserId(userId)).orElse(List.of());
+        return new UserProfileMyPageResponse(boards.size(), comments.size());
+    }
+
+    @Transactional
+    public void accountDelete(UserId userId, String username) {
+        User user = findByUserId(userId);
+
+        if (!user.getProfile().getUsername().equals(username)) {
+            throw new ApiException(ErrorCode.USER_ACCOUNT_DELETE_NAME_INCORRECT);
+        }
+        user.accountDelete(true);
+    }
+
     @Transactional
     public void updateUserProfilePicture(UserId userId, Image picture) {
         findByUserId(userId).updatePicture(picture);
@@ -64,13 +71,6 @@ public class UserService {
     @Transactional
     public void updateUserProfileUsername(UserId userId, UserProfileNameUpdateRequest request) {
         findByUserId(userId).updateUsername(request.username());
-    }
-
-    @Transactional(readOnly = true)
-    public UserProfileMyPageResponse findByMyPage(UserId userId) {
-        List<Board> boards = boardRepository.findByUserId(userId).orElse(List.of());
-        List<Comment> comments = commentRepository.findByUsers(findByUserId(userId)).orElse(List.of());
-        return new UserProfileMyPageResponse(boards.size(), comments.size());
     }
 
     private User findByUserId(UserId userId) {
