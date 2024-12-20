@@ -1,11 +1,10 @@
 package fixture;
 
+import Fridge_Chef.team.common.CustomMockPartFile;
 import Fridge_Chef.team.image.domain.Image;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-
-import java.io.IOException;
 
 public class ImageFixture {
     public static Image create() {
@@ -16,16 +15,61 @@ public class ImageFixture {
         return Image.outUri(id,"test.png");
     }
 
-    public static MockMultipartFile getMultiFile(String name) throws IOException {
-        return new MockMultipartFile(
-                name,
-                "test.png",
-                MediaType.IMAGE_PNG_VALUE,
-                new ClassPathResource("test.png").getInputStream()
-        );
+    public static MockMultipartFile partMockImage(String name) {
+        try {
+            return new MockMultipartFile(
+                    name,
+                    "test.png",
+                    MediaType.IMAGE_PNG_VALUE,
+                    new ClassPathResource("test.png").getInputStream()
+            );
+        }catch (Exception e){
+            return new MockMultipartFile(name,"test.png",  MediaType.IMAGE_PNG_VALUE,"".getBytes());
+        }
     }
 
-    public static MockMultipartFile getMultiFile(String name, String value) {
+    public static CustomMockPartFile partImage(String name) {
+        try {
+            return new CustomMockPartFile(
+                    name,
+                    "test.png",
+                    MediaType.IMAGE_PNG_VALUE,
+                    new ClassPathResource("test.png").getInputStream().readAllBytes()
+            );
+        }catch (Exception e){
+            return new CustomMockPartFile(name,"test.png",  MediaType.IMAGE_PNG_VALUE,"".getBytes());
+        }
+    }
+    public static CustomMockPartFile partImage(String name,String description){
+        try {
+            return new CustomMockPartFile(
+                    name,
+                    "test.png",
+                    MediaType.IMAGE_PNG_VALUE,
+                    new ClassPathResource("test.png").getInputStream().readAllBytes(),
+                    description,
+                    true
+            );
+        }catch (Exception e){
+            return new CustomMockPartFile(name,"test.png",  MediaType.IMAGE_PNG_VALUE,"".getBytes());
+        }
+    }
+    public static CustomMockPartFile partImage(String name,String description,boolean option){
+        try {
+            return new CustomMockPartFile(
+                    name,
+                    "test.png",
+                    MediaType.IMAGE_PNG_VALUE,
+                    new ClassPathResource("test.png").getInputStream().readAllBytes(),
+                    description,
+                    option
+            );
+        }catch (Exception e){
+            return new CustomMockPartFile(name,"test.png",  MediaType.IMAGE_PNG_VALUE,"".getBytes());
+        }
+    }
+
+    public static MockMultipartFile partMockImage(String name, String value) {
         return new MockMultipartFile(
                 name,
                 value.getBytes()
