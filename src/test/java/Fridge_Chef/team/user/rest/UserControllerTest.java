@@ -50,15 +50,11 @@ public class UserControllerTest extends RestDocControllerTests {
     @MockBean
     private ImageLocalService imageService;
     @MockBean
-    private UserRepository userRepository;
-    @MockBean
-    private PasswordEncoder passwordEncoder;
-    @MockBean
-    private JwtProvider jwtProvider;
-    @MockBean
     private CustomOAuth2UserService oAuth2UserService;
     @MockBean
     private CustomOAuth2ClientProvider customOAuth2ClientProvider;
+    @MockBean
+    private JwtProvider jwtProvider;
     private User user;
 
     @BeforeEach
@@ -125,7 +121,7 @@ public class UserControllerTest extends RestDocControllerTests {
 
     @Test
     void moblie_login_fail_not_support() throws Exception {
-        MobileLoginRequest jsonRequest = new MobileLoginRequest("token", "kakao");
+        MobileLoginRequest jsonRequest = new MobileLoginRequest("token", "x");
         String request = objectMapper.writeValueAsString(jsonRequest);
         ErrorCode errorCode = SIGNUP_SNS_NOT_SUPPORT;
 
@@ -282,7 +278,6 @@ public class UserControllerTest extends RestDocControllerTests {
         CustomPart part = partImage("image", "이미지 파일", true);
 
         var actions = mockMvc.perform(jwtFormPatchWhen("/api/user/picture", part));
-
 
         failJwtResultAction(actions, "유저 이미지 수정", requestPartsForm(List.of(part)), IMAGE_REMOTE_UPLOAD);
     }

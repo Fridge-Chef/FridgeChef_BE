@@ -24,9 +24,7 @@ public class UserServiceTest extends ServiceLayerTest {
     @BeforeEach
     void setup() {
         user = UserFixture.create("test@gmail.com");
-
     }
-
 
     @Test
     @DisplayName("회원 탈퇴 - 탈퇴 요청한 회원")
