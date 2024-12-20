@@ -20,6 +20,7 @@ import org.springframework.mock.web.MockPart;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.headers.RequestHeadersSnippet;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
+import org.springframework.restdocs.payload.AbstractFieldsSnippet;
 import org.springframework.restdocs.payload.RequestFieldsSnippet;
 import org.springframework.restdocs.payload.ResponseFieldsSnippet;
 import org.springframework.restdocs.request.RequestPartDescriptor;
@@ -109,16 +110,17 @@ public class RestDocControllerTests {
         return requestParts(parts);
     }
 
-    protected static void failResultAction(ResultActions actions, String message, RequestFieldsSnippet snippet, ErrorCode errorCode) throws Exception {
+    protected static void failJwtResultAction(ResultActions actions, String message, RequestPartsSnippet snippet, ErrorCode errorCode) throws Exception {
         actions.andExpect(status(errorCode))
                 .andDo(document(message + " - " + errorCode.getMessage(),
+                        jwtTokenRequest(),
                         snippet, errorFields(errorCode)));
     }
 
-    protected static void failResultAction(ResultActions actions, String message, RequestFieldsSnippet snippet, String errorMessage, int errorCode) throws Exception {
+    protected static void failResultAction(ResultActions actions, String message, AbstractFieldsSnippet snippet, ErrorCode errorCode) throws Exception {
         actions.andExpect(status(errorCode))
-                .andDo(document(message + " - " + errorMessage,
-                        snippet, errorFields(errorCode, errorMessage)));
+                .andDo(document(message + " - " + errorCode.getMessage(),
+                        snippet, errorFields(errorCode)));
     }
 
     protected static void failResultAction(ResultActions actions, String message, RequestFieldsSnippet snippet, ErrorCode errorCode, String errorMessage) throws Exception {
@@ -127,7 +129,7 @@ public class RestDocControllerTests {
                         snippet, errorFields(errorCode.getStatus(), errorMessage)));
     }
 
-    protected RequestHeadersSnippet jwtTokenRequest() {
+    protected static RequestHeadersSnippet jwtTokenRequest() {
         return requestHeaders(headerWithName("Authorization").description("Bearer token for authentication"));
     }
 
@@ -429,6 +431,18 @@ public class RestDocControllerTests {
                 .accept(MediaType.APPLICATION_JSON)
                 .content(json)
         );
+    }
+
+    protected static MockHttpServletRequestBuilder jwtFormPatchWhen(String uri, CustomPart formData) {
+        return jwtForm(RestDocumentationRequestBuilders.multipart(uri), List.of(formData))
+                .with(request -> {
+                    request.setMethod("PATCH");
+                    return request;
+                });
+    }
+
+    protected static RequestBuilder jwtFormPostWhen(String uri, CustomPart formData) {
+        return jwtForm(RestDocumentationRequestBuilders.multipart(uri), List.of(formData));
     }
 
     protected static RequestBuilder jwtFormPostPathWhen(String uri, List<CustomPart> formData, Object... path) {
