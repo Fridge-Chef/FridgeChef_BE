@@ -159,7 +159,7 @@ public class UserControllerTest extends RestDocControllerTests {
                 .andDo(document("유저 이름 수정",
                         jwtTokenRequest(),
                         requestFields(
-                                fieldWithPath("username").description("변경할 유저 이름")
+                                fieldWithPath("username").description("변경할 유저 이름").optional()
                         )
                 ));
     }

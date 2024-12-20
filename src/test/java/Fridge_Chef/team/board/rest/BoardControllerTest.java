@@ -13,6 +13,7 @@ import Fridge_Chef.team.board.service.BoardRecipeService;
 import Fridge_Chef.team.board.service.BoardService;
 import Fridge_Chef.team.board.service.response.BoardMyRecipePageResponse;
 import Fridge_Chef.team.board.service.response.BoardMyRecipeResponse;
+import Fridge_Chef.team.common.CustomPart;
 import Fridge_Chef.team.common.RestDocControllerTests;
 import Fridge_Chef.team.common.auth.WithMockCustomUser;
 import Fridge_Chef.team.image.domain.Image;
@@ -23,7 +24,6 @@ import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.domain.UserId;
 import Fridge_Chef.team.user.repository.UserRepository;
 import fixture.UserFixture;
-import jakarta.servlet.http.Part;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,25 +31,24 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.mock.web.MockPart;
-import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Random;
 
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
-import static fixture.ImageFixture.getMultiFile;
+import static fixture.ImageFixture.partImage;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.request.RequestDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
 
 
 @DisplayName("나만의 게시판 API")
@@ -89,55 +88,29 @@ public class BoardControllerTest extends RestDocControllerTests {
         when(boardRecipeService.findOrCreate(any()))
                 .thenReturn(Collections.emptyList());
 
-        MockMultipartFile mainImage = getMultiFile("mainImage");
-        MockMultipartFile instructionImage1 = getMultiFile("instructions[0].image");
+        List<CustomPart> formData = List.of(
+                partImage("mainImage", "메인 이미지 파일"),
+                part("name", "레시피 명", "레시피 이름"),
+                part("description", "레시피 설명", "레시피 설명"),
+                part("dishTime", "조리 시간", "조리 시간"),
+                part("dishLevel", "중", "조리 난이도"),
+                part("dishCategory", "요리,카테", "조리 카테 고리(, 쉼표 구분 )"),
+                part("recipeIngredients[0].name", "재료 이름", "재료 이름"),
+                part("recipeIngredients[0].details", "재료 상세 정보", "상세 내용", false),
+                part("recipeIngredients[1].name", "재료 이름", "재료 이름"),
+                part("recipeIngredients[1].details", "재료 상세 정보", "상세 내용", false),
+                part("instructions[0].content", "설명 "),
+                partImage("instructions[0].image", "설명 이미지", false)
+        );
 
-        Part namePart = new MockPart("name", "레시피 명".getBytes());
-        Part descriptionPart = new MockPart("description", "레시피 설명".getBytes());
-        Part dishTimePart = new MockPart("dishTime", "조리 시간".getBytes());
-        Part dishLevelPart = new MockPart("dishLevel", "조리 난이도".getBytes());
-        Part dishCategoryPart = new MockPart("dishCategory", "조리 카테고리".getBytes());
-        Part ingredientNamePart1 = new MockPart("recipeIngredients[0].name", "재료1".getBytes());
-        Part ingredientDetailsPart1 = new MockPart("recipeIngredients[0].details", "상세정보1".getBytes());
-        Part ingredientNamePart2 = new MockPart("recipeIngredients[1].name", "재료2".getBytes());
-        Part ingredientDetailsPart2 = new MockPart("recipeIngredients[1].details", "상세정보3".getBytes());
-        Part instructionContentPart1 = new MockPart("instructions[0].content", "설명1".getBytes());
 
-        var requestBuilder =
-                RestDocumentationRequestBuilders.multipart("/api/board")
-                        .file(mainImage)
-                        .part(namePart)
-                        .part(descriptionPart)
-                        .part(dishTimePart)
-                        .part(dishLevelPart)
-                        .part(dishCategoryPart)
-                        .part(ingredientNamePart1)
-                        .part(ingredientDetailsPart1)
-                        .part(ingredientNamePart2)
-                        .part(ingredientDetailsPart2)
-                        .part(instructionContentPart1)
-                        .file(instructionImage1)
-                        .header(AUTHORIZATION, "Bearer ")
-                        .contentType(MediaType.MULTIPART_FORM_DATA);
+        var post = jwtFormPostWhen("/api/board", formData);
 
-        ResultActions actions = mockMvc.perform(requestBuilder);
+        ResultActions actions = mockMvc.perform(post);
         actions.andExpect(status().isOk())
                 .andDo(document("나만의 레시피 추가",
                         jwtTokenRequest(),
-                        requestParts(
-                                partWithName("name").description("레시피 명"),
-                                partWithName("description").description("레시피 설명"),
-                                partWithName("dishTime").description("조리 시간"),
-                                partWithName("dishLevel").description("조리 난이도"),
-                                partWithName("dishCategory").description("음식 카테고리"),
-                                partWithName("mainImage").description("메인 이미지 파일"),
-                                partWithName("recipeIngredients[0].name").description("재료1"),
-                                partWithName("recipeIngredients[0].details").description("상세정보1"),
-                                partWithName("recipeIngredients[1].name").description("재료2"),
-                                partWithName("recipeIngredients[1].details").description("상세정보3"),
-                                partWithName("instructions[0].content").description("설명1"),
-                                partWithName("instructions[0].image").description("설명 단계의 이미지 파일")
-                        )
+                        requestPartsForm(formData)
                 ));
     }
 
@@ -196,12 +169,12 @@ public class BoardControllerTest extends RestDocControllerTests {
         when(boardService.findMyRecipes(any(), any(BoardPageRequest.class)))
                 .thenReturn(responsePage);
 
-
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("page", "0");
         params.add("size", "50");
         params.add("issue", "ALL");
         params.add("sort", "LATEST");
+
         ResultActions actions = jsonGetParamWhen("/api/boards", params);
 
         actions.andExpect(status().isOk())
@@ -266,7 +239,7 @@ public class BoardControllerTest extends RestDocControllerTests {
         when(imageService.uploadImageWithId(any(UserId.class), any(Boolean.class), any(Long.class), any(MultipartFile.class)))
                 .thenReturn(mockImage);
 
-        when(boardRecipeService.uploadInstructionImages(any(UserId.class), any(BoardByRecipeUpdateRequest.class),anyList()))
+        when(boardRecipeService.uploadInstructionImages(any(UserId.class), any(BoardByRecipeUpdateRequest.class), anyList()))
                 .thenReturn(mockDescriptions);
 
         when(boardRecipeService.findOrCreate(any()))
@@ -276,142 +249,35 @@ public class BoardControllerTest extends RestDocControllerTests {
                 any(BoardByRecipeUpdateRequest.class)
         )).thenReturn(null);
 
-        Part idPart = new MockPart("id", "1".getBytes());
-        Part namePart = new MockPart("title", "레시피 명".getBytes());
-        Part descriptionPart = new MockPart("description", "레시피 설명".getBytes());
 
-        MockMultipartFile mainImage = getMultiFile("mainImage");
-        Part mainImageChangePart = new MockPart("mainImageChange", "false".getBytes());
-        Part mainImageIdPart = new MockPart("mainImageId", "1".getBytes());
+        List<CustomPart> formData = List.of(
+                part("id", "1", "레시피의 고유 ID (수정할 레시피를 식별하기 위한 필수 필드)"),
+                part("title", "레시피 명", "레시피 제목", false),
+                part("description", "레시피 설명", "레시피 설명", false),
+                partImage("mainImage", "레시피의 메인 이미지 파일 (Optional: 이미지를 변경하려면 업로드)", false),
+                part("mainImageChange", "false", "메인 이미지 변경 여부 (true: 이미지 변경, false: 유지)", false),
+                part("mainImageId", "1", "기존 메인 이미지의 ID (변경할 때만 필요)", false),
+                part("dishTime", "조리 시간", "조리 시간 (예: '30분')", false),
+                part("dishLevel", "조리 난이도", "조리 난이도 (예: '쉬움', '보통', '어려움')", false),
+                part("dishCategory", "조리 카테 고리", "조리 카테고리 ", false),
+                part("recipeIngredients[0].name", "재료 이름1", "첫 번째 재료 이름 (예: '양파')"),
+                part("recipeIngredients[0].details", "재료 상세 정보1", "첫 번째 재료의 상세 정보 (예: '다진 양파 100g')", false),
+                part("recipeIngredients[1].name", "재료 이름 2", "두 번째 재료 이름 "),
+                part("recipeIngredients[1].details", "재료 상세 정보2", "두 번째 재료의 상세 정보", false),
+                part("instructions[0].id", "2", "조리 단계 이미지 변경 여부 id", false),
+                part("instructions[0].content", "설명", "첫 번째 조리 단계 설명 (예: '양파를 볶는다.')", false),
+                part("instructions[0].imageChange", "false", "조리 단계 이미지 변경 여부 (true: 이미지 변경, false: 유지)", false),
+                partImage("instructions[0].image", "~ 번째 조리 단계 이미지 파일 (Optional: 이미지를 변경할 때만 필요)", false)
+        );
 
-        Part dishTimePart = new MockPart("dishTime", "조리 시간".getBytes());
-        Part dishLevelPart = new MockPart("dishLevel", "조리 난이도".getBytes());
-        Part dishCategoryPart = new MockPart("dishCategory", "조리 카테고리".getBytes());
-
-        Part ingredientNamePart1 = new MockPart("recipeIngredients[0].name", "재료1".getBytes());
-        Part ingredientDetailsPart1 = new MockPart("recipeIngredients[0].details", "상세정보1".getBytes());
-
-        Part ingredientNamePart2 = new MockPart("recipeIngredients[1].name", "재료2".getBytes());
-        Part ingredientDetailsPart2 = new MockPart("recipeIngredients[1].details", "상세정보3".getBytes());
-
-        Part instructionContentPart1 = new MockPart("instructions[0].content", "설명1".getBytes());
-        Part instructionContentIdPart1 = new MockPart("instructions[0].id", "2".getBytes());
-        Part instructionImagePart1 = new MockPart("instructions[0].imageChange", "false".getBytes());
-        MockMultipartFile instructionImage1 = getMultiFile("instructions[0].image");
-
-        var requestBuilder =
-                RestDocumentationRequestBuilders.multipart("/api/board")
-                        .part(idPart)
-                        .part(namePart)
-                        .part(descriptionPart)
-                        .file(mainImage)
-                        .part(mainImageChangePart)
-                        .part(mainImageIdPart)
-                        .part(dishTimePart)
-                        .part(dishLevelPart)
-                        .part(dishCategoryPart)
-                        .part(ingredientNamePart1)
-                        .part(ingredientDetailsPart1)
-                        .part(ingredientNamePart2)
-                        .part(ingredientDetailsPart2)
-                        .part(instructionContentPart1)
-                        .part(instructionImagePart1)
-                        .part(instructionContentIdPart1)
-                        .file(instructionImage1)
-                        .header(AUTHORIZATION, "Bearer ")
-                        .contentType(MediaType.MULTIPART_FORM_DATA);
-
-        requestBuilder.with(request -> {
-            request.setMethod("PUT");
-            return request;
-        });
-
-        ResultActions actions = mockMvc.perform(requestBuilder);
+        ResultActions actions = mockMvc.perform(jwtFormPutWhen("/api/board", formData));
 
         actions.andExpect(status().isOk())
                 .andDo(document("나만의 레시피 수정",
                         jwtTokenRequest(),
-                        requestParts(
-                                partWithName("id").description("레시피의 고유 ID (수정할 레시피를 식별하기 위한 필수 필드)"),
-                                partWithName("title").description("레시피 제목 (필수)"),
-                                partWithName("description").description("레시피 설명 (필수)"),
-                                partWithName("mainImage").description("레시피의 메인 이미지 파일 (Optional: 이미지를 변경하려면 업로드)"),
-                                partWithName("mainImageChange").description("메인 이미지 변경 여부 (true: 이미지 변경, false: 유지)"),
-                                partWithName("mainImageId").description("기존 메인 이미지의 ID (변경할 때만 필요)"),
-                                partWithName("dishTime").description("조리 시간 (예: '30분')"),
-                                partWithName("dishLevel").description("조리 난이도 (예: '쉬움', '보통', '어려움')"),
-                                partWithName("dishCategory").description("조리 카테고리 "),
-                                partWithName("recipeIngredients[0].name").description("첫 번째 재료 이름 (예: '양파')"),
-                                partWithName("recipeIngredients[0].details").description("첫 번째 재료의 상세 정보 (예: '다진 양파 100g')"),
-                                partWithName("recipeIngredients[1].name").description("두 번째 재료 이름 "),
-                                partWithName("recipeIngredients[1].details").description("두 번째 재료의 상세 정보"),
-                                partWithName("instructions[0].id").description("조리 단계 이미지 변경 여부 id"),
-                                partWithName("instructions[0].content").description("첫 번째 조리 단계 설명 (예: '양파를 볶는다.')"),
-                                partWithName("instructions[0].imageChange").description("조리 단계 이미지 변경 여부 (true: 이미지 변경, false: 유지)"),
-                                partWithName("instructions[0].image").description("첫 번째 조리 단계 이미지 파일 (Optional: 이미지를 변경할 때만 필요)")
-                        )
+                        requestPartsForm(formData)
                 ));
 
-    }
-
-    public static BoardByRecipeUpdateRequest createUpdateRequest(Long recipeId, boolean isMainImageChange) {
-        MultipartFile mockMainImage = null;
-        List<BoardByRecipeUpdateRequest.RecipeIngredient> recipeIngredients = createUpdateRecipeIngredients();
-        List<BoardByRecipeUpdateRequest.Instructions> instructions = createUpdateInstructions();
-
-        return new BoardByRecipeUpdateRequest(
-                recipeId,
-                "Updated Recipe Title",
-                "Updated Recipe Description",
-                mockMainImage,
-                1L,
-                false,
-                "조리 시간",
-                " 조리 난이도 ",
-                " 조리 카테고리",
-                recipeIngredients,
-                instructions
-        );
-    }
-
-    private static List<BoardByRecipeUpdateRequest.RecipeIngredient> createUpdateRecipeIngredients() {
-        return Arrays.asList(
-                new BoardByRecipeUpdateRequest.RecipeIngredient(1L, "Chicken", "500g"),
-                new BoardByRecipeUpdateRequest.RecipeIngredient(2L, "Salt", "1 tsp")
-        );
-    }
-
-    private static List<BoardByRecipeUpdateRequest.Instructions> createUpdateInstructions() {
-        return Arrays.asList(
-                new BoardByRecipeUpdateRequest.Instructions(1L, "Chop the ingredients.", null, false),
-                new BoardByRecipeUpdateRequest.Instructions(2L, "Cook over medium heat.", null, false)
-        );
-    }
-
-
-    public static BoardByRecipeRequest createBoardByRecipeRequest() {
-
-        MockMultipartFile mainImage = null;
-        List<BoardByRecipeRequest.RecipeIngredient> recipeIngredients = List.of(
-                new BoardByRecipeRequest.RecipeIngredient("Ingredient 1", "Detail 1"),
-                new BoardByRecipeRequest.RecipeIngredient("Ingredient 2", "Detail 2")
-        );
-
-        List<BoardByRecipeRequest.Instructions> instructions = List.of(
-                new BoardByRecipeRequest.Instructions("Step 1", null),
-                new BoardByRecipeRequest.Instructions("Step 2", null)
-        );
-
-        return new BoardByRecipeRequest(
-                "Test Recipe",
-                "This is a test recipe",
-                "",
-                "",
-                "",
-                null,
-                recipeIngredients,
-                instructions
-        );
     }
 
     public static BoardMyRecipeResponse createBoardMyRecipeResponse() {
@@ -452,8 +318,8 @@ public class BoardControllerTest extends RestDocControllerTests {
 
     private static List<BoardMyRecipeResponse.StepResponse> createInstructions() {
         return List.of(
-                new BoardMyRecipeResponse.StepResponse(1L,"Chop the chicken into small pieces.", "https://objectstorage.ap-chuncheon-1.oraclecloud.com/p/RO5Ur4yw-jzifHvgLdMG4nkUmU_UJpzy3YQnWXaJnTIAygJO3qDzSwMy0ulHEwxt/n/axqoa2bp7wqg/b/fridge/o/notfound.png"),
-                new BoardMyRecipeResponse.StepResponse(2L,"Add garlic and fry until golden brown.", "https://objectstorage.ap-chuncheon-1.oraclecloud.com/p/RO5Ur4yw-jzifHvgLdMG4nkUmU_UJpzy3YQnWXaJnTIAygJO3qDzSwMy0ulHEwxt/n/axqoa2bp7wqg/b/fridge/o/notfound.png")
+                new BoardMyRecipeResponse.StepResponse(1L, "Chop the chicken into small pieces.", "https://objectstorage.ap-chuncheon-1.oraclecloud.com/p/RO5Ur4yw-jzifHvgLdMG4nkUmU_UJpzy3YQnWXaJnTIAygJO3qDzSwMy0ulHEwxt/n/axqoa2bp7wqg/b/fridge/o/notfound.png"),
+                new BoardMyRecipeResponse.StepResponse(2L, "Add garlic and fry until golden brown.", "https://objectstorage.ap-chuncheon-1.oraclecloud.com/p/RO5Ur4yw-jzifHvgLdMG4nkUmU_UJpzy3YQnWXaJnTIAygJO3qDzSwMy0ulHEwxt/n/axqoa2bp7wqg/b/fridge/o/notfound.png")
         );
     }
 }
