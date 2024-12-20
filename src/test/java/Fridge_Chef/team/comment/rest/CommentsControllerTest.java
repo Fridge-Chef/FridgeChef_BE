@@ -16,6 +16,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDateTime;
@@ -51,8 +52,8 @@ public class CommentsControllerTest extends RestDocControllerTests {
         List<CustomPart> formData = List.of(
                 partImage("images", "이미지 파일들", false),
                 partImage("images", "이미지 파일들", false),
-                part("comment", "댓글"),
-                part("star", "4.5")
+                part("comment", "댓글","댓글 작성"),
+                part("star", "4.5","별점 작섬 1~5 , [0,5 단위]")
         );
 
         ResultActions actions = mockMvc.perform(jwtFormPostPathWhen("/api/boards/{board_id}", formData, 1));
@@ -62,7 +63,8 @@ public class CommentsControllerTest extends RestDocControllerTests {
                         jwtTokenRequest(),
                         pathParameters(
                                 parameterWithName("board_id").description("게시글 ID")
-                        ), requestPartsForm(formData)
+                        ),
+                        requestPartsForm(formData)
                 ));
     }
 
@@ -90,9 +92,9 @@ public class CommentsControllerTest extends RestDocControllerTests {
         List<CustomPart> formData = List.of(
                 partImage("images", "이미지 파일들", false),
                 partImage("images", "이미지 파일들", false),
-                part("comment", "댓글"),
-                part("star", "4.5"),
-                part("isImage", "false")
+                part("comment", "댓글","댓글 작성"),
+                part("star", "4.5","별점 작섬 1~5 , [0,5 단위]"),
+                part("isImage", "false","이미지 변경 여부",false)
         );
 
         ResultActions actions = mockMvc.perform(jwtFormPutPathWhen("/api/boards/{board_id}/comments/{comment_id}", formData, 1, 1));
@@ -133,26 +135,27 @@ public class CommentsControllerTest extends RestDocControllerTests {
                                 parameterWithName("board_id").description("게시글 ID")
                         ),
                         queryParameters(
-                                parameterWithName("page").description("현재 페이지 번호"),
-                                parameterWithName("size").description("페이지 크기")
+                                parameterWithName("page").description("현재 페이지 번호 default : 0").optional(),
+                                parameterWithName("size").description("페이지 크기 default : 50").optional()
                         ),
                         responseFields(
-                                fieldWithPath("content[]").description("후기 리스트"),
-                                fieldWithPath("content[].id").description("ID"),
+                                fieldWithPath("content[]").description("후기 리스트").type(JsonFieldType.ARRAY),
+                                fieldWithPath("content[].id").description("ID").type(JsonFieldType.NUMBER),
                                 fieldWithPath("content[].title").description("레시피 명"),
                                 fieldWithPath("content[].comments").description("후기 내용"),
-                                fieldWithPath("content[].like").description("좋아요 수 "),
-                                fieldWithPath("content[].myHit").description("내 좋아요 여부 "),
-                                fieldWithPath("content[].myMe").description("내가 작성한 댓글 여부"),
-                                fieldWithPath("content[].star").description("별점"),
-                                fieldWithPath("content[].userName").description("사용자 이름"),
-                                fieldWithPath("content[].imageLink[]").description("이미지 주소"),
-                                fieldWithPath("content[].boardId").description("게시판 ID"),
-                                fieldWithPath("content[].createdAt").description("작성일"),
-                                fieldWithPath("page.size").description("페이지 크기"),
-                                fieldWithPath("page.number").description("현재 페이지 번호"),
-                                fieldWithPath("page.totalElements").description("전체 요소 수"),
-                                fieldWithPath("page.totalPages").description("전체 페이지 수")
+                                fieldWithPath("content[].like").description("좋아요 수 ").type(JsonFieldType.NUMBER),
+                                fieldWithPath("content[].myHit").description("내 좋아요 여부 ").type(JsonFieldType.BOOLEAN),
+                                fieldWithPath("content[].myMe").description("내가 작성한 댓글 여부").type(JsonFieldType.BOOLEAN),
+                                fieldWithPath("content[].star").description("별점").type(JsonFieldType.NUMBER),
+                                fieldWithPath("content[].userName").description("사용자 이름").type(JsonFieldType.STRING),
+                                fieldWithPath("content[].imageLink[]").description("이미지 주소").type(JsonFieldType.ARRAY),
+                                fieldWithPath("content[].boardId").description("게시판 ID").type(JsonFieldType.NUMBER),
+                                fieldWithPath("content[].createdAt").description("작성일").type(JsonFieldType.STRING),
+                                fieldWithPath("page").description("페이지").type(JsonFieldType.OBJECT),
+                                fieldWithPath("page.size").description("사이즈").type(JsonFieldType.NUMBER),
+                                fieldWithPath("page.number").description("번호").type(JsonFieldType.NUMBER),
+                                fieldWithPath("page.totalElements").description("총 요소 ").type(JsonFieldType.NUMBER),
+                                fieldWithPath("page.totalPages").description("총 페이지 ").type(JsonFieldType.NUMBER)
                         )));
     }
 
@@ -171,16 +174,16 @@ public class CommentsControllerTest extends RestDocControllerTests {
                                 parameterWithName("comment_id").description("댓글 ID")
                         ),
                         responseFields(
-                                fieldWithPath("id").description(" ID"),
+                                fieldWithPath("id").description("래시피 ID").type(JsonFieldType.NUMBER),
                                 fieldWithPath("title").description("레시피 명"),
                                 fieldWithPath("comments").description("내용"),
-                                fieldWithPath("like").description("좋아요 수 "),
-                                fieldWithPath("myHit").description("내 좋아요 여부"),
-                                fieldWithPath("myMe").description("내가 작성한 댓글 여부"),
-                                fieldWithPath("star").description("별점"),
+                                fieldWithPath("like").description("좋아요 수 ").type(JsonFieldType.NUMBER),
+                                fieldWithPath("myHit").description("내 좋아요 여부").type(JsonFieldType.BOOLEAN),
+                                fieldWithPath("myMe").description("내가 작성한 댓글 여부").type(JsonFieldType.BOOLEAN),
+                                fieldWithPath("star").description("별점").type(JsonFieldType.NUMBER),
                                 fieldWithPath("userName").description("사용자 이름"),
-                                fieldWithPath("imageLink[]").description("이미지 주소"),
-                                fieldWithPath("boardId").description("게시판 ID"),
+                                fieldWithPath("imageLink[]").description("이미지 주소").type(JsonFieldType.ARRAY),
+                                fieldWithPath("boardId").description("게시판 ID").type(JsonFieldType.NUMBER),
                                 fieldWithPath("createdAt").description("작성일")
                         )));
     }

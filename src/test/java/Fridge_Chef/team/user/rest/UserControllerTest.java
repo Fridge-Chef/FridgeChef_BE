@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.restdocs.payload.RequestFieldsSnippet;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.ResultActions;
@@ -137,12 +138,12 @@ public class UserControllerTest extends RestDocControllerTests {
                 .andDo(document("유저 조회",
                         jwtTokenRequest(),
                         responseFields(
-                                fieldWithPath("user").description("유저"),
+                                fieldWithPath("user").description("유저").type(JsonFieldType.OBJECT),
                                 fieldWithPath("user.email").description("이메일"),
                                 fieldWithPath("user.role").description("권한"),
                                 fieldWithPath("user.username").description("이름"),
                                 fieldWithPath("user.profileLink").description("프로필 주소"),
-                                fieldWithPath("user.createAt").description("생성날짜")
+                                fieldWithPath("user.createAt").description("생성 날짜")
                         )
                 ));
     }
@@ -159,14 +160,14 @@ public class UserControllerTest extends RestDocControllerTests {
                 .andDo(document("유저 이름 수정",
                         jwtTokenRequest(),
                         requestFields(
-                                fieldWithPath("username").description("변경할 유저 이름").optional()
+                                fieldWithPath("username").description("변경할 유저 이름")
                         )
                 ));
     }
 
     private RequestFieldsSnippet userAccountDeleteRequestProvider() {
         return requestFields(List.of(
-                fieldWithPath("username").description("탈퇴 여부 재확인용 이름 입력").optional()
+                fieldWithPath("username").description("탈퇴 여부 재확인용 이름 입력")
         ));
     }
 }

@@ -13,9 +13,9 @@ import Fridge_Chef.team.board.service.BoardRecipeService;
 import Fridge_Chef.team.board.service.BoardService;
 import Fridge_Chef.team.board.service.response.BoardMyRecipePageResponse;
 import Fridge_Chef.team.board.service.response.BoardMyRecipeResponse;
-import Fridge_Chef.team.common.docs.CustomPart;
 import Fridge_Chef.team.common.RestDocControllerTests;
 import Fridge_Chef.team.common.auth.WithMockCustomUser;
+import Fridge_Chef.team.common.docs.CustomPart;
 import Fridge_Chef.team.image.domain.Image;
 import Fridge_Chef.team.image.domain.ImageType;
 import Fridge_Chef.team.image.service.ImageLocalService;
@@ -31,6 +31,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -99,7 +100,7 @@ public class BoardControllerTest extends RestDocControllerTests {
                 part("recipeIngredients[0].details", "재료 상세 정보", "상세 내용", false),
                 part("recipeIngredients[1].name", "재료 이름", "재료 이름"),
                 part("recipeIngredients[1].details", "재료 상세 정보", "상세 내용", false),
-                part("instructions[0].content", "설명 "),
+                part("instructions[0].content", "설명", "조리 설명"),
                 partImage("instructions[0].image", "설명 이미지", false)
         );
 
@@ -180,30 +181,30 @@ public class BoardControllerTest extends RestDocControllerTests {
         actions.andExpect(status().isOk())
                 .andDo(document("나만의 레시피 페이징 조회",
                         queryParameters(
-                                parameterWithName("page").description("페이지 번호 (0부터 시작)"),
-                                parameterWithName("size").description("한 페이지에 출력할 레시피 개수 (1~50 사이즈 제한)"),
-                                parameterWithName("issue").description("전체,이번주,이번달 [ ALL, THIS_WEEK , THIS_MONTH ] "),
+                                parameterWithName("page").description("페이지 번호 (0부터 시작) default: 0"),
+                                parameterWithName("size").description("한 페이지에 출력할 레시피 개수 (1~50 사이즈 제한) default: 50"),
+                                parameterWithName("issue").description("전체,이번주,이번달 [ ALL, THIS_WEEK , THIS_MONTH ] default : ALL"),
                                 parameterWithName("sort").description("정렬 방식 " +
-                                        "(예: WEEKLY_RECIPE, MONTHLY_RECIPE, LATEST ,RATING ,CLICKS ,HIT )").optional()
+                                        "(예: WEEKLY_RECIPE, MONTHLY_RECIPE, LATEST ,RATING ,CLICKS ,HIT ) default: LATEST ")
                         ),
                         responseFields(
-                                fieldWithPath("content[].sortType").description("정렬 방식"),
-                                fieldWithPath("content[].boardId").description("게시판 ID"),
-                                fieldWithPath("content[].title").description("레시피 제목"),
-                                fieldWithPath("content[].mainImage").description("메인 이미지 링크"),
-                                fieldWithPath("content[].mainImageId").description("메인 이미지 id"),
-                                fieldWithPath("content[].userName").description("작성자 이름"),
-                                fieldWithPath("content[].star").description("레시피 평점"),
-                                fieldWithPath("content[].hit").description("조회수"),
-                                fieldWithPath("content[].myHit").description("내가 좋아요 클릭 여부"),
-                                fieldWithPath("content[].myMe").description("내가 작성한 여부"),
-                                fieldWithPath("content[].click").description("클릭 수"),
-                                fieldWithPath("content[].createTime").description("레시피 생성 시간"),
-                                fieldWithPath("page").description("페이지"),
-                                fieldWithPath("page.size").description("사이즈"),
-                                fieldWithPath("page.number").description("번호"),
-                                fieldWithPath("page.totalElements").description("총 요소 "),
-                                fieldWithPath("page.totalPages").description("총 페이지 ")
+                                fieldWithPath("content[].sortType").description("정렬 방식").type(JsonFieldType.STRING),
+                                fieldWithPath("content[].boardId").description("게시판 ID").type(JsonFieldType.NUMBER),
+                                fieldWithPath("content[].title").description("레시피 제목").type(JsonFieldType.STRING),
+                                fieldWithPath("content[].mainImage").description("메인 이미지 링크").type(JsonFieldType.STRING),
+                                fieldWithPath("content[].mainImageId").description("메인 이미지 id").type(JsonFieldType.NUMBER),
+                                fieldWithPath("content[].userName").description("작성자 이름").type(JsonFieldType.STRING),
+                                fieldWithPath("content[].star").description("레시피 평점").type(JsonFieldType.NUMBER),
+                                fieldWithPath("content[].hit").description("조회수").type(JsonFieldType.NUMBER),
+                                fieldWithPath("content[].myHit").description("내가 좋아요 클릭 여부").type(JsonFieldType.BOOLEAN),
+                                fieldWithPath("content[].myMe").description("내가 작성한 여부").type(JsonFieldType.BOOLEAN),
+                                fieldWithPath("content[].click").description("클릭 수").type(JsonFieldType.NUMBER),
+                                fieldWithPath("content[].createTime").description("레시피 생성 시간").type(JsonFieldType.STRING),
+                                fieldWithPath("page").description("페이지").type(JsonFieldType.OBJECT),
+                                fieldWithPath("page.size").description("사이즈").type(JsonFieldType.NUMBER),
+                                fieldWithPath("page.number").description("번호").type(JsonFieldType.NUMBER),
+                                fieldWithPath("page.totalElements").description("총 요소 ").type(JsonFieldType.NUMBER),
+                                fieldWithPath("page.totalPages").description("총 페이지 ").type(JsonFieldType.NUMBER)
                         )
                 ));
     }
@@ -223,7 +224,7 @@ public class BoardControllerTest extends RestDocControllerTests {
                 .andDo(document("나만의 레시피 삭제",
                         jwtTokenRequest(),
                         requestFields(
-                                fieldWithPath("id").description("게시글 번호")
+                                fieldWithPath("id").description("게시글 번호").type(JsonFieldType.NUMBER)
                         )
                 ));
     }
