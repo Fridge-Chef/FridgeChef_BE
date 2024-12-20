@@ -1,6 +1,6 @@
 package fixture;
 
-import Fridge_Chef.team.common.CustomMockPartFile;
+import Fridge_Chef.team.common.docs.CustomMockPartFile;
 import Fridge_Chef.team.image.domain.Image;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;

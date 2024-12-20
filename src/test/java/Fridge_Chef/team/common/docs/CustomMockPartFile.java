@@ -1,5 +1,6 @@
-package Fridge_Chef.team.common;
+package Fridge_Chef.team.common.docs;
 
+import Fridge_Chef.team.common.docs.CustomPart;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;

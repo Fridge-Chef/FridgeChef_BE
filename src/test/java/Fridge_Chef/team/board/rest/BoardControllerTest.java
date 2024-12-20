@@ -13,7 +13,7 @@ import Fridge_Chef.team.board.service.BoardRecipeService;
 import Fridge_Chef.team.board.service.BoardService;
 import Fridge_Chef.team.board.service.response.BoardMyRecipePageResponse;
 import Fridge_Chef.team.board.service.response.BoardMyRecipeResponse;
-import Fridge_Chef.team.common.CustomPart;
+import Fridge_Chef.team.common.docs.CustomPart;
 import Fridge_Chef.team.common.RestDocControllerTests;
 import Fridge_Chef.team.common.auth.WithMockCustomUser;
 import Fridge_Chef.team.image.domain.Image;

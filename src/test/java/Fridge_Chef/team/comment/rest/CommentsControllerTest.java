@@ -4,7 +4,7 @@ import Fridge_Chef.team.board.repository.BoardRepository;
 import Fridge_Chef.team.comment.repository.CommentRepository;
 import Fridge_Chef.team.comment.rest.response.CommentResponse;
 import Fridge_Chef.team.comment.service.CommentService;
-import Fridge_Chef.team.common.CustomPart;
+import Fridge_Chef.team.common.docs.CustomPart;
 import Fridge_Chef.team.common.RestDocControllerTests;
 import Fridge_Chef.team.common.auth.WithMockCustomUser;
 import Fridge_Chef.team.image.service.ImageService;

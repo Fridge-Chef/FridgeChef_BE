@@ -1,5 +1,6 @@
-package Fridge_Chef.team.common;
+package Fridge_Chef.team.common.docs;
 
+import Fridge_Chef.team.common.docs.CustomPart;
 import jakarta.servlet.http.Part;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;

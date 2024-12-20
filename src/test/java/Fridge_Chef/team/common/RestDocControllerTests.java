@@ -1,6 +1,9 @@
 package Fridge_Chef.team.common;
 
 
+import Fridge_Chef.team.common.docs.CustomMockPart;
+import Fridge_Chef.team.common.docs.CustomMockPartFile;
+import Fridge_Chef.team.common.docs.CustomPart;
 import Fridge_Chef.team.config.TestSecurityConfig;
 import Fridge_Chef.team.exception.ErrorCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
