@@ -73,7 +73,7 @@ public class BoardControllerTest extends RestDocControllerTests {
 
     @BeforeEach
     void setup() {
-        user = UserFixture.createId("test@gmail.com");
+        user = UserFixture.create("test@gmail.com");
     }
 
     @Test

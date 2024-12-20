@@ -1,5 +1,6 @@
 package fixture;
 
+import Fridge_Chef.team.image.domain.Image;
 import Fridge_Chef.team.user.domain.*;
 
 import java.util.ArrayList;
@@ -11,15 +12,13 @@ import static Fridge_Chef.team.user.domain.Social.GOOGLE;
 import static Fridge_Chef.team.user.domain.Social.KAKAO;
 
 public class UserFixture {
-    private static Random random = new Random();
+    private static final Random random = new Random();
+
     public static User create(String email) {
         String uuid =  UUID.randomUUID().toString();
-        return User.createSocialUser(uuid+email, uuid, Role.USER, KAKAO);
-    }
-
-    public static User createId(String email) {
-        String uuid =  UUID.randomUUID().toString();
-        return new User(UserId.create(),new Profile(null,email, uuid, KAKAO),Role.USER);
+        User user = User.createSocialUser(uuid+email, uuid, Role.USER, KAKAO);
+        user.updatePicture(Image.outUri("https://oracle.cloud.com/0/dmiewndx/p/sample.jpg"));
+        return user;
     }
 
     public static List<User> creates(int size) {
@@ -28,6 +27,7 @@ public class UserFixture {
             String uuid =  UUID.randomUUID().toString();
             Social social= random.nextBoolean() ? GOOGLE : KAKAO;
             User user = User.createSocialUser(uuid+"test@gmail.com", uuid, Role.USER, social);
+            user.updatePicture(Image.outUri("https://oracle.cloud.com/0/dmiewndx/p/sample.jpg"));
             list.add(user);
         }
         return list;
