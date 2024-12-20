@@ -13,31 +13,48 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.mock.web.MockPart;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.headers.RequestHeadersSnippet;
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.restdocs.payload.RequestFieldsSnippet;
 import org.springframework.restdocs.payload.ResponseFieldsSnippet;
+import org.springframework.restdocs.request.RequestPartDescriptor;
+import org.springframework.restdocs.request.RequestPartsSnippet;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.ResultMatcher;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.result.StatusResultMatchers;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
+import static fixture.ImageFixture.partMockImage;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.request.RequestDocumentation.partWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.requestParts;
+import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
+/**
+ * RestDocControllerTests
+ * RestDocs + Redocly 통합 테스트를 위한 공통 테스트 클래스
+ *
+ * @author JHKoder
+ */
 @MockBean(JpaMetamodelMappingContext.class)
 @ExtendWith(RestDocumentationExtension.class)
 @AutoConfigureRestDocs
@@ -45,10 +62,9 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 @Import(TestSecurityConfig.class)
 public class RestDocControllerTests {
     protected static ObjectMapper objectMapper = new ObjectMapper();
-    protected static JSONParser jsonParser = new JSONParser();
+    protected static JSONParser jsonParser = new JSONParser(JSONParser.MODE_JSON_SIMPLE);
     @Autowired
     protected MockMvc mockMvc;
-
 
     protected static StatusResultMatchers status() {
         return MockMvcResultMatchers.status();
@@ -74,6 +90,22 @@ public class RestDocControllerTests {
                 fieldWithPath("message").description(message)));
     }
 
+    public static RequestPartsSnippet requestPartsForm(List<CustomPart> form) {
+        List<RequestPartDescriptor> parts = new ArrayList<>();
+        for (CustomPart part : form) {
+            if (part instanceof MultipartFile file) {
+                CustomMockPartFile mockPart = (CustomMockPartFile) part;
+                RequestPartDescriptor partToMock = partWithName(file.getName()).description(mockPart.getDescription() + " 이미지 파일");
+                requestPartDetails(parts, mockPart, partToMock);
+            } else if (part instanceof CustomMockPart mockPart) {
+                MockPart partToMock = new MockPart(mockPart.getName(), mockPart.getContent());
+                RequestPartDescriptor partDescriptor = partWithName(partToMock.getName()).description(mockPart.getContents());
+                requestPartDetails(parts, mockPart, partDescriptor);
+            }
+        }
+        return requestParts(parts);
+    }
+
     protected static void failResultAction(ResultActions actions, String message, RequestFieldsSnippet snippet, ErrorCode errorCode) throws Exception {
         actions.andExpect(status(errorCode))
                 .andDo(document(message + " - " + errorCode.getMessage(),
@@ -95,7 +127,6 @@ public class RestDocControllerTests {
     protected RequestHeadersSnippet jwtTokenRequest() {
         return requestHeaders(headerWithName("Authorization").description("Bearer token for authentication"));
     }
-
 
     protected static String strToJson(String id, String value) {
         try {
@@ -123,7 +154,6 @@ public class RestDocControllerTests {
             throw new RuntimeException("RestDocControllerTests.strToJson.parse ERROR");
         }
     }
-
 
     protected ResultActions jsonGetWhen(String uri, String request) throws Exception {
         return mockMvc.perform(get(uri)
@@ -248,7 +278,7 @@ public class RestDocControllerTests {
         );
     }
 
-    protected ResultActions jsonGetParamWhen(String uri, MultiValueMap<String,String> params) throws Exception {
+    protected ResultActions jsonGetParamWhen(String uri, MultiValueMap<String, String> params) throws Exception {
         return mockMvc.perform(get(uri)
                 .queryParams(params)
                 .characterEncoding("UTF-8")
@@ -257,7 +287,7 @@ public class RestDocControllerTests {
         );
     }
 
-    protected ResultActions jwtJsonGetParamWhen(String uri, MultiValueMap<String,String> params) throws Exception {
+    protected ResultActions jwtJsonGetParamWhen(String uri, MultiValueMap<String, String> params) throws Exception {
         return mockMvc.perform(get(uri)
                 .queryParams(params)
                 .header(AUTHORIZATION, "Bearer ")
@@ -398,20 +428,99 @@ public class RestDocControllerTests {
         );
     }
 
-    protected ResultActions jwtFormPostWhen(
-            String uri,
-            List<MockMultipartFile> files,
-            MultiValueMap<String, String> params) throws Exception {
-        return mockMvc.perform(formFiles(uri, files)
-                .header(AUTHORIZATION, "Bearer ")
-                .contentType(MediaType.MULTIPART_FORM_DATA)
-                .params(params)
-        );
+    protected static RequestBuilder jwtFormPostPathWhen(String uri, List<CustomPart> formData, Object... path) {
+        return jwtForm(RestDocumentationRequestBuilders.multipart(uri, path), formData);
     }
 
-    private MockMultipartHttpServletRequestBuilder formFiles(String uri, List<MockMultipartFile> files) {
-        var part = multipart(uri);
-        files.forEach(part::file);
-        return part;
+    protected static RequestBuilder jwtFormPutPathWhen(String uri, List<CustomPart> formData, Object... path) {
+        return jwtForm(RestDocumentationRequestBuilders.multipart(uri, path), formData)
+                .with(request -> {
+                    request.setMethod("PUT");
+                    return request;
+                });
+    }
+
+    protected MockHttpServletRequestBuilder jwtFormPostWhen(String uri, List<CustomPart> parts) {
+        return jwtForm(RestDocumentationRequestBuilders.multipart(uri), parts);
+    }
+
+    protected MockHttpServletRequestBuilder jwtFormPutWhen(String uri, List<CustomPart> parts) {
+        return jwtFormPostWhen(uri, parts)
+                .with(request -> {
+                    request.setMethod("PUT");
+                    return request;
+                });
+    }
+
+    protected static CustomPart part(String name, byte[] content) {
+        return new CustomMockPartFile(name, content);
+    }
+
+    protected static CustomPart part(String name, String content) {
+        return new CustomMockPart(name, content);
+    }
+
+    protected static CustomPart part(String name, String content, boolean option) {
+        return new CustomMockPart(name, content, option);
+    }
+
+    protected static CustomPart part(String name, String content, String description) {
+        return new CustomMockPart(name, content, description);
+    }
+
+    protected static CustomPart part(String name, String content, String description, boolean option) {
+        return new CustomMockPart(name, content, description, option);
+    }
+
+    private static MockHttpServletRequestBuilder jwtForm(MockMultipartHttpServletRequestBuilder builder, List<CustomPart> formData) {
+        for (CustomPart part : formData) {
+            if (part instanceof MultipartFile file) {
+                builder.file(partMockImage(file.getName()));
+            } else if (part instanceof CustomMockPart customMockPart) {
+                builder.part(new MockPart(customMockPart.getName(), customMockPart.getContent()));
+            }
+        }
+        return builder.header(AUTHORIZATION, "Bearer ")
+                .contentType(MediaType.MULTIPART_FORM_DATA);
+    }
+
+    private static void requestPartDetails(List<RequestPartDescriptor> temp, CustomPart part, RequestPartDescriptor descriptor) {
+        if (part.isOptional()) {
+            descriptor.attributes(key("required").value("true"));
+        } else {
+            descriptor.attributes(key("required").value("false"));
+        }
+
+        if (part instanceof MultipartFile file) {
+            String contentType = file.getContentType();
+            if (contentType.equals("image/jpeg") || contentType.equals("image/png") || contentType.equals("image/jpg"))
+                descriptor.attributes(key("type").value("이미지 파일"));
+            else
+                descriptor.attributes(key("type").value("파일"));
+
+        } else if (part instanceof CustomMockPart customMockPart) {
+            if (isNumber(customMockPart.getContents())) {
+                descriptor.attributes(key("type").value("Integer"));
+            } else if (isBoolean(customMockPart.getContents())) {
+                descriptor.attributes(key("type").value("Boolean"));
+            } else {
+                descriptor.attributes(key("type").value("String"));
+            }
+        }
+        temp.add(descriptor);
+    }
+
+    private static boolean isBoolean(String bool) {
+        return bool.equals("true") || bool.equals("false");
+    }
+
+    private static boolean isNumber(String num) {
+        try {
+            Integer.parseInt(num);
+            Long.parseLong(num);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 }
