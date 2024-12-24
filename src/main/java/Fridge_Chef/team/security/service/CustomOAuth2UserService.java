@@ -83,7 +83,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
     private OAuthAttributes getGoogleToken(OAuth2UserRequest request) {
         try {
-            ResponseEntity<GoogleTokenDTO> response = restTemplate.getForEntity(GOOGLE_GET_TOKEN_URI + "=" + request.getAccessToken(), GoogleTokenDTO.class);
+            ResponseEntity<GoogleTokenDTO> response = restTemplate.getForEntity(GOOGLE_GET_TOKEN_URI + "=" + request.getAccessToken().getTokenValue(), GoogleTokenDTO.class);
             if (response.getStatusCode().is2xxSuccessful()) {
                 return Objects.requireNonNull(response.getBody()).toOAuthAttributes();
             }
