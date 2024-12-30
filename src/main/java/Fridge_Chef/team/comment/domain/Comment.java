@@ -33,6 +33,7 @@ public class Comment extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private User users;
 
+    @Column(length = 300)
     private String comments;
     private double star;
     private int totalHit;
@@ -105,5 +106,17 @@ public class Comment extends BaseEntity {
 
     public void removeImage() {
         this.commentImage.clear();
+    }
+
+    public Comment update(List<Image> images, String comment, double star) {
+        this.commentImage = images;
+        this.comments = comment;
+        this.star = star;
+        return this;
+    }
+
+    public void update(String comment, double star) {
+        this.comments = comment;
+        this.star = star;
     }
 }
