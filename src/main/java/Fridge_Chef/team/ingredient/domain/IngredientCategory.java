@@ -40,6 +40,5 @@ public enum IngredientCategory {
                 .filter(categorys -> categorys.getValue().equals(category))
                 .findFirst()
                 .orElse(UNCATEGORIZED);
-
     }
 }

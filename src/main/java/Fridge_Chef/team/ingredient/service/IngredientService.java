@@ -10,18 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class IngredientService {
-
     private final IngredientRepository ingredientRepository;
-
-    public Ingredient getIngredient(String ingredientName) {
-        return ingredientRepository.findByName(ingredientName)
-                .orElseGet(() -> ingredientRepository.save(new Ingredient(ingredientName)));
-    }
-
-    public Ingredient getOrCreate(String ingredientName) {
-        return ingredientRepository.findByName(ingredientName)
-                .orElseGet(() -> ingredientRepository.save(new Ingredient(ingredientName)));
-    }
 
     @Transactional(readOnly = true)
     public IngredientSearchResponse findAllIngredients() {
@@ -30,5 +19,11 @@ public class IngredientService {
                         .map(Ingredient::getName)
                         .toList()
         );
+    }
+
+    @Transactional
+    public Ingredient getIngredient(String ingredientName) {
+        return ingredientRepository.findByName(ingredientName)
+                .orElseGet(() -> ingredientRepository.save(new Ingredient(ingredientName)));
     }
 }
