@@ -21,8 +21,8 @@ import static lombok.AccessLevel.PROTECTED;
 @NoArgsConstructor(access = PROTECTED)
 public class Board extends BaseEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "board_seq_gen")
+    @SequenceGenerator(name = "board_seq_gen", sequenceName = "board_seq", allocationSize = 1)
     private Long id;
     @OneToMany(mappedBy = "board", fetch = FetchType.LAZY, orphanRemoval = true,cascade = CascadeType.PERSIST)
     private List<BoardUserEvent> boardUserEvent = new ArrayList<>();
@@ -103,7 +103,7 @@ public class Board extends BaseEntity {
         this.boardUserEvent.add(boardUserEvent);
     }
 
-    public void updateId(long id) {
+    public void updateId(Long id) {
         this.id = id;
     }
 

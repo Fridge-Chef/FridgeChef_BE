@@ -16,13 +16,14 @@ import static lombok.AccessLevel.PROTECTED;
 @NoArgsConstructor(access = PROTECTED)
 public class Image extends BaseEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "image_seq_gen")
+    @SequenceGenerator(name = "image_seq_gen", sequenceName = "image_seq", allocationSize = 1)
     private Long id;
     private String uri;
     private String path;
+    @Column(name = "names")
     private String name;
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     private ImageType type;
     @Column(name = "user_id")
     private UUID userId;
