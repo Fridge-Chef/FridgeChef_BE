@@ -27,7 +27,7 @@ public class UserController {
     }
 
     @GetMapping("/mypage")
-    public UserProfileMyPageResponse sd(@AuthenticationPrincipal AuthenticatedUser authenticatedUser){
+    public UserProfileMyPageResponse getMyPage(@AuthenticationPrincipal AuthenticatedUser authenticatedUser){
         return userService.findByMyPage(authenticatedUser.userId());
     }
 
