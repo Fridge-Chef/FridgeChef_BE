@@ -17,7 +17,8 @@ import static lombok.AccessLevel.PROTECTED;
 public class Ingredient {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ingredient_seq_gen")
+    @SequenceGenerator(name = "ingredient_seq_gen", sequenceName = "ingredient_seq", allocationSize = 1)
     private Long id;
 
     @Column(nullable = false, unique = true)

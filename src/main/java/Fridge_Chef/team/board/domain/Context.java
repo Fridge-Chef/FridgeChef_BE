@@ -20,9 +20,9 @@ public class Context {
     private String dishCategory;
     @Column(length = 500)
     private String pathIngredient;
-    @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "board",fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.PERSIST)
     private List<RecipeIngredient> boardIngredients = new ArrayList<>();
-    @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "board",fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.PERSIST)
     private List<Description> descriptions = new ArrayList<>();
 
     private Context(String dishTime, String dishLevel, String dishCategory, List<RecipeIngredient> boardIngredients, List<Description> descriptions) {

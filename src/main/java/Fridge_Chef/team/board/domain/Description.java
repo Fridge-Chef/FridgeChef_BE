@@ -17,6 +17,7 @@ public class Description {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "board_id")
     private Board board;
     private String description;
     @ManyToOne(fetch = FetchType.LAZY)
