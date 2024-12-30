@@ -40,18 +40,14 @@ import static org.mockito.Mockito.*;
 @DisplayName("댓글 서비스")
 @ExtendWith(MockitoExtension.class)
 public class CommentServiceTest {
+    @InjectMocks
+    private CommentService commentService;
     @Mock
     private CommentRepository commentRepository;
     @Mock
     private BoardRepository boardRepository;
     @Mock
     private UserRepository userRepository;
-    @Mock
-    private ImageService imageService;
-    @Mock
-    private ImageRepository imageRepository;
-    @InjectMocks
-    private CommentService commentService;
 
     private Board board;
     private User user;

@@ -37,7 +37,6 @@ public class CommentsController {
         return commentService.getCommentsByBoard(boardId, commentId,AuthenticatedUser.anonymousUser(user));
     }
 
-
     @PutMapping("/{comment_id}")
     public void updateComment(
             @AuthenticationPrincipal AuthenticatedUser user,

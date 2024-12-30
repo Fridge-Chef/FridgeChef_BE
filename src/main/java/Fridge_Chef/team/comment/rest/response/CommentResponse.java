@@ -3,40 +3,31 @@ package Fridge_Chef.team.comment.rest.response;
 import Fridge_Chef.team.comment.domain.Comment;
 import Fridge_Chef.team.comment.domain.CommentUserEvent;
 import Fridge_Chef.team.user.domain.UserId;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
-public class CommentResponse {
-    private Long id;
-    private String title;
-    private String comments;
-    private double star;
-
-    private int like;
-    private boolean myHit;
-
-    private String userName;
-    private boolean myMe;
-    private List<String> imageLink;
-    private Long boardId;
-    private LocalDateTime createdAt;
+public record CommentResponse(
+        Long id,
+        String title,
+        String comments,
+        double star,
+        int like,
+        boolean myHit,
+        String userName,
+        boolean myMe,
+        List<String> imageLink,
+        Long boardId,
+        LocalDateTime createdAt) {
 
     public static CommentResponse fromEntity(Comment comment, Optional<UserId> optional) {
         boolean myHit = false;
-        boolean myMe =false;
+        boolean myMe = false;
 
         if (optional.isPresent()) {
-            if(comment.getUsers().getUserId().equals(optional.get())){
-                myMe=true;
+            if (comment.getUsers().getUserId().equals(optional.get())) {
+                myMe = true;
             }
             int hit = comment.getCommentUserEvent().stream()
                     .filter(v -> v.getUser().getId().equals(optional.get().getValue()))
