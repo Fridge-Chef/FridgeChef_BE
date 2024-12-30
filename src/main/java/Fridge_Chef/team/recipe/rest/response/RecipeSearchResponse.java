@@ -3,35 +3,26 @@ package Fridge_Chef.team.recipe.rest.response;
 import Fridge_Chef.team.board.domain.Board;
 import Fridge_Chef.team.board.domain.BoardUserEvent;
 import Fridge_Chef.team.user.domain.UserId;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class RecipeSearchResponse {
-    private Long id;
-    private String title;
-    private String userName;
-    private String mainImage;
-    private double star;
-    private int hit;
-    private boolean myHit;
-    private boolean myMe;
-    private int click;
-    private LocalDateTime createTime;
-
-    private long have;
-    private long withoutCount;
-    private List<String> without;
+public record RecipeSearchResponse(
+        Long id,
+        String title,
+        String username,
+        String pathMainImage,
+        double totalStar,
+        long hit,
+        boolean isUserHit,
+        boolean isMyMe,
+        long count,
+        LocalDateTime createTime,
+        int pickCount,
+        int withoutCount,
+        List<String> without) {
 
     private static RecipeSearchResponse of(Board board, List<String> pick, List<BoardUserEvent> boardUserEvents, Optional<UserId> user) {
         List<String> ingredients = Arrays.stream(board.getContext().getPathIngredient().split(","))
