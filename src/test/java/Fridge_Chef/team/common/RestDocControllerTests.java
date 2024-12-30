@@ -133,6 +133,26 @@ public class RestDocControllerTests {
         return requestHeaders(headerWithName("Authorization").description("Bearer token for authentication"));
     }
 
+    protected static CustomPart part(String name, byte[] content) {
+        return new CustomMockPartFile(name, content);
+    }
+
+    protected static CustomPart part(String name, String content) {
+        return new CustomMockPart(name, content);
+    }
+
+    protected static CustomPart part(String name, String content, boolean option) {
+        return new CustomMockPart(name, content, option);
+    }
+
+    protected static CustomPart part(String name, String content, String description) {
+        return new CustomMockPart(name, content, description);
+    }
+
+    protected static CustomPart part(String name, String content, String description, boolean option) {
+        return new CustomMockPart(name, content, description, option);
+    }
+
     protected static String strToJson(String id, String value) {
         try {
             Object obj = jsonParser.parse("{\"" + id + "\": \"" + value + "\"}");
@@ -166,7 +186,6 @@ public class RestDocControllerTests {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(request)
-                .with(csrf())
         );
     }
 
@@ -184,7 +203,6 @@ public class RestDocControllerTests {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(request)
-                .with(csrf())
         );
     }
 
@@ -194,7 +212,6 @@ public class RestDocControllerTests {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(request)
-                .with(csrf())
         );
     }
 
@@ -204,7 +221,6 @@ public class RestDocControllerTests {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(request)
-                .with(csrf())
         );
     }
 
@@ -214,7 +230,6 @@ public class RestDocControllerTests {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(request)
-                .with(csrf())
         );
     }
 
@@ -307,7 +322,6 @@ public class RestDocControllerTests {
                 .characterEncoding("UTF-8")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(csrf())
         );
     }
 
@@ -316,7 +330,6 @@ public class RestDocControllerTests {
                 .characterEncoding("UTF-8")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(csrf())
         );
     }
 
@@ -325,7 +338,6 @@ public class RestDocControllerTests {
                 .characterEncoding("UTF-8")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(csrf())
         );
     }
 
@@ -343,7 +355,6 @@ public class RestDocControllerTests {
                 .characterEncoding("UTF-8")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(csrf())
         );
     }
 
@@ -352,7 +363,6 @@ public class RestDocControllerTests {
                 .characterEncoding("UTF-8")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(csrf())
         );
     }
 
@@ -361,7 +371,6 @@ public class RestDocControllerTests {
                 .characterEncoding("UTF-8")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(csrf())
         );
     }
 
@@ -380,7 +389,6 @@ public class RestDocControllerTests {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(json)
-                .with(csrf())
         );
     }
 
@@ -391,7 +399,6 @@ public class RestDocControllerTests {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(json)
-                .with(csrf())
         );
     }
 
@@ -401,7 +408,6 @@ public class RestDocControllerTests {
                 .header(AUTHORIZATION, "Bearer ")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(csrf())
         );
     }
 
@@ -431,6 +437,14 @@ public class RestDocControllerTests {
                 .accept(MediaType.APPLICATION_JSON)
                 .content(json)
         );
+    }
+
+    protected static MockHttpServletRequestBuilder jwtFormGetWhen(String uri, List<CustomPart> formData) {
+        return jwtForm(RestDocumentationRequestBuilders.multipart(uri), formData)
+                .with(request -> {
+                    request.setMethod("GET");
+                    return request;
+                });
     }
 
     protected static MockHttpServletRequestBuilder jwtFormPatchWhen(String uri, CustomPart formData) {
@@ -469,26 +483,6 @@ public class RestDocControllerTests {
                 });
     }
 
-    protected static CustomPart part(String name, byte[] content) {
-        return new CustomMockPartFile(name, content);
-    }
-
-    protected static CustomPart part(String name, String content) {
-        return new CustomMockPart(name, content);
-    }
-
-    protected static CustomPart part(String name, String content, boolean option) {
-        return new CustomMockPart(name, content, option);
-    }
-
-    protected static CustomPart part(String name, String content, String description) {
-        return new CustomMockPart(name, content, description);
-    }
-
-    protected static CustomPart part(String name, String content, String description, boolean option) {
-        return new CustomMockPart(name, content, description, option);
-    }
-
     private static MockHttpServletRequestBuilder jwtForm(MockMultipartHttpServletRequestBuilder builder, List<CustomPart> formData) {
         for (CustomPart part : formData) {
             if (part instanceof MultipartFile file) {
@@ -510,11 +504,11 @@ public class RestDocControllerTests {
 
         if (part instanceof MultipartFile file) {
             String contentType = file.getContentType();
-            if (contentType.equals("image/jpeg") || contentType.equals("image/png") || contentType.equals("image/jpg"))
+            if (contentType.equals("image/jpeg") || contentType.equals("image/png") || contentType.equals("image/jpg")) {
                 descriptor.attributes(key("type").value("이미지 파일"));
-            else
+            } else {
                 descriptor.attributes(key("type").value("파일"));
-
+            }
         } else if (part instanceof CustomMockPart customMockPart) {
             if (isNumber(customMockPart.getContents())) {
                 descriptor.attributes(key("type").value("Integer"));
