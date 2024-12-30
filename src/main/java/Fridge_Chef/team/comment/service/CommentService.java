@@ -2,7 +2,6 @@ package Fridge_Chef.team.comment.service;
 
 import Fridge_Chef.team.board.domain.Board;
 import Fridge_Chef.team.board.repository.BoardRepository;
-import Fridge_Chef.team.board.rest.request.BookCommentRequest;
 import Fridge_Chef.team.comment.domain.Comment;
 import Fridge_Chef.team.comment.domain.CommentUserEvent;
 import Fridge_Chef.team.comment.repository.CommentRepository;
@@ -57,10 +56,7 @@ public class CommentService {
 
         if (existingComment.isPresent()) {
             Comment commentToUpdate = existingComment.get();
-            commentToUpdate.updateImage(images);
-            commentToUpdate.updateComment(request.comment());
-            commentToUpdate.updateStar(request.star());
-            return commentRepository.save(commentToUpdate);
+            return commentRepository.save(commentToUpdate.update(images, request.comment(), request.star()));
         }
 
         Comment newComment = new Comment(board, user, images, request.comment(), request.star());
@@ -71,35 +67,34 @@ public class CommentService {
 
     @Transactional
     public Comment updateComment(Long boardId, Long commentId, UserId userId, CommentUpdateRequest request) {
-        log.info("댓글 수정    user :"+userId);
+        log.info("댓글 수정    user :" + userId);
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ApiException(ErrorCode.COMMENT_NOT_FOUND));
 
         validCommentAuthor(comment, boardId);
         validCommentUserAuthor(comment, userId);
 
-        comment.updateStar(request.star());
-        comment.updateComment(request.comment());
+        comment.update(request.comment(), request.star());
 
-        if(!request.isImage()){
+        if (!request.isImage()) {
             return comment;
         }
 
-        for(Image image : comment.getCommentImage()){
-            imageService.imageRemove(userId,image.getId());
+        for (Image image : comment.getCommentImage()) {
+            imageService.imageRemove(userId, image.getId());
             imageRepository.delete(image);
         }
 
         comment.removeImage();
 
-        if(request.images() == null){
+        if (request.images() == null) {
             return comment;
         }
 
         List<Image> images = new ArrayList<>();
         request.images().forEach(image -> images.add(imageService.imageUpload(userId, image)));
         comment.updateComments(images);
-        log.info("댓글 수정 성공     user: "+userId);
+        log.info("댓글 수정 성공     user: " + userId);
         return commentRepository.save(comment);
     }
 
@@ -114,7 +109,7 @@ public class CommentService {
 
         board.updateStar(calculateNewTotalStar(board, -comment.getStar()));
         commentRepository.delete(comment);
-        log.info("댓글 삭제 성공 - board id :" + boardId +" , comment id :"+commentId +" , user id :"+userId);
+        log.info("댓글 삭제 성공 - board id :" + boardId + " , comment id :" + commentId + " , user id :" + userId);
     }
 
 
@@ -166,11 +161,10 @@ public class CommentService {
             comment.addUserEvent(commentUserEvent);
             comment.updateHit(filterTotalHit((commentUserEvent.getComments())));
             log.info("댓글 처음 좋아요 " + commentId + " , 카운트 " + commentUserEvent.getHit());
-        } else {
-            comment.updateHit(filterTotalHit(event.get().getComments()));
-            log.info("댓글 좋아요 " + commentId + " ,카운트 " + event.get().getHit());
+            return comment.getTotalHit();
         }
-
+        comment.updateHit(filterTotalHit(event.get().getComments()));
+        log.info("댓글 좋아요 " + commentId + " ,카운트 " + event.get().getHit());
         return comment.getTotalHit();
     }
 
@@ -217,5 +211,4 @@ public class CommentService {
             throw new ApiException(ErrorCode.COMMENT_NOT_USER_AUTHOR);
         }
     }
-
 }

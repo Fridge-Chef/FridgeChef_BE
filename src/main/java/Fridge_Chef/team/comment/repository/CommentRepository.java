@@ -10,7 +10,5 @@ import java.util.Optional;
 
 public interface CommentRepository extends JpaRepository<Comment,Long> {
     List<Comment> findAllByBoard(Board board);
-
     Optional<List<Comment>> findByUsers(User user);
-
 }
