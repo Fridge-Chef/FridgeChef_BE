@@ -101,8 +101,8 @@ public class BorderServiceTest extends BootTest {
         executionTime(() -> {
             BoardPageRequest request = new BoardPageRequest(0, 20, IssueType.ALL, SortType.HIT);
             Page<BoardMyRecipePageResponse> result = boardService.findMyRecipes(user.getUserId(), request);
-            int left = result.getContent().get(0).getHit();
-            int right = result.getContent().get(result.getSize() - 1).getHit();
+            int left = result.getContent().get(0).hit();
+            int right = result.getContent().get(result.getSize() - 1).hit();
             assertThat(left > right)
                     .withFailMessage("SortType.HIT: 좋아요순 정렬 실패")
                     .isTrue();
@@ -111,8 +111,8 @@ public class BorderServiceTest extends BootTest {
         executionTime(() -> {
             BoardPageRequest request = new BoardPageRequest(0, 20, IssueType.ALL, SortType.CLICKS);
             Page<BoardMyRecipePageResponse> result = boardService.findMyRecipes(user.getUserId(), request);
-            int left = result.getContent().get(0).getClick();
-            int right = result.getContent().get(result.getSize() - 1).getClick();
+            int left = result.getContent().get(0).click();
+            int right = result.getContent().get(result.getSize() - 1).click();
             assertThat(left > right)
                     .withFailMessage("SortType.CLICKS: 클릭순 정렬 실패")
                     .isTrue();
@@ -121,8 +121,8 @@ public class BorderServiceTest extends BootTest {
         executionTime(() -> {
             BoardPageRequest request = new BoardPageRequest(0, 20, IssueType.ALL, SortType.LATEST);
             Page<BoardMyRecipePageResponse> result = boardService.findMyRecipes(user.getUserId(), request);
-            LocalDateTime left = result.getContent().get(0).getCreateTime();
-            LocalDateTime right = result.getContent().get(result.getSize() - 1).getCreateTime();
+            LocalDateTime left = result.getContent().get(0).createTime();
+            LocalDateTime right = result.getContent().get(result.getSize() - 1).createTime();
             assertThat(left.isAfter(right))
                     .withFailMessage("SortType.LATEST: 최신순 정렬 실패")
                     .isTrue();

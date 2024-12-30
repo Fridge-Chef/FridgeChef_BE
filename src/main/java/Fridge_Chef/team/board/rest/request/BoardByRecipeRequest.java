@@ -2,6 +2,7 @@ package Fridge_Chef.team.board.rest.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,8 +24,11 @@ public class BoardByRecipeRequest {
     @Size(max = 200, message = "소개 최대 200자")
     private String description;
 
+    @NotNull(message = "요리 시간은 필수입니다.")
     private String dishTime;
+    @NotNull(message = "요리 난이도는 필수입니다.")
     private String dishLevel;
+    @NotNull(message = "요리 카테고리는 필수입니다.")
     private String dishCategory;
 
     private MultipartFile mainImage;
