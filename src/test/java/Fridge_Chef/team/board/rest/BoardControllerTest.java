@@ -41,7 +41,6 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
 import static fixture.ImageFixture.partImage;
@@ -55,19 +54,12 @@ import static org.springframework.restdocs.request.RequestDocumentation.queryPar
 @DisplayName("나만의 게시판 API")
 @WebMvcTest({BoardController.class, BoardsController.class})
 public class BoardControllerTest extends RestDocControllerTests {
-    private static final Random random = new Random();
     @MockBean
     private BoardRecipeService boardRecipeService;
     @MockBean
     private BoardService boardService;
     @MockBean
     private ImageLocalService imageService;
-    @MockBean
-    private BoardDslRepository boardDslRepository;
-    @MockBean
-    private BoardRepository boardRepository;
-    @MockBean
-    private UserRepository userRepository;
 
     private User user;
 
