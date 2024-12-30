@@ -25,8 +25,6 @@ public class RecipeService {
         if (must.size() + ingredients.size() == 0) {
             throw new ApiException(ErrorCode.RECIPE_INGREDIENT_NULL);
         }
-
-        PageRequest page = PageRequest.of(request.page(), request.size());
-        return recipeDslRepository.findRecipesByIngredients(page, request, must, ingredients, userId);
+        return recipeDslRepository.findRecipesByIngredients( PageRequest.of(request.page(), request.size()), request, must, ingredients, userId);
     }
 }
