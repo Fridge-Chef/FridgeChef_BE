@@ -44,15 +44,13 @@ public class BoardRecipeService {
         User user = findByUserId(userId);
 
         Image image = imageService.imageUpload(user.getUserId(), request.getMainImage());
+        Board board = boardRepository.save(Board.from(user, request.getDescription(), request.getName(), image,BoardType.USER));
 
-        List<Description> descriptions = uploadInstructionImages(user.getUserId(), request);
-        List<RecipeIngredient> ingredients = findOrCreate(request.getRecipeIngredients());
+        List<Description> descriptions = uploadInstructionImages(user.getUserId(),board, request);
+        List<RecipeIngredient> ingredients = findOrCreate(request.getRecipeIngredients(),board);
 
-        Context context = Context.formMyUserRecipe(
-                request.getDishTime(), request.getDishLevel(), request.getDishCategory(),
-                ingredients, descriptions);
+        board.updateContext(ingredients,descriptions, request.getDishTime(), request.getDishLevel(), request.getDishCategory());
 
-        Board board = boardRepository.save(new Board(user, request.getDescription(), request.getName(), context, image, BoardType.USER));
         BoardUserEvent event = new BoardUserEvent(board, user);
         boardUserEventRepository.save(event);
         log.info("레시피 등록 " + request.getName() + ", user " + user.getUsername());
@@ -60,9 +58,9 @@ public class BoardRecipeService {
     }
 
     @Transactional
-    public List<RecipeIngredient> findOrCreate(List<BoardByRecipeRequest.RecipeIngredient> recipeIngredients) {
+    public List<RecipeIngredient> findOrCreate(List<BoardByRecipeRequest.RecipeIngredient> recipeIngredients,Board board) {
         return recipeIngredients.stream()
-                .map(request -> findOrSaveIngredient(request.getName(), request.getDetails()))
+                .map(request -> findOrSaveIngredient(request.getName(), request.getDetails(),board))
                 .collect(Collectors.toList());
     }
 
@@ -82,16 +80,16 @@ public class BoardRecipeService {
         }
 
         for (var ingredient : request.getRecipeIngredients()) {
-            RecipeIngredient recipeIngredient = findOrSaveIngredient(new RecipeIngredientDto(ingredient.getName(), ingredient.getDetails()));
+            RecipeIngredient recipeIngredient = findOrSaveIngredient(new RecipeIngredientDto(ingredient.getName(), ingredient.getDetails()),board);
             board.getContext().addRecipeIngredient(recipeIngredient);
         }
 
-        List<Description> descriptions = uploadInstructionImages(userId, request,board.getContext().getDescriptions());
+        List<Description> descriptions = uploadInstructionImages(userId,request,board.getContext().getDescriptions());
         board.updateContext(descriptions, request.getDescription(), request.getTitle(), request.getDishTime(), request.getDishLevel(), request.getDishCategory());
         return board;
     }
 
-    public List<Description> uploadInstructionImages(UserId userId, BoardByRecipeUpdateRequest request, List<Description> descriptions) {
+    public List<Description> uploadInstructionImages(UserId userId,BoardByRecipeUpdateRequest request, List<Description> descriptions) {
         if (request.getInstructions() == null) {
             return List.of();
         }
@@ -118,29 +116,29 @@ public class BoardRecipeService {
 
 
     @Transactional
-    public RecipeIngredient findOrSaveIngredient(RecipeIngredientDto dto) {
-        return findOrSaveIngredient(dto.name(), dto.detail());
+    public RecipeIngredient findOrSaveIngredient(RecipeIngredientDto dto,Board board) {
+        return findOrSaveIngredient(dto.name(), dto.detail(),board);
     }
 
     @Transactional
-    public List<Description> uploadInstructionImages(UserId userId, BoardByRecipeRequest request) {
+    public List<Description> uploadInstructionImages(UserId userId,Board board,BoardByRecipeRequest request) {
         if (request.getDescriptions() == null) {
             return List.of();
         }
         return request.getDescriptions()
                 .stream().map(instruction -> {
                     if (instruction.getImage() == null) {
-                        return descriptionRepository.save(new Description(instruction.getContent(), null));
+                        return descriptionRepository.save(new Description(instruction.getContent(), board,null));
                     }
                     Image instructionImage = imageService.imageUpload(userId, instruction.getImage());
-                    return descriptionRepository.save(new Description(instruction.getContent(), instructionImage));
+                    return descriptionRepository.save(new Description(instruction.getContent(),board, instructionImage));
                 }).collect(Collectors.toList());
     }
 
 
-    private RecipeIngredient findOrSaveIngredient(String name, String details) {
+    private RecipeIngredient findOrSaveIngredient(String name, String details,Board board) {
         Ingredient ingredient = updateRecipeIngredient(name);
-        RecipeIngredient findRecipeIngredient = RecipeIngredient.ofMyRecipe(ingredient, details);
+        RecipeIngredient findRecipeIngredient = RecipeIngredient.ofMyRecipe(ingredient, details,board);
         return recipeIngredientRepository.save(findRecipeIngredient);
     }
 

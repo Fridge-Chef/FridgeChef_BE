@@ -131,6 +131,9 @@ public class Board extends BaseEntity {
     }
 
     public void updateContext(List<RecipeIngredient> ingredients, List<Description> descriptions, String dishTime, String dishLevel, String dishCategory){
+        if(context == null){
+            this.context = Context.formMyUserRecipe(dishTime,dishLevel,dishCategory,ingredients, descriptions);
+        }
         context.update(ingredients, descriptions,dishTime,dishLevel,dishCategory);
     }
 
