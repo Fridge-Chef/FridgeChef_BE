@@ -8,12 +8,14 @@ import Fridge_Chef.team.board.rest.response.BookBoardResponse;
 import Fridge_Chef.team.common.JpaTest;
 import Fridge_Chef.team.user.domain.User;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@DisplayName("레시피 북 dsl repository ")
 public class BookDslRepositoryTest extends JpaTest {
     private BookDslRepository bookDslRepository;
 

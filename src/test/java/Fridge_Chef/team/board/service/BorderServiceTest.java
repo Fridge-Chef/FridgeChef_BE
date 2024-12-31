@@ -77,7 +77,7 @@ public class BorderServiceTest extends BootTest {
     @Transactional
     void create(BoardByRecipeRequest request) {
         imageService.imageUpload(user.getUserId(), request.getMainImage());
-        boardRecipeService.uploadInstructionImages(user.getUserId(), request);
+        boardRecipeService.uploadInstructionImages(user.getUserId(), null,request);
         boardRecipeService.create(user.getUserId(), request);
     }
 
@@ -179,10 +179,10 @@ public class BorderServiceTest extends BootTest {
         givenBoardContext();
         Board board = boardRepository.findByUserId(user.getUserId()).get().get(0);
         List<RecipeIngredient> recipeIngredients = new ArrayList<>();
-        recipeIngredients.add(addRecipeIngredient(new RecipeIngredientDto(INGREDIENTS.get(random.nextInt(INGREDIENTS.size())) + "2", "디테일스2")));
-        recipeIngredients.add(addRecipeIngredient(new RecipeIngredientDto(INGREDIENTS.get(random.nextInt(INGREDIENTS.size())) + "2", "디테일스2")));
-        recipeIngredients.add(addRecipeIngredient(new RecipeIngredientDto(INGREDIENTS.get(random.nextInt(INGREDIENTS.size())) + "2", "디테일스2")));
-        recipeIngredients.add(addRecipeIngredient(new RecipeIngredientDto(INGREDIENTS.get(random.nextInt(INGREDIENTS.size())) + "2", "디테일스2")));
+        recipeIngredients.add(addRecipeIngredient(new RecipeIngredientDto(INGREDIENTS.get(random.nextInt(INGREDIENTS.size())) + "2", "디테일스2"),board));
+        recipeIngredients.add(addRecipeIngredient(new RecipeIngredientDto(INGREDIENTS.get(random.nextInt(INGREDIENTS.size())) + "2", "디테일스2"),board));
+        recipeIngredients.add(addRecipeIngredient(new RecipeIngredientDto(INGREDIENTS.get(random.nextInt(INGREDIENTS.size())) + "2", "디테일스2"),board));
+        recipeIngredients.add(addRecipeIngredient(new RecipeIngredientDto(INGREDIENTS.get(random.nextInt(INGREDIENTS.size())) + "2", "디테일스2"),board));
 
         BoardByRecipeUpdateRequest request = createDefault(board.getId(),
                 recipeIngredients,
@@ -261,14 +261,14 @@ public class BorderServiceTest extends BootTest {
     private void givenBoardContexts() {
         List<BoardByRecipeRequest> requests = provideBoardFindsRequests().toList();
         for (BoardByRecipeRequest request : requests) {
-            List<Description> descriptions = boardRecipeService.uploadInstructionImages(user.getUserId(), request);
+            Board board = boardRecipeService.create(user.getUserId(), request);
+            List<Description> descriptions = boardRecipeService.uploadInstructionImages(user.getUserId(),board, request);
             List<RecipeIngredient> ingredients = boardRecipeService.findOrCreate(List.of(
                             new BoardByRecipeRequest.RecipeIngredient(INGREDIENTS.get(random.nextInt(INGREDIENTS.size())), "재료1"),
                             new BoardByRecipeRequest.RecipeIngredient(INGREDIENTS.get(random.nextInt(INGREDIENTS.size())), "재료2"),
                             new BoardByRecipeRequest.RecipeIngredient(INGREDIENTS.get(random.nextInt(INGREDIENTS.size())), "재료3")
-                    )
+                    ),board
             );
-            Board board = boardRecipeService.create(user.getUserId(), request);
             board.updateContext(ingredients, descriptions, "", "", "");
             assignRandomValues(board);
         }
@@ -278,14 +278,14 @@ public class BorderServiceTest extends BootTest {
         BoardByRecipeRequest request = provideBoardFindsRequests().toList().get(1);
 
         Image mainImage = imageRepository.save(Image.none());
-        List<Description> descriptions = boardRecipeService.uploadInstructionImages(user.getUserId(), request);
+        Board board = boardRecipeService.create(user.getUserId(), request);
+        List<Description> descriptions = boardRecipeService.uploadInstructionImages(user.getUserId(),board, request);
         List<RecipeIngredient> ingredients = boardRecipeService.findOrCreate(List.of(
                         new BoardByRecipeRequest.RecipeIngredient(INGREDIENTS.get(random.nextInt(INGREDIENTS.size())), "재료1"),
                         new BoardByRecipeRequest.RecipeIngredient(INGREDIENTS.get(random.nextInt(INGREDIENTS.size())), "재료2"),
                         new BoardByRecipeRequest.RecipeIngredient(INGREDIENTS.get(random.nextInt(INGREDIENTS.size())), "재료3")
-                )
+                ),board
         );
-        Board board = boardRecipeService.create(user.getUserId(), request);
         board.updateContext(ingredients, descriptions, "1분", "보통", "간식,강아지");
 
         assignRandomValues(board);
@@ -307,7 +307,7 @@ public class BorderServiceTest extends BootTest {
     }
 
     @Transactional
-    public RecipeIngredient addRecipeIngredient(RecipeIngredientDto dto) {
-        return boardRecipeService.findOrSaveIngredient(dto);
+    public RecipeIngredient addRecipeIngredient(RecipeIngredientDto dto,Board board) {
+        return boardRecipeService.findOrSaveIngredient(dto,board);
     }
 }

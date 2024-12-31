@@ -68,6 +68,14 @@ public class Board extends BaseEntity {
         return new Board(user,intro, name, context, mainImage, BoardType.OPEN_API);
     }
 
+    public static Board from(User user,String intro,String name,Image mainImage,BoardType boardType){
+        return new Board(user,intro, name, null, mainImage, boardType);
+    }
+
+    public static Board from(User user,String intro,String name, Context context,Image mainImage,BoardType boardType) {
+        return new Board(user,intro, name, context, mainImage,boardType);
+    }
+
     public void updateStar(double totalStar) {
         this.totalStar = totalStar;
     }
@@ -107,7 +115,6 @@ public class Board extends BaseEntity {
         this.id = id;
     }
 
-
     public boolean getIsMyHit(UserId userId) {
         if(userId == null){
             return false;
@@ -124,6 +131,9 @@ public class Board extends BaseEntity {
     }
 
     public void updateContext(List<RecipeIngredient> ingredients, List<Description> descriptions, String dishTime, String dishLevel, String dishCategory){
+        if(context == null){
+            this.context = Context.formMyUserRecipe(dishTime,dishLevel,dishCategory,ingredients, descriptions);
+        }
         context.update(ingredients, descriptions,dishTime,dishLevel,dishCategory);
     }
 
@@ -136,7 +146,7 @@ public class Board extends BaseEntity {
 
     public int hitTotalCount() {
         return boardUserEvent.stream()
-                .mapToInt(event -> event.getHit())
+                .mapToInt(BoardUserEvent::getHit)
                 .sum();
     }
 

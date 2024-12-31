@@ -33,17 +33,22 @@ public class RecipeIngredient {
         this.quantity = detail;
     }
 
+    public RecipeIngredient(Ingredient ingredient, String detail,Board board) {
+        this.ingredient = ingredient;
+        this.quantity = detail;
+        this.board=board;
+    }
+
     public static RecipeIngredient ofMyRecipe(Ingredient ingredient,  String detail){
         return new RecipeIngredient(ingredient, detail);
+    }
+    public static RecipeIngredient ofMyRecipe(Ingredient ingredient,  String detail,Board board){
+        return new RecipeIngredient(ingredient, detail,board);
     }
 
     public RecipeIngredient update(Ingredient ingredient, String details) {
         this.ingredient=ingredient;
         this.quantity=details;
         return this;
-    }
-
-    public void updateQuantity(String quantity) {
-        this.quantity=quantity;
     }
 }

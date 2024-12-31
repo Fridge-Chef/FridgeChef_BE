@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 
 public record BoardMyRecipePageResponse(SortType sortType, Long boardId, String title, String userName, String mainImage, Long mainImageId, double star, int hit, boolean myHit, boolean myMe, int click, LocalDateTime createTime) {
 
-
     public static BoardMyRecipePageResponse ofEntity(SortType sortType, Board entity, UserId userId) {
         String link = "";
         if (entity.getMainImage() != null && entity.getMainImage().getType() != null) {

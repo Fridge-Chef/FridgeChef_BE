@@ -32,7 +32,6 @@ public class RecipeSearchResponse {
     private long withoutCount;
     private List<String> without;
 
-
     private static RecipeSearchResponse of(Board board, List<String> pick, List<BoardUserEvent> boardUserEvents, Optional<UserId> user) {
         List<String> ingredients = Arrays.stream(board.getContext().getPathIngredient().split(","))
                 .toList();
