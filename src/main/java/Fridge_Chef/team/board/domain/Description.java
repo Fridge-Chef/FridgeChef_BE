@@ -28,6 +28,12 @@ public class Description {
         this.image = image;
     }
 
+    public Description(String description,Board board, Image image) {
+        this.description = description;
+        this.board=board;
+        this.image = image;
+    }
+
     public Description(Long id, Board board, String description, Image image) {
         this.id = id;
         this.board = board;
