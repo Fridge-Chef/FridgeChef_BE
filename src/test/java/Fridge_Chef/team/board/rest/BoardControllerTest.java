@@ -2,8 +2,6 @@ package Fridge_Chef.team.board.rest;
 
 
 import Fridge_Chef.team.board.domain.Description;
-import Fridge_Chef.team.board.repository.BoardDslRepository;
-import Fridge_Chef.team.board.repository.BoardRepository;
 import Fridge_Chef.team.board.repository.model.SortType;
 import Fridge_Chef.team.board.rest.request.BoardByRecipeDeleteRequest;
 import Fridge_Chef.team.board.rest.request.BoardByRecipeRequest;
@@ -22,7 +20,6 @@ import Fridge_Chef.team.image.service.ImageLocalService;
 import Fridge_Chef.team.recipe.domain.RecipeIngredient;
 import Fridge_Chef.team.user.domain.User;
 import Fridge_Chef.team.user.domain.UserId;
-import Fridge_Chef.team.user.repository.UserRepository;
 import fixture.UserFixture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -75,10 +72,10 @@ public class BoardControllerTest extends RestDocControllerTests {
         when(imageService.imageUpload(any(UserId.class), any(MultipartFile.class)))
                 .thenReturn(new Image("Fridge_chef.team.image-path", ImageType.ORACLE_CLOUD));
 
-        when(boardRecipeService.uploadInstructionImages(any(UserId.class), any(BoardByRecipeRequest.class)))
+        when(boardRecipeService.uploadInstructionImages(any(UserId.class), any(), any(BoardByRecipeRequest.class)))
                 .thenReturn(Collections.emptyList());
 
-        when(boardRecipeService.findOrCreate(any()))
+        when(boardRecipeService.findOrCreate(any(), any()))
                 .thenReturn(Collections.emptyList());
 
         List<CustomPart> formData = List.of(
@@ -235,7 +232,7 @@ public class BoardControllerTest extends RestDocControllerTests {
         when(boardRecipeService.uploadInstructionImages(any(UserId.class), any(BoardByRecipeUpdateRequest.class), anyList()))
                 .thenReturn(mockDescriptions);
 
-        when(boardRecipeService.findOrCreate(any()))
+        when(boardRecipeService.findOrCreate(any(), any()))
                 .thenReturn(mockIngredients);
 
         when(boardRecipeService.update(any(UserId.class),
