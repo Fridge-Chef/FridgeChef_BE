@@ -16,7 +16,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      DISCORD_WEBHOOK_URL: ${{ secrets,DISCOARD_WEBHOCK }}
+      DISCORD_WEBHOOK_URL: ${{ secrets.DISCOARD_WEBHOCK }}
       BACKUP_DIR: '/home/ubuntu/dev/backup'
       REMOTE_USER: 'ubuntu'
       REMOTE_HOST:  ${{ secrets.APP_SERVER_IP }}
